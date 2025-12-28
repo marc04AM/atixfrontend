@@ -6,8 +6,9 @@ import {
   Building2,
   Factory,
   Settings,
+  LogOut,
 } from 'lucide-react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
@@ -20,7 +21,10 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from '@/components/ui/sidebar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 const mainNavItems = [
   { title: 'Dashboard', url: '/', icon: LayoutDashboard },
@@ -31,11 +35,13 @@ const mainNavItems = [
 const managementItems = [
   { title: 'Clients', url: '/clients', icon: Building2 },
   { title: 'Plants', url: '/plants', icon: Factory },
-  { title: 'Users', url: '/users', icon: Users },
+  { title: 'Users', url: '/users', icon: Users, adminOnly: true },
 ];
 
 export function AppSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout, canManageUsers } = useAuth();
 
   const isActive = (url: string) => {
     if (url === '/') return location.pathname === '/';
@@ -87,40 +93,59 @@ export function AppSidebar() {
           <SidebarGroupLabel>Management</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {managementItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className={cn(
-                        'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                        isActive(item.url)
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                      )}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {managementItems
+                .filter((item) => !item.adminOnly || canManageUsers())
+                .map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        className={cn(
+                          'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                          isActive(item.url)
+                            ? 'bg-primary text-primary-foreground'
+                            : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                        )}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-4 space-y-2">
+        {user && (
+          <div className="flex items-center gap-3 px-3 py-2 rounded-md bg-sidebar-accent">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="text-xs">
+                {user.firstName[0]}{user.lastName[0]}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{user.firstName} {user.lastName}</p>
+              <p className="text-xs text-muted-foreground truncate">{user.role}</p>
+            </div>
+          </div>
+        )}
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <NavLink
-                to="/settings"
-                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-3 px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                onClick={() => {
+                  logout();
+                  navigate('/login');
+                }}
               >
-                <Settings className="h-4 w-4" />
-                <span>Settings</span>
-              </NavLink>
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

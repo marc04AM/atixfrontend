@@ -51,6 +51,25 @@ export const usersApi = {
   getAll: () => apiRequest<any[]>('/users'),
   getByType: (type: string) => apiRequest<any[]>(`/users/type/${type}`),
   getById: (id: string) => apiRequest<any>(`/users/${id}`),
+  create: (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    role: string;
+    userType: string;
+  }) =>
+    apiRequest<any>('/users', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  update: (id: string, data: any) =>
+    apiRequest<any>(`/users/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+  delete: (id: string) =>
+    apiRequest<void>(`/users/${id}`, { method: 'DELETE' }),
 };
 
 // Clients API
