@@ -1,13 +1,39 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Briefcase, Eye, EyeOff, Loader2, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { authApi } from '@/lib/api';
+
+// Demo users for testing without backend
+const DEMO_USERS = {
+  admin: {
+    token: 'demo-token-admin',
+    email: 'admin@demo.com',
+    firstName: 'Admin',
+    lastName: 'User',
+    role: 'ADMIN' as const,
+  },
+  owner: {
+    token: 'demo-token-owner',
+    email: 'owner@demo.com',
+    firstName: 'Owner',
+    lastName: 'User',
+    role: 'OWNER' as const,
+  },
+  user: {
+    token: 'demo-token-user',
+    email: 'user@demo.com',
+    firstName: 'Regular',
+    lastName: 'User',
+    role: 'USER' as const,
+  },
+};
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -18,6 +44,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleDemoLogin = (userType: keyof typeof DEMO_USERS) => {
+    const demoUser = DEMO_USERS[userType];
+    login(demoUser.token, {
+      email: demoUser.email,
+      firstName: demoUser.firstName,
+      lastName: demoUser.lastName,
+      role: demoUser.role,
+    });
+    
+    toast({
+      title: 'Demo Mode',
+      description: `Logged in as ${demoUser.firstName} ${demoUser.lastName} (${demoUser.role})`,
+    });
+    
+    navigate('/');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +115,51 @@ export default function LoginPage() {
           <CardTitle className="text-2xl">Welcome to Grappolo</CardTitle>
           <CardDescription>Sign in to your account to continue</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
+          {/* Demo Login Section */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Play className="h-4 w-4" />
+              <span>Quick Demo Access</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDemoLogin('admin')}
+                className="text-xs"
+              >
+                Admin
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDemoLogin('owner')}
+                className="text-xs"
+              >
+                Owner
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDemoLogin('user')}
+                className="text-xs"
+              >
+                User
+              </Button>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <Separator className="w-full" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">Or sign in with email</span>
+            </div>
+          </div>
+
+          {/* Email Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
