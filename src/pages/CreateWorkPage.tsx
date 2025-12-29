@@ -26,10 +26,10 @@ import { useToast } from '@/hooks/use-toast';
 
 // Mock data
 const mockClients: Client[] = [
-  { id: 'c1', name: 'Atix Industries', type: 'COMPANY' },
-  { id: 'c2', name: 'Final Corp', type: 'COMPANY' },
-  { id: 'c3', name: 'Tech Solutions', type: 'COMPANY' },
-  { id: 'c4', name: 'Industrial Co', type: 'COMPANY' },
+  { id: 'c1', name: 'Atix Industries', type: 'ATIX' },
+  { id: 'c2', name: 'Final Corp', type: 'FINAL' },
+  { id: 'c3', name: 'Tech Solutions', type: 'ATIX' },
+  { id: 'c4', name: 'Industrial Co', type: 'ATIX' },
 ];
 
 const mockPlants: Plant[] = [
@@ -71,7 +71,7 @@ export default function CreateWorkPage() {
 
   // Add client dialog
   const [isAddClientOpen, setIsAddClientOpen] = useState(false);
-  const [newClient, setNewClient] = useState({ name: '', type: 'COMPANY' });
+  const [newClient, setNewClient] = useState({ name: '', type: 'ATIX' });
 
   // Add plant dialog
   const [isAddPlantOpen, setIsAddPlantOpen] = useState(false);
@@ -88,12 +88,12 @@ export default function CreateWorkPage() {
     const client: Client = {
       id: `c${Date.now()}`,
       name: newClient.name,
-      type: newClient.type as 'INDIVIDUAL' | 'COMPANY',
+      type: newClient.type as 'ATIX' | 'FINAL',
     };
     setClients([...clients, client]);
     setFormData({ ...formData, atixClientId: client.id });
     setIsAddClientOpen(false);
-    setNewClient({ name: '', type: 'COMPANY' });
+    setNewClient({ name: '', type: 'ATIX' });
     toast({
       title: 'Client Added',
       description: `${client.name} has been added successfully.`,
@@ -321,8 +321,8 @@ export default function CreateWorkPage() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="COMPANY">Company</SelectItem>
-                              <SelectItem value="INDIVIDUAL">Individual</SelectItem>
+                              <SelectItem value="ATIX">ATIX</SelectItem>
+                              <SelectItem value="FINAL">Final</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>

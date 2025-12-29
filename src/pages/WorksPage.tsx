@@ -48,8 +48,8 @@ const mockWorks: Work[] = [
     expectedPlantHours: 80,
     seller: { id: 's1', firstName: 'Marco', lastName: 'Rossi', email: 'marco@company.com', role: 'USER', userType: 'SELLER' },
     plant: { id: 'p1', name: 'Plant Alpha', notes: '', nasDirectory: '/nas/alpha', pswPhrase: '', pswPlatform: '', pswStation: '' },
-    atixClient: { id: 'c1', name: 'Atix Industries', type: 'COMPANY' },
-    finalClient: { id: 'c2', name: 'Final Corp', type: 'COMPANY' },
+    atixClient: { id: 'c1', name: 'Atix Industries', type: 'ATIX' },
+    finalClient: { id: 'c2', name: 'Final Corp', type: 'FINAL' },
   },
   { 
     id: '2', 
@@ -68,7 +68,7 @@ const mockWorks: Work[] = [
     expectedPlantHours: 40,
     seller: { id: 's1', firstName: 'Marco', lastName: 'Rossi', email: 'marco@company.com', role: 'USER', userType: 'SELLER' },
     plant: { id: 'p2', name: 'Plant Beta', notes: '', nasDirectory: '/nas/beta', pswPhrase: '', pswPlatform: '', pswStation: '' },
-    atixClient: { id: 'c3', name: 'Tech Solutions', type: 'COMPANY' },
+    atixClient: { id: 'c3', name: 'Tech Solutions', type: 'ATIX' },
   },
   { 
     id: '3', 
@@ -88,7 +88,7 @@ const mockWorks: Work[] = [
     expectedPlantHours: 32,
     seller: { id: 's2', firstName: 'Laura', lastName: 'Bianchi', email: 'laura@company.com', role: 'USER', userType: 'SELLER' },
     plant: { id: 'p1', name: 'Plant Alpha', notes: '', nasDirectory: '/nas/alpha', pswPhrase: '', pswPlatform: '', pswStation: '' },
-    atixClient: { id: 'c1', name: 'Atix Industries', type: 'COMPANY' },
+    atixClient: { id: 'c1', name: 'Atix Industries', type: 'ATIX' },
   },
   { 
     id: '4', 
@@ -106,7 +106,7 @@ const mockWorks: Work[] = [
     expectedPlantHours: 120,
     seller: { id: 's2', firstName: 'Laura', lastName: 'Bianchi', email: 'laura@company.com', role: 'USER', userType: 'SELLER' },
     plant: { id: 'p3', name: 'Plant Gamma', notes: '', nasDirectory: '/nas/gamma', pswPhrase: '', pswPlatform: '', pswStation: '' },
-    atixClient: { id: 'c4', name: 'Industrial Co', type: 'COMPANY' },
+    atixClient: { id: 'c4', name: 'Industrial Co', type: 'ATIX' },
   },
   { 
     id: '5', 
@@ -126,15 +126,15 @@ const mockWorks: Work[] = [
     expectedPlantHours: 16,
     seller: { id: 's1', firstName: 'Marco', lastName: 'Rossi', email: 'marco@company.com', role: 'USER', userType: 'SELLER' },
     plant: { id: 'p2', name: 'Plant Beta', notes: '', nasDirectory: '/nas/beta', pswPhrase: '', pswPlatform: '', pswStation: '' },
-    atixClient: { id: 'c2', name: 'Final Corp', type: 'COMPANY' },
+    atixClient: { id: 'c2', name: 'Final Corp', type: 'FINAL' },
   },
 ];
 
 const mockClients: Client[] = [
-  { id: 'c1', name: 'Atix Industries', type: 'COMPANY' },
-  { id: 'c2', name: 'Final Corp', type: 'COMPANY' },
-  { id: 'c3', name: 'Tech Solutions', type: 'COMPANY' },
-  { id: 'c4', name: 'Industrial Co', type: 'COMPANY' },
+  { id: 'c1', name: 'Atix Industries', type: 'ATIX' },
+  { id: 'c2', name: 'Final Corp', type: 'FINAL' },
+  { id: 'c3', name: 'Tech Solutions', type: 'ATIX' },
+  { id: 'c4', name: 'Industrial Co', type: 'ATIX' },
 ];
 
 const mockPlants: Plant[] = [

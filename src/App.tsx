@@ -14,7 +14,10 @@ import WorkDetailPage from "./pages/WorkDetailPage";
 import CreateWorkPage from "./pages/CreateWorkPage";
 import UsersPage from "./pages/UsersPage";
 import ClientsPage from "./pages/ClientsPage";
+import ClientDetailPage from "./pages/ClientDetailPage";
 import PlantsPage from "./pages/PlantsPage";
+import PlantDetailPage from "./pages/PlantDetailPage";
+import ProfilePage from "./pages/ProfilePage";
 import LoginPage from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";
 
@@ -43,7 +46,10 @@ const App = () => (
                       <Route path="/works/:id" element={<WorkDetailPage />} />
                       <Route path="/users" element={<UsersPage />} />
                       <Route path="/clients" element={<ClientsPage />} />
+                      <Route path="/clients/:id" element={<ClientDetailPage />} />
                       <Route path="/plants" element={<PlantsPage />} />
+                      <Route path="/plants/:id" element={<PlantDetailPage />} />
+                      <Route path="/profile" element={<ProfilePage />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>

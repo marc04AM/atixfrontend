@@ -69,8 +69,8 @@ const mockWork: Work = {
   expectedPlantHours: 80,
   seller: { id: 's1', firstName: 'Marco', lastName: 'Rossi', email: 'marco@company.com', role: 'USER', userType: 'SELLER' },
   plant: { id: 'p1', name: 'Plant Alpha', notes: '', nasDirectory: '/nas/alpha', pswPhrase: '', pswPlatform: '', pswStation: '' },
-  atixClient: { id: 'c1', name: 'Atix Industries', type: 'COMPANY' },
-  finalClient: { id: 'c2', name: 'Final Corp', type: 'COMPANY' },
+  atixClient: { id: 'c1', name: 'Atix Industries', type: 'ATIX' },
+  finalClient: { id: 'c2', name: 'Final Corp', type: 'FINAL' },
   assignments: [
     { id: 'a1', assignedAt: '2024-01-16T09:00:00', user: { id: 't1', firstName: 'Giuseppe', lastName: 'Verdi', email: 'giuseppe@company.com', role: 'USER', userType: 'TECHNICIAN' } }
   ],
