@@ -2,28 +2,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Building2, 
-  Factory, 
-  CheckCircle2, 
-  Clock, 
-  Ticket,
   Briefcase,
-  TrendingUp,
+  Ticket,
   AlertCircle
 } from 'lucide-react';
 import { TicketStatus } from '@/types';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 // Mock data - replace with real API calls
 const mockDashboardData = {
-  clientCount: 45,
-  plantCount: 23,
-  completedWorkCount: 128,
-  pendingWorkCount: 34,
   ticketStatusCounts: [
     { status: 'OPEN' as TicketStatus, count: 12 },
     { status: 'IN_PROGRESS' as TicketStatus, count: 8 },
     { status: 'RESOLVED' as TicketStatus, count: 5 },
     { status: 'CLOSED' as TicketStatus, count: 45 },
+  ],
+  workStatusCounts: [
+    { status: 'PENDING', count: 15, label: 'Pending' },
+    { status: 'IN_PROGRESS', count: 22, label: 'In Progress' },
+    { status: 'COMPLETED', count: 38, label: 'Completed' },
+    { status: 'INVOICED', count: 52, label: 'Invoiced' },
   ],
   recentWorks: [
     { id: '1', name: 'Automation System Upgrade', orderDate: '2024-01-15', completed: false, invoiced: false },
@@ -56,43 +54,26 @@ const getTicketStatusColor = (status: TicketStatus) => {
   }
 };
 
+// Chart colors using CSS variable fallbacks
+const WORK_COLORS = ['hsl(var(--chart-4))', 'hsl(var(--primary))', 'hsl(var(--chart-3))', 'hsl(var(--chart-2))'];
+const TICKET_COLORS = ['hsl(var(--destructive))', 'hsl(var(--primary))', 'hsl(var(--chart-3))', 'hsl(var(--muted-foreground))'];
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const data = mockDashboardData;
 
-  const statCards = [
-    {
-      title: 'Total Clients',
-      value: data.clientCount,
-      icon: Building2,
-      color: 'text-primary',
-      bgColor: 'bg-primary/10',
-    },
-    {
-      title: 'Total Plants',
-      value: data.plantCount,
-      icon: Factory,
-      color: 'text-chart-2',
-      bgColor: 'bg-chart-2/10',
-    },
-    {
-      title: 'Completed Works',
-      value: data.completedWorkCount,
-      icon: CheckCircle2,
-      color: 'text-chart-3',
-      bgColor: 'bg-chart-3/10',
-    },
-    {
-      title: 'Pending Works',
-      value: data.pendingWorkCount,
-      icon: Clock,
-      color: 'text-chart-4',
-      bgColor: 'bg-chart-4/10',
-    },
-  ];
-
   const openTickets = data.ticketStatusCounts.find(t => t.status === 'OPEN')?.count || 0;
   const inProgressTickets = data.ticketStatusCounts.find(t => t.status === 'IN_PROGRESS')?.count || 0;
+
+  const ticketChartData = data.ticketStatusCounts.map(t => ({
+    name: t.status.replace('_', ' '),
+    value: t.count,
+  }));
+
+  const workChartData = data.workStatusCounts.map(w => ({
+    name: w.label,
+    value: w.count,
+  }));
 
   return (
     <div className="space-y-6">
@@ -104,49 +85,89 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((stat) => (
-          <Card key={stat.title} className="hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {stat.title}
-              </CardTitle>
-              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {/* Charts Row */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Work Status Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Briefcase className="h-5 w-5 text-primary" />
+              Works by Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[280px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={workChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={2}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
+                  >
+                    {workChartData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={WORK_COLORS[index % WORK_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--popover))', 
+                      borderColor: 'hsl(var(--border))',
+                      borderRadius: '8px'
+                    }} 
+                  />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Ticket Status Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {data.ticketStatusCounts.map((ticketStatus) => (
-          <Card 
-            key={ticketStatus.status} 
-            className="cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => navigate(`/tickets?status=${ticketStatus.status}`)}
-          >
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {ticketStatus.status.replace('_', ' ')}
-                  </p>
-                  <p className="text-2xl font-bold mt-1">{ticketStatus.count}</p>
-                </div>
-                <Badge className={getTicketStatusColor(ticketStatus.status)}>
-                  <Ticket className="h-3 w-3 mr-1" />
-                  Tickets
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        {/* Ticket Status Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Ticket className="h-5 w-5 text-primary" />
+              Tickets by Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[280px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={ticketChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={2}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
+                  >
+                    {ticketChartData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={TICKET_COLORS[index % TICKET_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--popover))', 
+                      borderColor: 'hsl(var(--border))',
+                      borderRadius: '8px'
+                    }} 
+                  />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Alert Banner */}
@@ -195,22 +216,12 @@ export default function Dashboard() {
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    {work.completed ? (
-                      <Badge variant="outline" className="border-chart-3 text-chart-3">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                        Completed
-                      </Badge>
+                    {work.invoiced ? (
+                      <Badge variant="secondary">Invoiced</Badge>
+                    ) : work.completed ? (
+                      <Badge className="bg-chart-3/20 text-chart-3 border-chart-3">Completed</Badge>
                     ) : (
-                      <Badge variant="outline" className="border-primary text-primary">
-                        <Clock className="h-3 w-3 mr-1" />
-                        In Progress
-                      </Badge>
-                    )}
-                    {work.invoiced && (
-                      <Badge variant="secondary">
-                        <TrendingUp className="h-3 w-3 mr-1" />
-                        Invoiced
-                      </Badge>
+                      <Badge variant="outline">In Progress</Badge>
                     )}
                   </div>
                 </div>

@@ -1,7 +1,8 @@
 // Enums
 export type UserRole = 'ADMIN' | 'OWNER' | 'USER';
 export type UserType = 'TECHNICIAN' | 'ADMINISTRATION' | 'SELLER';
-export type ClientType = 'INDIVIDUAL' | 'COMPANY';
+export type ClientType = 'ATIX' | 'FINAL';
+export type WorkStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'INVOICED';
 export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
 export type AttachmentType = 'PHOTO' | 'PDF' | 'DOC' | 'OTHER';
 export type AttachmentTargetType = 'WORK' | 'PLANT' | 'TICKET' | 'REPORT';
