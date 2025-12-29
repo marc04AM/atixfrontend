@@ -56,7 +56,7 @@ export function AppSidebar() {
             <Briefcase className="h-5 w-5 text-primary-foreground" />
           </div>
           <div className="flex flex-col">
-            <span className="font-semibold text-sidebar-foreground">Grappolo</span>
+            <span className="font-semibold text-sidebar-foreground">ATIX MS</span>
             <span className="text-xs text-muted-foreground">Work Management</span>
           </div>
         </div>
