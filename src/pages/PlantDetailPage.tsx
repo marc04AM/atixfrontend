@@ -237,7 +237,7 @@ export default function PlantDetailPage() {
         targetId={id || ''}
         attachments={attachments}
         onAttachmentsChange={setAttachments}
-        readOnly={!isEditing}
+        readOnly={false}
       />
     </div>
   );
