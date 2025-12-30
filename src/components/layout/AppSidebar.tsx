@@ -7,6 +7,7 @@ import {
   Factory,
   Settings,
   LogOut,
+  User,
 } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -120,7 +121,15 @@ export function AppSidebar() {
 
       <SidebarFooter className="p-4 space-y-2">
         {user && (
-          <div className="flex items-center gap-3 px-3 py-2 rounded-md bg-sidebar-accent">
+          <NavLink
+            to="/profile"
+            className={cn(
+              'flex items-center gap-3 px-3 py-2 rounded-md transition-colors',
+              isActive('/profile')
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-sidebar-accent hover:bg-sidebar-accent/80'
+            )}
+          >
             <Avatar className="h-8 w-8">
               <AvatarFallback className="text-xs">
                 {user.firstName[0]}{user.lastName[0]}
@@ -130,7 +139,8 @@ export function AppSidebar() {
               <p className="text-sm font-medium truncate">{user.firstName} {user.lastName}</p>
               <p className="text-xs text-muted-foreground truncate">{user.role}</p>
             </div>
-          </div>
+            <User className="h-4 w-4 text-muted-foreground" />
+          </NavLink>
         )}
         <SidebarMenu>
           <SidebarMenuItem>
