@@ -294,14 +294,25 @@ export default function UsersPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+      <div className="grid gap-4 md:grid-cols-5">
+        <Card className="md:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
             <UserPlus className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{users.length}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Sellers</CardTitle>
+            <span className="text-lg">💼</span>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {users.filter((u) => u.userType === 'SELLER').length}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -317,12 +328,12 @@ export default function UsersPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Administrators</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Administration</CardTitle>
+            <span className="text-lg">📋</span>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.filter((u) => u.role === 'ADMIN' || u.role === 'OWNER').length}
+              {users.filter((u) => u.userType === 'ADMINISTRATION').length}
             </div>
           </CardContent>
         </Card>
