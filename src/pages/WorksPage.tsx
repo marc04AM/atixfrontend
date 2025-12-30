@@ -344,13 +344,20 @@ export default function WorksPage() {
   );
 }
 
-function WorksList({ 
-  works, 
-  navigate 
-}: { 
-  works: Work[]; 
+function WorksList({
+  works,
+  navigate
+}: {
+  works: Work[];
   navigate: (path: string) => void;
 }) {
+  // Generate work index (e.g., "nasplant1work1")
+  const getWorkIndex = (work: Work): string => {
+    const plantDir = work.plant?.nasDirectory || '';
+    const workDir = work.nasSubDirectory || '';
+    return (plantDir + workDir).toLowerCase().replace(/\//g, '');
+  };
+
   if (works.length === 0) {
     return (
       <Card>
@@ -378,6 +385,9 @@ function WorksList({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <h3 className="font-medium">{work.name}</h3>
+                  <Badge variant="outline" className="font-mono text-xs">
+                    {getWorkIndex(work)}
+                  </Badge>
                   {work.completed ? (
                     <Badge variant="outline" className="border-chart-3 text-chart-3">
                       <CheckCircle2 className="h-3 w-3 mr-1" />

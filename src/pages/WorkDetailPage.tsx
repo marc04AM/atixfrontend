@@ -149,6 +149,20 @@ export default function WorkDetailPage() {
     if (work.completed) return 'COMPLETED';
     return 'IN_PROGRESS';
   };
+
+  // Generate work index (e.g., "nasplant1work1")
+  const getWorkIndex = (): string => {
+    const plantDir = work.plant?.nasDirectory || '';
+    const workDir = work.nasSubDirectory || '';
+    return (plantDir + workDir).toLowerCase().replace(/\//g, '');
+  };
+
+  // Get full directory path
+  const getFullDirectory = (): string => {
+    const plantDir = work.plant?.nasDirectory || '';
+    const workDir = work.nasSubDirectory || '';
+    return plantDir + workDir;
+  };
   const handleStatusChange = (status: WorkStatus) => {
     const updates: Partial<Work> = {};
     switch (status) {
@@ -287,6 +301,9 @@ export default function WorkDetailPage() {
             <h1 className="text-2xl font-bold tracking-tight">
               {isEditing ? 'Edit Work' : work.name}
             </h1>
+            <Badge variant="outline" className="font-mono text-xs">
+              {getWorkIndex()}
+            </Badge>
             <Select value={getWorkStatus()} onValueChange={value => handleStatusChange(value as WorkStatus)}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue />
@@ -313,7 +330,7 @@ export default function WorkDetailPage() {
               </SelectContent>
             </Select>
           </div>
-          
+
         </div>
         <div className="flex gap-2 flex-wrap">
           {!isEditing ? <>
@@ -570,6 +587,13 @@ export default function WorkDetailPage() {
                   <div>
                     <Label className="text-muted-foreground text-xs">Plant</Label>
                     <p className="text-sm font-medium">{work.plant.name}</p>
+                  </div>
+                </div>}
+              {work.plant && work.nasSubDirectory && <div className="flex items-center gap-3">
+                  <Factory className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex-1">
+                    <Label className="text-muted-foreground text-xs">Directory</Label>
+                    <p className="text-sm font-mono break-all">{getFullDirectory()}</p>
                   </div>
                 </div>}
               {work.seller && <div className="flex items-center gap-3">
