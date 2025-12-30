@@ -171,38 +171,40 @@ export default function ClientDetailPage() {
           {mockLinkedWorks.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">No linked works</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Order Number</TableHead>
-                  <TableHead>Order Date</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mockLinkedWorks.map((work) => (
-                  <TableRow
-                    key={work.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => navigate(`/works/${work.id}`)}
-                  >
-                    <TableCell className="font-medium">{work.name}</TableCell>
-                    <TableCell>{work.orderNumber}</TableCell>
-                    <TableCell>{new Date(work.orderDate).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      {work.invoiced ? (
-                        <Badge variant="secondary">Invoiced</Badge>
-                      ) : work.completed ? (
-                        <Badge className="bg-chart-3 text-chart-3-foreground">Completed</Badge>
-                      ) : (
-                        <Badge variant="outline">In Progress</Badge>
-                      )}
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Order Number</TableHead>
+                    <TableHead>Order Date</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {mockLinkedWorks.map((work) => (
+                    <TableRow
+                      key={work.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => navigate(`/works/${work.id}`)}
+                    >
+                      <TableCell className="font-medium">{work.name}</TableCell>
+                      <TableCell>{work.orderNumber}</TableCell>
+                      <TableCell>{new Date(work.orderDate).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        {work.invoiced ? (
+                          <Badge variant="secondary">Invoiced</Badge>
+                        ) : work.completed ? (
+                          <Badge className="bg-chart-3 text-chart-3-foreground">Completed</Badge>
+                        ) : (
+                          <Badge variant="outline">In Progress</Badge>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

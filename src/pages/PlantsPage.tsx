@@ -175,35 +175,37 @@ export default function PlantsPage() {
               />
             </div>
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Notes</TableHead>
-                <TableHead>NAS Directory</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredPlants.map((plant) => (
-                <TableRow
-                  key={plant.id}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => navigate(`/plants/${plant.id}`)}
-                >
-                  <TableCell className="font-medium">{plant.name}</TableCell>
-                  <TableCell className="text-muted-foreground">{plant.notes}</TableCell>
-                  <TableCell className="font-mono text-sm">{plant.nasDirectory}</TableCell>
-                </TableRow>
-              ))}
-              {filteredPlants.length === 0 && (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center text-muted-foreground">
-                    No plants found
-                  </TableCell>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Notes</TableHead>
+                  <TableHead>NAS Directory</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredPlants.map((plant) => (
+                  <TableRow
+                    key={plant.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => navigate(`/plants/${plant.id}`)}
+                  >
+                    <TableCell className="font-medium">{plant.name}</TableCell>
+                    <TableCell className="text-muted-foreground">{plant.notes}</TableCell>
+                    <TableCell className="font-mono text-sm">{plant.nasDirectory}</TableCell>
+                  </TableRow>
+                ))}
+                {filteredPlants.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center text-muted-foreground">
+                      No plants found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 

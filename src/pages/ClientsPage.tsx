@@ -154,41 +154,43 @@ export default function ClientsPage() {
               />
             </div>
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredClients.map((client) => (
-                <TableRow
-                  key={client.id}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => navigate(`/clients/${client.id}`)}
-                >
-                  <TableCell className="font-medium">{client.name}</TableCell>
-                  <TableCell>
-                    <Badge variant={client.type === 'ATIX' ? 'default' : 'secondary'}>
-                      {client.type === 'ATIX' ? (
-                        <><Building2 className="mr-1 h-3 w-3" /> ATIX</>
-                      ) : (
-                        <><User className="mr-1 h-3 w-3" /> Final</>
-                      )}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {filteredClients.length === 0 && (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={2} className="text-center text-muted-foreground">
-                    No clients found
-                  </TableCell>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Type</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredClients.map((client) => (
+                  <TableRow
+                    key={client.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => navigate(`/clients/${client.id}`)}
+                  >
+                    <TableCell className="font-medium">{client.name}</TableCell>
+                    <TableCell>
+                      <Badge variant={client.type === 'ATIX' ? 'default' : 'secondary'}>
+                        {client.type === 'ATIX' ? (
+                          <><Building2 className="mr-1 h-3 w-3" /> ATIX</>
+                        ) : (
+                          <><User className="mr-1 h-3 w-3" /> Final</>
+                        )}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {filteredClients.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={2} className="text-center text-muted-foreground">
+                      No clients found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
