@@ -48,8 +48,9 @@ import {
   Trash2,
   UserPlus
 } from 'lucide-react';
-import { Work, WorkReportEntry, User as UserType } from '@/types';
+import { Work, WorkReportEntry, User as UserType, WorkStatus, Attachment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import AttachmentManager from '@/components/AttachmentManager';
 
 // Mock data
 const mockWork: Work = {
@@ -107,6 +108,7 @@ export default function WorkDetailPage() {
   const [work, setWork] = useState<Work>(mockWork);
   const [editedWork, setEditedWork] = useState<Work>(mockWork);
   const [reportEntries, setReportEntries] = useState<WorkReportEntry[]>(mockReportEntries);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   
   // New entry dialog
   const [isAddEntryOpen, setIsAddEntryOpen] = useState(false);
@@ -117,6 +119,42 @@ export default function WorkDetailPage() {
   const [selectedTechnician, setSelectedTechnician] = useState('');
 
   const isAdmin = currentUser.role === 'ADMIN' || currentUser.role === 'OWNER';
+
+  // Work status helper
+  const getWorkStatus = (): WorkStatus => {
+    if (work.invoiced) return 'INVOICED';
+    if (work.completed) return 'COMPLETED';
+    return 'IN_PROGRESS';
+  };
+
+  const handleStatusChange = (status: WorkStatus) => {
+    const updates: Partial<Work> = {};
+    switch (status) {
+      case 'INVOICED':
+        updates.invoiced = true;
+        updates.invoicedAt = new Date().toISOString();
+        updates.completed = true;
+        updates.completedAt = work.completedAt || new Date().toISOString();
+        break;
+      case 'COMPLETED':
+        updates.completed = true;
+        updates.completedAt = new Date().toISOString();
+        updates.invoiced = false;
+        updates.invoicedAt = undefined;
+        break;
+      case 'IN_PROGRESS':
+        updates.completed = false;
+        updates.completedAt = undefined;
+        updates.invoiced = false;
+        updates.invoicedAt = undefined;
+        break;
+    }
+    setWork({ ...work, ...updates });
+    toast({
+      title: 'Status Updated',
+      description: `Work status changed to ${status.replace('_', ' ').toLowerCase()}.`,
+    });
+  };
   const isAssigned = work.assignments?.some(a => a.user?.id === currentUser.id);
 
   const handleSave = () => {
@@ -233,23 +271,31 @@ export default function WorkDetailPage() {
             <h1 className="text-2xl font-bold tracking-tight">
               {isEditing ? 'Edit Work' : work.name}
             </h1>
-            {work.completed ? (
-              <Badge variant="outline" className="border-chart-3 text-chart-3">
-                <CheckCircle2 className="h-3 w-3 mr-1" />
-                Completed
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="border-primary text-primary">
-                <Clock className="h-3 w-3 mr-1" />
-                In Progress
-              </Badge>
-            )}
-            {work.invoiced && (
-              <Badge variant="secondary">
-                <TrendingUp className="h-3 w-3 mr-1" />
-                Invoiced
-              </Badge>
-            )}
+            <Select value={getWorkStatus()} onValueChange={(value) => handleStatusChange(value as WorkStatus)}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="IN_PROGRESS">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-3 w-3" />
+                    In Progress
+                  </div>
+                </SelectItem>
+                <SelectItem value="COMPLETED">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Completed
+                  </div>
+                </SelectItem>
+                <SelectItem value="INVOICED">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-3 w-3" />
+                    Invoiced
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <p className="text-muted-foreground mt-1">
             Order: {work.orderNumber} • Bid: {work.bidNumber}
@@ -524,6 +570,15 @@ export default function WorkDetailPage() {
               )}
             </CardContent>
           </Card>
+
+          {/* Attachments */}
+          <AttachmentManager
+            targetType="WORK"
+            targetId={id || ''}
+            attachments={attachments}
+            onAttachmentsChange={setAttachments}
+            readOnly={false}
+          />
         </div>
 
         {/* Sidebar */}
