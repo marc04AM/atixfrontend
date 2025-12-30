@@ -34,8 +34,9 @@ import {
   X,
   Trash2
 } from 'lucide-react';
-import { TicketStatus, Ticket } from '@/types';
+import { TicketStatus, Ticket, Attachment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import AttachmentManager from '@/components/AttachmentManager';
 
 // Mock data - in real app, fetch from API
 const mockTicket: Ticket = {
@@ -70,6 +71,15 @@ export default function TicketDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [ticket, setTicket] = useState<Ticket>(mockTicket);
   const [editedTicket, setEditedTicket] = useState<Ticket>(mockTicket);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+
+  const handleStatusChange = (status: TicketStatus) => {
+    setTicket({ ...ticket, status });
+    toast({
+      title: 'Status Updated',
+      description: `Ticket status changed to ${status.replace('_', ' ').toLowerCase()}.`,
+    });
+  };
 
   const handleSave = () => {
     setTicket(editedTicket);
@@ -113,13 +123,21 @@ export default function TicketDetailPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold tracking-tight">
               {isEditing ? 'Edit Ticket' : ticket.name}
             </h1>
-            <Badge className={getTicketStatusColor(ticket.status)}>
-              {ticket.status.replace('_', ' ')}
-            </Badge>
+            <Select value={ticket.status} onValueChange={(value) => handleStatusChange(value as TicketStatus)}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="OPEN">Open</SelectItem>
+                <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                <SelectItem value="RESOLVED">Resolved</SelectItem>
+                <SelectItem value="CLOSED">Closed</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <p className="text-muted-foreground mt-1">Ticket #{id}</p>
         </div>
@@ -214,6 +232,15 @@ export default function TicketDetailPage() {
               )}
             </CardContent>
           </Card>
+
+          {/* Attachments */}
+          <AttachmentManager
+            targetType="TICKET"
+            targetId={id || ''}
+            attachments={attachments}
+            onAttachmentsChange={setAttachments}
+            readOnly={false}
+          />
         </div>
 
         {/* Sidebar */}

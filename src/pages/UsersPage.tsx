@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, UserPlus, Mail, Shield, Briefcase } from 'lucide-react';
+import { Plus, Search, UserPlus, Mail, Shield, Briefcase, Trash2, Edit2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +20,17 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
   Table,
   TableBody,
   TableCell,
@@ -34,8 +45,17 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole, UserType } from '@/types';
 
+interface UserData {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: UserRole;
+  userType: UserType;
+}
+
 // Mock data for users
-const mockUsers = [
+const initialMockUsers: UserData[] = [
   { id: '1', firstName: 'Mario', lastName: 'Rossi', email: 'mario.rossi@example.com', role: 'ADMIN' as UserRole, userType: 'ADMINISTRATION' as UserType },
   { id: '2', firstName: 'Luigi', lastName: 'Verdi', email: 'luigi.verdi@example.com', role: 'USER' as UserRole, userType: 'TECHNICIAN' as UserType },
   { id: '3', firstName: 'Anna', lastName: 'Bianchi', email: 'anna.bianchi@example.com', role: 'USER' as UserRole, userType: 'SELLER' as UserType },
@@ -45,8 +65,11 @@ const mockUsers = [
 export default function UsersPage() {
   const { toast } = useToast();
   const { canManageUsers } = useAuth();
+  const [users, setUsers] = useState<UserData[]>(initialMockUsers);
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserData | null>(null);
   const [newUser, setNewUser] = useState({
     firstName: '',
     lastName: '',
@@ -57,7 +80,7 @@ export default function UsersPage() {
   });
 
   // Filter users based on search
-  const filteredUsers = mockUsers.filter((user) => {
+  const filteredUsers = users.filter((user) => {
     const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
     return (
       fullName.includes(searchQuery.toLowerCase()) ||
@@ -75,7 +98,16 @@ export default function UsersPage() {
       return;
     }
 
-    // Here you would call the API to create the user
+    const createdUser: UserData = {
+      id: String(Date.now()),
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      email: newUser.email,
+      role: newUser.role,
+      userType: newUser.userType,
+    };
+    setUsers([...users, createdUser]);
+    
     toast({
       title: 'User Created',
       description: `${newUser.firstName} ${newUser.lastName} has been created successfully.`,
@@ -90,6 +122,33 @@ export default function UsersPage() {
       userType: 'TECHNICIAN',
     });
     setIsCreateDialogOpen(false);
+  };
+
+  const handleEditUser = () => {
+    if (!editingUser) return;
+    
+    setUsers(users.map((u) => (u.id === editingUser.id ? editingUser : u)));
+    toast({
+      title: 'User Updated',
+      description: `${editingUser.firstName} ${editingUser.lastName} has been updated.`,
+    });
+    setIsEditDialogOpen(false);
+    setEditingUser(null);
+  };
+
+  const handleDeleteUser = (userId: string) => {
+    const user = users.find((u) => u.id === userId);
+    setUsers(users.filter((u) => u.id !== userId));
+    toast({
+      title: 'User Deleted',
+      description: `${user?.firstName} ${user?.lastName} has been deleted.`,
+      variant: 'destructive',
+    });
+  };
+
+  const openEditDialog = (user: UserData) => {
+    setEditingUser({ ...user });
+    setIsEditDialogOpen(true);
   };
 
   const getRoleBadgeVariant = (role: UserRole) => {
@@ -242,7 +301,7 @@ export default function UsersPage() {
             <UserPlus className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockUsers.length}</div>
+            <div className="text-2xl font-bold">{users.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -252,7 +311,7 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockUsers.filter((u) => u.userType === 'TECHNICIAN').length}
+              {users.filter((u) => u.userType === 'TECHNICIAN').length}
             </div>
           </CardContent>
         </Card>
@@ -263,7 +322,7 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockUsers.filter((u) => u.role === 'ADMIN' || u.role === 'OWNER').length}
+              {users.filter((u) => u.role === 'ADMIN' || u.role === 'OWNER').length}
             </div>
           </CardContent>
         </Card>
@@ -328,9 +387,30 @@ export default function UsersPage() {
                     <Badge variant={getRoleBadgeVariant(user.role)}>{user.role}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm">
-                      Edit
-                    </Button>
+                    <div className="flex justify-end gap-2">
+                      <Button variant="ghost" size="sm" onClick={() => openEditDialog(user)}>
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete User</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete {user.firstName} {user.lastName}? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteUser(user.id)}>Delete</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -345,6 +425,89 @@ export default function UsersPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Edit User Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>
+              Update user information.
+            </DialogDescription>
+          </DialogHeader>
+          {editingUser && (
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="editFirstName">First Name *</Label>
+                  <Input
+                    id="editFirstName"
+                    value={editingUser.firstName}
+                    onChange={(e) => setEditingUser({ ...editingUser, firstName: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editLastName">Last Name *</Label>
+                  <Input
+                    id="editLastName"
+                    value={editingUser.lastName}
+                    onChange={(e) => setEditingUser({ ...editingUser, lastName: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editEmail">Email *</Label>
+                <Input
+                  id="editEmail"
+                  type="email"
+                  value={editingUser.email}
+                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="editRole">Role *</Label>
+                  <Select
+                    value={editingUser.role}
+                    onValueChange={(value: UserRole) => setEditingUser({ ...editingUser, role: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USER">User</SelectItem>
+                      <SelectItem value="ADMIN">Admin</SelectItem>
+                      <SelectItem value="OWNER">Owner</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editUserType">User Type *</Label>
+                  <Select
+                    value={editingUser.userType}
+                    onValueChange={(value: UserType) => setEditingUser({ ...editingUser, userType: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="TECHNICIAN">Technician</SelectItem>
+                      <SelectItem value="ADMINISTRATION">Administration</SelectItem>
+                      <SelectItem value="SELLER">Seller</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEditUser}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
