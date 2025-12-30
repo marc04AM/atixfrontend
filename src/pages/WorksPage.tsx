@@ -32,15 +32,16 @@ import { Work, Client, Plant, SellerUser } from '@/types';
 
 // Mock data
 const mockWorks: Work[] = [
-  { 
-    id: '1', 
-    name: 'Automation System Upgrade', 
+  {
+    id: '1',
+    name: 'Automation System Upgrade',
     bidNumber: 'BID-2024-001',
     orderNumber: 'ORD-2024-001',
-    orderDate: '2024-01-15', 
+    orderDate: '2024-01-15',
+    expectedStartDate: '2024-02-01',
     electricalSchemaProgression: 75,
     programmingProgression: 50,
-    completed: false, 
+    completed: false,
     invoiced: false,
     createdAt: '2024-01-15T10:00:00',
     nasSubDirectory: '/projects/asu-2024',
@@ -50,16 +51,21 @@ const mockWorks: Work[] = [
     plant: { id: 'p1', name: 'Plant Alpha', notes: '', nasDirectory: '/nas/alpha', pswPhrase: '', pswPlatform: '', pswStation: '' },
     atixClient: { id: 'c1', name: 'Atix Industries', type: 'ATIX' },
     finalClient: { id: 'c2', name: 'Final Corp', type: 'FINAL' },
+    assignments: [
+      { id: 'a1', assignedAt: '2024-01-16T09:00:00', user: { id: 't1', firstName: 'Giuseppe', lastName: 'Verdi', email: 'giuseppe@company.com', role: 'USER', userType: 'TECHNICIAN' } },
+      { id: 'a2', assignedAt: '2024-01-17T10:00:00', user: { id: 't2', firstName: 'Anna', lastName: 'Ferrari', email: 'anna@company.com', role: 'USER', userType: 'TECHNICIAN' } }
+    ]
   },
-  { 
-    id: '2', 
-    name: 'PLC Programming - Line 3', 
+  {
+    id: '2',
+    name: 'PLC Programming - Line 3',
     bidNumber: 'BID-2024-002',
     orderNumber: 'ORD-2024-002',
-    orderDate: '2024-01-12', 
+    orderDate: '2024-01-12',
+    expectedStartDate: '2024-01-18',
     electricalSchemaProgression: 100,
     programmingProgression: 100,
-    completed: true, 
+    completed: true,
     completedAt: '2024-01-20T15:00:00',
     invoiced: false,
     createdAt: '2024-01-12T09:00:00',
@@ -69,16 +75,20 @@ const mockWorks: Work[] = [
     seller: { id: 's1', firstName: 'Marco', lastName: 'Rossi', email: 'marco@company.com', role: 'USER', userType: 'SELLER' },
     plant: { id: 'p2', name: 'Plant Beta', notes: '', nasDirectory: '/nas/beta', pswPhrase: '', pswPlatform: '', pswStation: '' },
     atixClient: { id: 'c3', name: 'Tech Solutions', type: 'ATIX' },
+    assignments: [
+      { id: 'a3', assignedAt: '2024-01-13T09:00:00', user: { id: 't3', firstName: 'Luca', lastName: 'Romano', email: 'luca@company.com', role: 'USER', userType: 'TECHNICIAN' } }
+    ]
   },
-  { 
-    id: '3', 
-    name: 'Electrical Panel Installation', 
+  {
+    id: '3',
+    name: 'Electrical Panel Installation',
     bidNumber: 'BID-2024-003',
     orderNumber: 'ORD-2024-003',
-    orderDate: '2024-01-10', 
+    orderDate: '2024-01-10',
+    expectedStartDate: '2024-01-15',
     electricalSchemaProgression: 100,
     programmingProgression: 100,
-    completed: true, 
+    completed: true,
     completedAt: '2024-01-18T12:00:00',
     invoiced: true,
     invoicedAt: '2024-01-25T10:00:00',
@@ -89,16 +99,20 @@ const mockWorks: Work[] = [
     seller: { id: 's2', firstName: 'Laura', lastName: 'Bianchi', email: 'laura@company.com', role: 'USER', userType: 'SELLER' },
     plant: { id: 'p1', name: 'Plant Alpha', notes: '', nasDirectory: '/nas/alpha', pswPhrase: '', pswPlatform: '', pswStation: '' },
     atixClient: { id: 'c1', name: 'Atix Industries', type: 'ATIX' },
+    assignments: [
+      { id: 'a4', assignedAt: '2024-01-11T08:00:00', user: { id: 't1', firstName: 'Giuseppe', lastName: 'Verdi', email: 'giuseppe@company.com', role: 'USER', userType: 'TECHNICIAN' } }
+    ]
   },
-  { 
-    id: '4', 
-    name: 'SCADA System Integration', 
+  {
+    id: '4',
+    name: 'SCADA System Integration',
     bidNumber: 'BID-2024-004',
     orderNumber: 'ORD-2024-004',
-    orderDate: '2024-01-08', 
+    orderDate: '2024-01-08',
+    expectedStartDate: '2024-02-10',
     electricalSchemaProgression: 30,
     programmingProgression: 15,
-    completed: false, 
+    completed: false,
     invoiced: false,
     createdAt: '2024-01-08T11:00:00',
     nasSubDirectory: '/projects/scada-int',
@@ -107,16 +121,21 @@ const mockWorks: Work[] = [
     seller: { id: 's2', firstName: 'Laura', lastName: 'Bianchi', email: 'laura@company.com', role: 'USER', userType: 'SELLER' },
     plant: { id: 'p3', name: 'Plant Gamma', notes: '', nasDirectory: '/nas/gamma', pswPhrase: '', pswPlatform: '', pswStation: '' },
     atixClient: { id: 'c4', name: 'Industrial Co', type: 'ATIX' },
+    assignments: [
+      { id: 'a5', assignedAt: '2024-01-09T09:00:00', user: { id: 't2', firstName: 'Anna', lastName: 'Ferrari', email: 'anna@company.com', role: 'USER', userType: 'TECHNICIAN' } },
+      { id: 'a6', assignedAt: '2024-01-10T10:00:00', user: { id: 't3', firstName: 'Luca', lastName: 'Romano', email: 'luca@company.com', role: 'USER', userType: 'TECHNICIAN' } }
+    ]
   },
-  { 
-    id: '5', 
-    name: 'Safety System Audit', 
+  {
+    id: '5',
+    name: 'Safety System Audit',
     bidNumber: 'BID-2024-005',
     orderNumber: 'ORD-2024-005',
-    orderDate: '2024-01-05', 
+    orderDate: '2024-01-05',
+    expectedStartDate: '2024-01-08',
     electricalSchemaProgression: 100,
     programmingProgression: 100,
-    completed: true, 
+    completed: true,
     completedAt: '2024-01-15T16:00:00',
     invoiced: true,
     invoicedAt: '2024-01-20T09:00:00',
@@ -127,6 +146,9 @@ const mockWorks: Work[] = [
     seller: { id: 's1', firstName: 'Marco', lastName: 'Rossi', email: 'marco@company.com', role: 'USER', userType: 'SELLER' },
     plant: { id: 'p2', name: 'Plant Beta', notes: '', nasDirectory: '/nas/beta', pswPhrase: '', pswPlatform: '', pswStation: '' },
     atixClient: { id: 'c2', name: 'Final Corp', type: 'FINAL' },
+    assignments: [
+      { id: 'a7', assignedAt: '2024-01-06T08:00:00', user: { id: 't1', firstName: 'Giuseppe', lastName: 'Verdi', email: 'giuseppe@company.com', role: 'USER', userType: 'TECHNICIAN' } }
+    ]
   },
 ];
 
@@ -384,10 +406,10 @@ function WorksList({
             <div className="flex flex-col lg:flex-row lg:items-center gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <h3 className="font-medium">{work.name}</h3>
                   <Badge variant="outline" className="font-mono text-xs">
                     {getWorkIndex(work)}
                   </Badge>
+                  <h3 className="font-medium">{work.name}</h3>
                   {work.completed ? (
                     <Badge variant="outline" className="border-chart-3 text-chart-3">
                       <CheckCircle2 className="h-3 w-3 mr-1" />
@@ -407,10 +429,12 @@ function WorksList({
                   )}
                 </div>
                 <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    <span>{new Date(work.orderDate).toLocaleDateString()}</span>
-                  </div>
+                  {work.expectedStartDate && (
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      <span>{new Date(work.expectedStartDate).toLocaleDateString()}</span>
+                    </div>
+                  )}
                   {work.atixClient && (
                     <div className="flex items-center gap-1">
                       <Building2 className="h-3 w-3" />
@@ -423,10 +447,10 @@ function WorksList({
                       <span>{work.plant.name}</span>
                     </div>
                   )}
-                  {work.seller && (
+                  {work.assignments && work.assignments.length > 0 && (
                     <div className="flex items-center gap-1">
                       <User className="h-3 w-3" />
-                      <span>{work.seller.firstName} {work.seller.lastName}</span>
+                      <span>{work.assignments.map(a => `${a.user?.firstName} ${a.user?.lastName}`).join(', ')}</span>
                     </div>
                   )}
                 </div>
