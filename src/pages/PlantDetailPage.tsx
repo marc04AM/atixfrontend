@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, Trash2, Save, X, Factory, FolderOpen, Key } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, Save, X, Factory, FolderOpen, Key, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Plant, Attachment } from '@/types';
+import { Plant, Attachment, Work } from '@/types';
 import AttachmentManager from '@/components/AttachmentManager';
 
 // Mock data
@@ -21,6 +23,43 @@ const mockPlant: Plant = {
   pswPlatform: 'platform456',
   pswStation: 'station789',
 };
+
+const mockLinkedWorks: Work[] = [
+  {
+    id: '1',
+    name: 'Automation System Upgrade',
+    bidNumber: 'BID-2024-001',
+    orderNumber: 'ORD-2024-001',
+    orderDate: '2024-01-15',
+    electricalSchemaProgression: 75,
+    programmingProgression: 50,
+    completed: false,
+    invoiced: false,
+    createdAt: '2024-01-15T10:00:00',
+    nasSubDirectory: '/projects/asu-2024',
+    expectedOfficeHours: 40,
+    expectedPlantHours: 80,
+    plant: { id: '1', name: 'Plant Alpha', notes: '', nasDirectory: '/nas/alpha', pswPhrase: '', pswPlatform: '', pswStation: '' }
+  },
+  {
+    id: '3',
+    name: 'Electrical Panel Installation',
+    bidNumber: 'BID-2024-003',
+    orderNumber: 'ORD-2024-003',
+    orderDate: '2024-01-10',
+    electricalSchemaProgression: 100,
+    programmingProgression: 100,
+    completed: true,
+    completedAt: '2024-01-18T12:00:00',
+    invoiced: true,
+    invoicedAt: '2024-01-25T10:00:00',
+    createdAt: '2024-01-10T14:00:00',
+    nasSubDirectory: '/projects/ep-install',
+    expectedOfficeHours: 16,
+    expectedPlantHours: 32,
+    plant: { id: '1', name: 'Plant Alpha', notes: '', nasDirectory: '/nas/alpha', pswPhrase: '', pswPlatform: '', pswStation: '' }
+  },
+];
 
 export default function PlantDetailPage() {
   const { id } = useParams();
@@ -63,7 +102,7 @@ export default function PlantDetailPage() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{plant.name}</h1>
-            <p className="text-muted-foreground">Plant details and attachments</p>
+            <p className="text-muted-foreground">Plant details and linked works</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -227,6 +266,55 @@ export default function PlantDetailPage() {
                 <p className="font-mono text-sm">{showPasswords ? plant.pswStation : '••••••••'}</p>
               </div>
             </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Linked Works */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Briefcase className="h-5 w-5" />
+            Linked Works
+          </CardTitle>
+          <CardDescription>Works associated with this plant</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {mockLinkedWorks.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">No linked works</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Order Number</TableHead>
+                  <TableHead>Order Date</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {mockLinkedWorks.map((work) => (
+                  <TableRow
+                    key={work.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => navigate(`/works/${work.id}`)}
+                  >
+                    <TableCell className="font-medium">{work.name}</TableCell>
+                    <TableCell>{work.orderNumber}</TableCell>
+                    <TableCell>{new Date(work.orderDate).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      {work.invoiced ? (
+                        <Badge variant="secondary">Invoiced</Badge>
+                      ) : work.completed ? (
+                        <Badge className="bg-chart-3 text-chart-3-foreground">Completed</Badge>
+                      ) : (
+                        <Badge variant="outline">In Progress</Badge>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>
