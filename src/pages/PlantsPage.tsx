@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Factory, FolderOpen, Eye, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, Factory, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -26,7 +25,6 @@ export default function PlantsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [plants, setPlants] = useState<Plant[]>(MOCK_PLANTS);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
   const [newPlant, setNewPlant] = useState({
     name: '',
     notes: '',
@@ -35,7 +33,6 @@ export default function PlantsPage() {
     pswPlatform: '',
     pswStation: '',
   });
-  const [editingPlant, setEditingPlant] = useState<Plant | null>(null);
 
   const filteredPlants = plants.filter(plant =>
     plant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -62,28 +59,6 @@ export default function PlantsPage() {
     setNewPlant({ name: '', notes: '', nasDirectory: '', pswPhrase: '', pswPlatform: '', pswStation: '' });
     setIsCreateOpen(false);
     toast({ title: 'Success', description: 'Plant created successfully' });
-  };
-
-  const handleEditPlant = () => {
-    if (!editingPlant || !editingPlant.name.trim()) {
-      toast({ title: 'Error', description: 'Plant name is required', variant: 'destructive' });
-      return;
-    }
-
-    setPlants(plants.map(p => p.id === editingPlant.id ? editingPlant : p));
-    setEditingPlant(null);
-    setIsEditOpen(false);
-    toast({ title: 'Success', description: 'Plant updated successfully' });
-  };
-
-  const handleDeletePlant = (plantId: string) => {
-    setPlants(plants.filter(p => p.id !== plantId));
-    toast({ title: 'Deleted', description: 'Plant has been deleted' });
-  };
-
-  const openEditDialog = (plant: Plant) => {
-    setEditingPlant({ ...plant });
-    setIsEditOpen(true);
   };
 
   return (
@@ -217,49 +192,23 @@ export default function PlantsPage() {
                 <TableHead>Name</TableHead>
                 <TableHead>Notes</TableHead>
                 <TableHead>NAS Directory</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredPlants.map((plant) => (
-                <TableRow key={plant.id}>
+                <TableRow
+                  key={plant.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => navigate(`/plants/${plant.id}`)}
+                >
                   <TableCell className="font-medium">{plant.name}</TableCell>
                   <TableCell className="text-muted-foreground">{plant.notes}</TableCell>
                   <TableCell className="font-mono text-sm">{plant.nasDirectory}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => navigate(`/plants/${plant.id}`)}>
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => openEditDialog(plant)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Plant?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This action cannot be undone. This will permanently delete {plant.name}.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDeletePlant(plant.id)}>Delete</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
                 </TableRow>
               ))}
               {filteredPlants.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground">
+                  <TableCell colSpan={3} className="text-center text-muted-foreground">
                     No plants found
                   </TableCell>
                 </TableRow>
@@ -269,76 +218,6 @@ export default function PlantsPage() {
         </CardContent>
       </Card>
 
-      {/* Edit Dialog */}
-      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Edit Plant</DialogTitle>
-            <DialogDescription>Update plant information</DialogDescription>
-          </DialogHeader>
-          {editingPlant && (
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-name">Name</Label>
-                <Input
-                  id="edit-name"
-                  value={editingPlant.name}
-                  onChange={(e) => setEditingPlant({ ...editingPlant, name: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-notes">Notes</Label>
-                <Textarea
-                  id="edit-notes"
-                  value={editingPlant.notes}
-                  onChange={(e) => setEditingPlant({ ...editingPlant, notes: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-nasDirectory">NAS Directory</Label>
-                <Input
-                  id="edit-nasDirectory"
-                  value={editingPlant.nasDirectory}
-                  onChange={(e) => setEditingPlant({ ...editingPlant, nasDirectory: e.target.value })}
-                />
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-pswPhrase">PSW Phrase</Label>
-                  <Input
-                    id="edit-pswPhrase"
-                    type="password"
-                    value={editingPlant.pswPhrase}
-                    onChange={(e) => setEditingPlant({ ...editingPlant, pswPhrase: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-pswPlatform">PSW Platform</Label>
-                  <Input
-                    id="edit-pswPlatform"
-                    type="password"
-                    value={editingPlant.pswPlatform}
-                    onChange={(e) => setEditingPlant({ ...editingPlant, pswPlatform: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-pswStation">PSW Station</Label>
-                  <Input
-                    id="edit-pswStation"
-                    type="password"
-                    value={editingPlant.pswStation}
-                    onChange={(e) => setEditingPlant({ ...editingPlant, pswStation: e.target.value })}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
-            <Button onClick={handleEditPlant}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
