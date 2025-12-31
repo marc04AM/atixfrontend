@@ -360,9 +360,7 @@ export default function UsersPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>User</TableHead>
-                  <TableHead className="hidden md:table-cell">Email</TableHead>
-                  <TableHead className="hidden sm:table-cell">Type</TableHead>
-                  <TableHead>Role</TableHead>
+                  <TableHead className="hidden sm:table-cell">Role</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -371,41 +369,43 @@ export default function UsersPage() {
                   <TableRow key={user.id}>
                     <TableCell>
                       <div className="flex items-center gap-2 sm:gap-3">
-                        <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
+                        <Avatar className="h-8 w-8 sm:h-9 sm:w-9 shrink-0">
                           <AvatarImage src="" />
                           <AvatarFallback className="text-xs sm:text-sm">
                             {user.firstName[0]}
                             {user.lastName[0]}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="font-medium text-sm sm:text-base">
-                          {user.firstName} {user.lastName}
+                        <div className="min-w-0">
+                          <div className="font-medium text-sm sm:text-base truncate">
+                            {user.firstName} {user.lastName}
+                          </div>
+                          <div className="text-xs text-muted-foreground truncate sm:hidden">
+                            {user.email}
+                          </div>
+                          <div className="text-xs text-muted-foreground sm:hidden">
+                            {getUserTypeIcon(user.userType)} {user.role}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Mail className="h-4 w-4" />
-                        {user.email}
+                    <TableCell className="hidden sm:table-cell">
+                      <div className="space-y-1">
+                        <Badge variant={getRoleBadgeVariant(user.role)}>{user.role}</Badge>
+                        <div className="text-xs text-muted-foreground flex items-center gap-1">
+                          {getUserTypeIcon(user.userType)}
+                          {user.userType.charAt(0) + user.userType.slice(1).toLowerCase()}
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <span className="flex items-center gap-2">
-                        {getUserTypeIcon(user.userType)}
-                        {user.userType.charAt(0) + user.userType.slice(1).toLowerCase()}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getRoleBadgeVariant(user.role)}>{user.role}</Badge>
-                    </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => openEditDialog(user)}>
+                      <div className="flex justify-end gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(user)}>
                           <Edit2 className="h-4 w-4" />
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </AlertDialogTrigger>
@@ -428,7 +428,7 @@ export default function UsersPage() {
                 ))}
                 {filteredUsers.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
+                    <TableCell colSpan={3} className="h-24 text-center">
                       No users found.
                     </TableCell>
                   </TableRow>
