@@ -294,8 +294,8 @@ export default function UsersPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-5">
-        <Card className="md:col-span-2">
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
             <UserPlus className="h-4 w-4 text-muted-foreground" />
@@ -360,8 +360,8 @@ export default function UsersPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>User</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Type</TableHead>
+                  <TableHead className="hidden md:table-cell">Email</TableHead>
+                  <TableHead className="hidden sm:table-cell">Type</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -370,26 +370,26 @@ export default function UsersPage() {
                 {filteredUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
                           <AvatarImage src="" />
-                          <AvatarFallback>
+                          <AvatarFallback className="text-xs sm:text-sm">
                             {user.firstName[0]}
                             {user.lastName[0]}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="font-medium">
+                        <div className="font-medium text-sm sm:text-base">
                           {user.firstName} {user.lastName}
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Mail className="h-4 w-4" />
                         {user.email}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <span className="flex items-center gap-2">
                         {getUserTypeIcon(user.userType)}
                         {user.userType.charAt(0) + user.userType.slice(1).toLowerCase()}
