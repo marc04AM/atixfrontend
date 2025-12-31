@@ -1,13 +1,22 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
-import { 
+import {
   Briefcase,
   Ticket,
   AlertCircle
 } from 'lucide-react';
 import { TicketStatus } from '@/types';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Sector } from 'recharts';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig
+} from '@/components/ui/chart';
+import { useState } from 'react';
 
 // Mock data - replace with real API calls
 const mockDashboardData = {
@@ -54,13 +63,97 @@ const getTicketStatusColor = (status: TicketStatus) => {
   }
 };
 
-// Chart colors using CSS variable fallbacks
-const WORK_COLORS = ['hsl(var(--chart-4))', 'hsl(var(--primary))', 'hsl(var(--chart-3))', 'hsl(var(--chart-2))'];
-const TICKET_COLORS = ['hsl(var(--destructive))', 'hsl(var(--primary))', 'hsl(var(--chart-3))', 'hsl(var(--muted-foreground))'];
+// Chart configurations with improved colors
+const workChartConfig: ChartConfig = {
+  pending: {
+    label: 'Pending',
+    color: 'hsl(var(--chart-1))',
+  },
+  inProgress: {
+    label: 'In Progress',
+    color: 'hsl(var(--chart-2))',
+  },
+  completed: {
+    label: 'Completed',
+    color: 'hsl(var(--chart-3))',
+  },
+  invoiced: {
+    label: 'Invoiced',
+    color: 'hsl(var(--chart-4))',
+  },
+};
+
+const ticketChartConfig: ChartConfig = {
+  open: {
+    label: 'Open',
+    color: 'hsl(var(--destructive))',
+  },
+  inProgress: {
+    label: 'In Progress',
+    color: 'hsl(var(--chart-2))',
+  },
+  resolved: {
+    label: 'Resolved',
+    color: 'hsl(var(--chart-3))',
+  },
+  closed: {
+    label: 'Closed',
+    color: 'hsl(var(--muted-foreground))',
+  },
+};
+
+// Active shape for hover effect
+const renderActiveShape = (props: any) => {
+  const {
+    cx,
+    cy,
+    innerRadius,
+    outerRadius,
+    startAngle,
+    endAngle,
+    fill,
+    payload,
+    percent,
+    value
+  } = props;
+
+  return (
+    <g>
+      <text x={cx} y={cy} dy={-10} textAnchor="middle" className="fill-foreground font-bold text-lg">
+        {payload.name}
+      </text>
+      <text x={cx} y={cy} dy={15} textAnchor="middle" className="fill-muted-foreground text-sm">
+        {`${value} (${(percent * 100).toFixed(1)}%)`}
+      </text>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius + 8}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+        className="drop-shadow-lg"
+      />
+      <Sector
+        cx={cx}
+        cy={cy}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        innerRadius={outerRadius + 10}
+        outerRadius={outerRadius + 12}
+        fill={fill}
+        opacity={0.3}
+      />
+    </g>
+  );
+};
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const data = mockDashboardData;
+  const [activeWorkIndex, setActiveWorkIndex] = useState<number | undefined>(undefined);
+  const [activeTicketIndex, setActiveTicketIndex] = useState<number | undefined>(undefined);
 
   const openTickets = data.ticketStatusCounts.find(t => t.status === 'OPEN')?.count || 0;
   const inProgressTickets = data.ticketStatusCounts.find(t => t.status === 'IN_PROGRESS')?.count || 0;
@@ -68,11 +161,13 @@ export default function Dashboard() {
   const ticketChartData = data.ticketStatusCounts.map(t => ({
     name: t.status.replace('_', ' '),
     value: t.count,
+    fill: ticketChartConfig[t.status.toLowerCase().replace('_', '') as keyof typeof ticketChartConfig]?.color || 'hsl(var(--muted))',
   }));
 
   const workChartData = data.workStatusCounts.map(w => ({
     name: w.label,
     value: w.count,
+    fill: workChartConfig[w.status.toLowerCase().replace('_', '') as keyof typeof workChartConfig]?.color || 'hsl(var(--muted))',
   }));
 
   return (
@@ -96,35 +191,40 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[280px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={workChartData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={2}
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    labelLine={false}
-                  >
-                    {workChartData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={WORK_COLORS[index % WORK_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--popover))', 
-                      borderColor: 'hsl(var(--border))',
-                      borderRadius: '8px'
-                    }} 
-                  />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+            <ChartContainer config={workChartConfig} className="h-[300px] w-full">
+              <PieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Pie
+                  data={workChartData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={65}
+                  outerRadius={95}
+                  paddingAngle={4}
+                  dataKey="value"
+                  activeIndex={activeWorkIndex}
+                  activeShape={renderActiveShape}
+                  onMouseEnter={(_, index) => setActiveWorkIndex(index)}
+                  onMouseLeave={() => setActiveWorkIndex(undefined)}
+                  animationBegin={0}
+                  animationDuration={800}
+                  animationEasing="ease-out"
+                >
+                  {workChartData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.fill}
+                      className="transition-all duration-300 hover:opacity-80 stroke-background"
+                      strokeWidth={2}
+                    />
+                  ))}
+                </Pie>
+                <ChartLegend content={<ChartLegendContent />} />
+              </PieChart>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -137,35 +237,40 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[280px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={ticketChartData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={2}
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    labelLine={false}
-                  >
-                    {ticketChartData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={TICKET_COLORS[index % TICKET_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--popover))', 
-                      borderColor: 'hsl(var(--border))',
-                      borderRadius: '8px'
-                    }} 
-                  />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+            <ChartContainer config={ticketChartConfig} className="h-[300px] w-full">
+              <PieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Pie
+                  data={ticketChartData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={65}
+                  outerRadius={95}
+                  paddingAngle={4}
+                  dataKey="value"
+                  activeIndex={activeTicketIndex}
+                  activeShape={renderActiveShape}
+                  onMouseEnter={(_, index) => setActiveTicketIndex(index)}
+                  onMouseLeave={() => setActiveTicketIndex(undefined)}
+                  animationBegin={0}
+                  animationDuration={800}
+                  animationEasing="ease-out"
+                >
+                  {ticketChartData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.fill}
+                      className="transition-all duration-300 hover:opacity-80 stroke-background"
+                      strokeWidth={2}
+                    />
+                  ))}
+                </Pie>
+                <ChartLegend content={<ChartLegendContent />} />
+              </PieChart>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
