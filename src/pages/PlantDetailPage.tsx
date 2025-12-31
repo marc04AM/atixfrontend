@@ -95,34 +95,48 @@ export default function PlantDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/plants')}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+          <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/plants')}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <h1 className="text-xl sm:text-3xl font-bold tracking-tight">{plant.name}</h1>
-            <p className="text-sm text-muted-foreground">Plant details and linked works</p>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-3xl font-bold tracking-tight truncate">{plant.name}</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">Plant details and linked works</p>
           </div>
         </div>
-        <div className="flex gap-2 ml-12 sm:ml-0">
+        <div className="flex gap-2 shrink-0">
           {isEditing ? (
             <>
-              <Button variant="outline" size="sm" onClick={handleCancel}>
+              <Button variant="outline" size="icon" className="sm:hidden" onClick={handleCancel}>
+                <X className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" className="hidden sm:flex" onClick={handleCancel}>
                 <X className="mr-2 h-4 w-4" /> Cancel
               </Button>
-              <Button size="sm" onClick={handleSave}>
+              <Button size="icon" className="sm:hidden" onClick={handleSave}>
+                <Save className="h-4 w-4" />
+              </Button>
+              <Button size="sm" className="hidden sm:flex" onClick={handleSave}>
                 <Save className="mr-2 h-4 w-4" /> Save
               </Button>
             </>
           ) : (
             <>
-              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+              <Button variant="outline" size="icon" className="sm:hidden" onClick={() => setIsEditing(true)}>
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" className="hidden sm:flex" onClick={() => setIsEditing(true)}>
                 <Edit className="mr-2 h-4 w-4" /> Edit
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="sm">
+                  <Button variant="destructive" size="icon" className="sm:hidden">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" className="hidden sm:flex">
                     <Trash2 className="mr-2 h-4 w-4" /> Delete
                   </Button>
                 </AlertDialogTrigger>
