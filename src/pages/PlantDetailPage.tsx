@@ -95,34 +95,34 @@ export default function PlantDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate('/plants')}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{plant.name}</h1>
-            <p className="text-muted-foreground">Plant details and linked works</p>
+            <h1 className="text-xl sm:text-3xl font-bold tracking-tight">{plant.name}</h1>
+            <p className="text-sm text-muted-foreground">Plant details and linked works</p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 ml-12 sm:ml-0">
           {isEditing ? (
             <>
-              <Button variant="outline" onClick={handleCancel}>
+              <Button variant="outline" size="sm" onClick={handleCancel}>
                 <X className="mr-2 h-4 w-4" /> Cancel
               </Button>
-              <Button onClick={handleSave}>
+              <Button size="sm" onClick={handleSave}>
                 <Save className="mr-2 h-4 w-4" /> Save
               </Button>
             </>
           ) : (
             <>
-              <Button variant="outline" onClick={() => setIsEditing(true)}>
+              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
                 <Edit className="mr-2 h-4 w-4" /> Edit
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive">
+                  <Button variant="destructive" size="sm">
                     <Trash2 className="mr-2 h-4 w-4" /> Delete
                   </Button>
                 </AlertDialogTrigger>
@@ -222,7 +222,7 @@ export default function PlantDetailPage() {
         </CardHeader>
         <CardContent>
           {isEditing ? (
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="pswPhrase">PSW Phrase</Label>
                 <Input
@@ -252,18 +252,18 @@ export default function PlantDetailPage() {
               </div>
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
               <div>
                 <p className="text-sm text-muted-foreground">PSW Phrase</p>
-                <p className="font-mono text-sm">{showPasswords ? plant.pswPhrase : '••••••••'}</p>
+                <p className="font-mono text-sm break-all">{showPasswords ? plant.pswPhrase : '••••••••'}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">PSW Platform</p>
-                <p className="font-mono text-sm">{showPasswords ? plant.pswPlatform : '••••••••'}</p>
+                <p className="font-mono text-sm break-all">{showPasswords ? plant.pswPlatform : '••••••••'}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">PSW Station</p>
-                <p className="font-mono text-sm">{showPasswords ? plant.pswStation : '••••••••'}</p>
+                <p className="font-mono text-sm break-all">{showPasswords ? plant.pswStation : '••••••••'}</p>
               </div>
             </div>
           )}
@@ -283,38 +283,40 @@ export default function PlantDetailPage() {
           {mockLinkedWorks.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">No linked works</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Order Number</TableHead>
-                  <TableHead>Order Date</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mockLinkedWorks.map((work) => (
-                  <TableRow
-                    key={work.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => navigate(`/works/${work.id}`)}
-                  >
-                    <TableCell className="font-medium">{work.name}</TableCell>
-                    <TableCell>{work.orderNumber}</TableCell>
-                    <TableCell>{new Date(work.orderDate).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      {work.invoiced ? (
-                        <Badge variant="secondary">Invoiced</Badge>
-                      ) : work.completed ? (
-                        <Badge className="bg-chart-3 text-chart-3-foreground">Completed</Badge>
-                      ) : (
-                        <Badge variant="outline">In Progress</Badge>
-                      )}
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead className="hidden sm:table-cell">Order Number</TableHead>
+                    <TableHead className="hidden sm:table-cell">Order Date</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {mockLinkedWorks.map((work) => (
+                    <TableRow
+                      key={work.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => navigate(`/works/${work.id}`)}
+                    >
+                      <TableCell className="font-medium">{work.name}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{work.orderNumber}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{new Date(work.orderDate).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        {work.invoiced ? (
+                          <Badge variant="secondary">Invoiced</Badge>
+                        ) : work.completed ? (
+                          <Badge className="bg-chart-3 text-chart-3-foreground">Completed</Badge>
+                        ) : (
+                          <Badge variant="outline">In Progress</Badge>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

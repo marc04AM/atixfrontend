@@ -56,34 +56,34 @@ export default function ClientDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate('/clients')}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{client.name}</h1>
-            <p className="text-muted-foreground">Client details and linked works</p>
+            <h1 className="text-xl sm:text-3xl font-bold tracking-tight">{client.name}</h1>
+            <p className="text-sm text-muted-foreground">Client details and linked works</p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 ml-12 sm:ml-0">
           {isEditing ? (
             <>
-              <Button variant="outline" onClick={handleCancel}>
+              <Button variant="outline" size="sm" onClick={handleCancel}>
                 <X className="mr-2 h-4 w-4" /> Cancel
               </Button>
-              <Button onClick={handleSave}>
+              <Button size="sm" onClick={handleSave}>
                 <Save className="mr-2 h-4 w-4" /> Save
               </Button>
             </>
           ) : (
             <>
-              <Button variant="outline" onClick={() => setIsEditing(true)}>
+              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
                 <Edit className="mr-2 h-4 w-4" /> Edit
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive">
+                  <Button variant="destructive" size="sm">
                     <Trash2 className="mr-2 h-4 w-4" /> Delete
                   </Button>
                 </AlertDialogTrigger>
