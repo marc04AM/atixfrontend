@@ -96,19 +96,17 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[280px]">
+            <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={workChartData}
                     cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={2}
+                    cy="45%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={3}
                     dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    labelLine={false}
                   >
                     {workChartData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={WORK_COLORS[index % WORK_COLORS.length]} />
@@ -119,9 +117,16 @@ export default function Dashboard() {
                       backgroundColor: 'hsl(var(--popover))', 
                       borderColor: 'hsl(var(--border))',
                       borderRadius: '8px'
-                    }} 
+                    }}
+                    formatter={(value: number) => [value, 'Count']}
                   />
-                  <Legend />
+                  <Legend 
+                    verticalAlign="bottom"
+                    formatter={(value, entry) => {
+                      const item = workChartData.find(d => d.name === value);
+                      return `${value}: ${item?.value || 0}`;
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -137,19 +142,17 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[280px]">
+            <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={ticketChartData}
                     cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={2}
+                    cy="45%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={3}
                     dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    labelLine={false}
                   >
                     {ticketChartData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={TICKET_COLORS[index % TICKET_COLORS.length]} />
@@ -160,9 +163,16 @@ export default function Dashboard() {
                       backgroundColor: 'hsl(var(--popover))', 
                       borderColor: 'hsl(var(--border))',
                       borderRadius: '8px'
-                    }} 
+                    }}
+                    formatter={(value: number) => [value, 'Count']}
                   />
-                  <Legend />
+                  <Legend 
+                    verticalAlign="bottom"
+                    formatter={(value, entry) => {
+                      const item = ticketChartData.find(d => d.name === value);
+                      return `${value}: ${item?.value || 0}`;
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
