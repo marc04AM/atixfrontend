@@ -54,9 +54,9 @@ const getTicketStatusColor = (status: TicketStatus) => {
   }
 };
 
-// Chart colors using CSS variable fallbacks
-const WORK_COLORS = ['hsl(var(--chart-4))', 'hsl(var(--primary))', 'hsl(var(--chart-3))', 'hsl(var(--chart-2))'];
-const TICKET_COLORS = ['hsl(var(--destructive))', 'hsl(var(--primary))', 'hsl(var(--chart-3))', 'hsl(var(--muted-foreground))'];
+// Chart colors - warm, harmonious palette
+const WORK_COLORS = ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
+const TICKET_COLORS = ['#ef4444', '#3b82f6', '#10b981', '#6b7280'];
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -95,36 +95,55 @@ export default function Dashboard() {
               Works by Status
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
+          <CardContent className="pt-0">
+            <div className="h-[280px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
+                  <defs>
+                    {WORK_COLORS.map((color, index) => (
+                      <linearGradient key={`workGradient-${index}`} id={`workGradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={color} stopOpacity={1} />
+                        <stop offset="100%" stopColor={color} stopOpacity={0.7} />
+                      </linearGradient>
+                    ))}
+                  </defs>
                   <Pie
                     data={workChartData}
                     cx="50%"
-                    cy="45%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={3}
+                    cy="42%"
+                    innerRadius={45}
+                    outerRadius={75}
+                    paddingAngle={4}
                     dataKey="value"
+                    stroke="hsl(var(--background))"
+                    strokeWidth={2}
                   >
                     {workChartData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={WORK_COLORS[index % WORK_COLORS.length]} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={`url(#workGradient-${index})`}
+                        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
+                      />
                     ))}
                   </Pie>
                   <Tooltip 
                     contentStyle={{ 
                       backgroundColor: 'hsl(var(--popover))', 
                       borderColor: 'hsl(var(--border))',
-                      borderRadius: '8px'
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                      padding: '8px 12px'
                     }}
-                    formatter={(value: number) => [value, 'Count']}
+                    formatter={(value: number, name: string) => [`${value} works`, name]}
                   />
                   <Legend 
                     verticalAlign="bottom"
+                    iconType="circle"
+                    iconSize={10}
+                    wrapperStyle={{ paddingTop: '16px' }}
                     formatter={(value, entry) => {
                       const item = workChartData.find(d => d.name === value);
-                      return `${value}: ${item?.value || 0}`;
+                      return <span className="text-sm text-foreground">{value}: <strong>{item?.value || 0}</strong></span>;
                     }}
                   />
                 </PieChart>
@@ -141,36 +160,55 @@ export default function Dashboard() {
               Tickets by Status
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
+          <CardContent className="pt-0">
+            <div className="h-[280px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
+                  <defs>
+                    {TICKET_COLORS.map((color, index) => (
+                      <linearGradient key={`ticketGradient-${index}`} id={`ticketGradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={color} stopOpacity={1} />
+                        <stop offset="100%" stopColor={color} stopOpacity={0.7} />
+                      </linearGradient>
+                    ))}
+                  </defs>
                   <Pie
                     data={ticketChartData}
                     cx="50%"
-                    cy="45%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={3}
+                    cy="42%"
+                    innerRadius={45}
+                    outerRadius={75}
+                    paddingAngle={4}
                     dataKey="value"
+                    stroke="hsl(var(--background))"
+                    strokeWidth={2}
                   >
                     {ticketChartData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={TICKET_COLORS[index % TICKET_COLORS.length]} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={`url(#ticketGradient-${index})`}
+                        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
+                      />
                     ))}
                   </Pie>
                   <Tooltip 
                     contentStyle={{ 
                       backgroundColor: 'hsl(var(--popover))', 
                       borderColor: 'hsl(var(--border))',
-                      borderRadius: '8px'
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                      padding: '8px 12px'
                     }}
-                    formatter={(value: number) => [value, 'Count']}
+                    formatter={(value: number, name: string) => [`${value} tickets`, name]}
                   />
                   <Legend 
                     verticalAlign="bottom"
+                    iconType="circle"
+                    iconSize={10}
+                    wrapperStyle={{ paddingTop: '16px' }}
                     formatter={(value, entry) => {
                       const item = ticketChartData.find(d => d.name === value);
-                      return `${value}: ${item?.value || 0}`;
+                      return <span className="text-sm text-foreground">{value}: <strong>{item?.value || 0}</strong></span>;
                     }}
                   />
                 </PieChart>
