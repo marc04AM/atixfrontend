@@ -180,7 +180,6 @@ export default function PlantsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Notes</TableHead>
                   <TableHead>NAS Directory</TableHead>
                 </TableRow>
               </TableHeader>
@@ -192,13 +191,12 @@ export default function PlantsPage() {
                     onClick={() => navigate(`/plants/${plant.id}`)}
                   >
                     <TableCell className="font-medium">{plant.name}</TableCell>
-                    <TableCell className="text-muted-foreground">{plant.notes}</TableCell>
                     <TableCell className="font-mono text-sm">{plant.nasDirectory}</TableCell>
                   </TableRow>
                 ))}
                 {filteredPlants.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center text-muted-foreground">
+                    <TableCell colSpan={2} className="text-center text-muted-foreground">
                       No plants found
                     </TableCell>
                   </TableRow>
