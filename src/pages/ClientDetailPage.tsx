@@ -205,8 +205,6 @@ export default function ClientDetailPage() {
                       <TableCell className="font-medium">{work.name}</TableCell>
                       <TableCell className="hidden sm:table-cell">{work.orderNumber}</TableCell>
                       <TableCell className="hidden sm:table-cell">{new Date(work.orderDate).toLocaleDateString()}</TableCell>
-                      <TableCell>{work.orderNumber}</TableCell>
-                      <TableCell>{new Date(work.orderDate).toLocaleDateString()}</TableCell>
                       <TableCell>
                         {work.invoiced ? (
                           <Badge variant="secondary">Invoiced</Badge>
