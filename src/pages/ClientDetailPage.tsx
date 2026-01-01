@@ -190,8 +190,8 @@ export default function ClientDetailPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead>Order Number</TableHead>
-                    <TableHead>Order Date</TableHead>
+                    <TableHead className="hidden sm:table-cell">Order Number</TableHead>
+                    <TableHead className="hidden sm:table-cell">Order Date</TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -203,6 +203,8 @@ export default function ClientDetailPage() {
                       onClick={() => navigate(`/works/${work.id}`)}
                     >
                       <TableCell className="font-medium">{work.name}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{work.orderNumber}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{new Date(work.orderDate).toLocaleDateString()}</TableCell>
                       <TableCell>{work.orderNumber}</TableCell>
                       <TableCell>{new Date(work.orderDate).toLocaleDateString()}</TableCell>
                       <TableCell>
