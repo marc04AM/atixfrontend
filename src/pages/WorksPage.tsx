@@ -73,12 +73,9 @@ export default function WorksPage() {
   });
 
   // Build API params from filters
-  const params = useMemo(() => {
+  const baseParams = useMemo(() => {
     const p: Record<string, any> = {
       ...filters,
-      completed: activeTab === 'closed',
-      page: 0,
-      size: 100,
     };
     // Remove empty values
     Object.keys(p).forEach(key => {
@@ -87,10 +84,35 @@ export default function WorksPage() {
       }
     });
     return p;
-  }, [filters, activeTab]);
+  }, [filters]);
+
+  const listParams = useMemo(() => ({
+    ...baseParams,
+    completed: activeTab === 'closed',
+    page: 0,
+    size: 100,
+  }), [baseParams, activeTab]);
+
+  const countParams = useMemo(() => ({
+    ...baseParams,
+    page: 0,
+    size: 1,
+  }), [baseParams]);
+
+  const openCountParams = useMemo(() => ({
+    ...countParams,
+    completed: false,
+  }), [countParams]);
+
+  const closedCountParams = useMemo(() => ({
+    ...countParams,
+    completed: true,
+  }), [countParams]);
 
   // Fetch data
-  const { data: worksData, isLoading: worksLoading, error: worksError } = useWorks(params);
+  const { data: worksData, isLoading: worksLoading, error: worksError } = useWorks(listParams);
+  const { data: openWorksData } = useWorks(openCountParams);
+  const { data: closedWorksData } = useWorks(closedCountParams);
   const { data: clientsData } = useClients(0, 100);
   const { data: plantsData } = usePlants(0, 100);
   const { data: sellersData } = useUsersByType('SELLER');
@@ -103,6 +125,32 @@ export default function WorksPage() {
   const sellers = sellersData || [];
   const technicians = techniciansData || [];
   const tickets = ticketsData?.content || [];
+  const filteredWorks = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return works;
+
+    return works.filter((work) => {
+      const sellerName = work.seller ? `${work.seller.firstName} ${work.seller.lastName}` : '';
+      const assignmentNames = (work.assignments || [])
+        .map((assignment) => `${assignment.user?.firstName || ''} ${assignment.user?.lastName || ''}`.trim())
+        .join(' ');
+      const fields = [
+        work.name,
+        work.bidNumber,
+        work.orderNumber,
+        work.atixClient?.name,
+        work.finalClient?.name,
+        work.plant?.name,
+        work.plant?.nasDirectory,
+        work.nasSubDirectory,
+        sellerName,
+        assignmentNames,
+        work.ticket?.name,
+      ];
+
+      return fields.some((field) => field && field.toLowerCase().includes(query));
+    });
+  }, [searchQuery, works]);
 
   const clearFilters = () => {
     setFilters({
@@ -126,8 +174,8 @@ export default function WorksPage() {
 
   const hasActiveFilters = Object.values(filters).some(v => v !== '') || searchQuery !== '';
 
-  const openWorksCount = worksData?.totalElements || 0;
-  const closedWorksCount = worksData?.totalElements || 0;
+  const openWorksCount = openWorksData?.totalElements || 0;
+  const closedWorksCount = closedWorksData?.totalElements || 0;
 
   if (worksLoading) {
     return <LoadingSpinner message="Loading works..." />;
@@ -395,10 +443,10 @@ export default function WorksPage() {
 
         {/* Works List */}
         <TabsContent value="open" className="mt-4">
-          <WorksList works={works} navigate={navigate} />
+          <WorksList works={filteredWorks} navigate={navigate} />
         </TabsContent>
         <TabsContent value="closed" className="mt-4">
-          <WorksList works={works} navigate={navigate} />
+          <WorksList works={filteredWorks} navigate={navigate} />
         </TabsContent>
       </Tabs>
     </div>
