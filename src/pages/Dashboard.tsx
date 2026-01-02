@@ -54,9 +54,9 @@ const getTicketStatusColor = (status: TicketStatus) => {
   }
 };
 
-// Chart colors - warm, harmonious palette
-const WORK_COLORS = ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
-const TICKET_COLORS = ['#ef4444', '#3b82f6', '#10b981', '#6b7280'];
+// Chart colors - orange palette
+const WORK_COLORS = ['#f97316', '#fb923c', '#fdba74', '#fed7aa'];
+const TICKET_COLORS = ['#ea580c', '#f97316', '#fb923c', '#fdba74'];
 
 export default function Dashboard() {
   const navigate = useNavigate();
