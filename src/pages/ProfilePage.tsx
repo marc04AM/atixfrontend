@@ -149,7 +149,11 @@ export default function ProfilePage() {
   };
 
   const handlePasswordUpdate = () => {
-    if (!user?.id) return;
+    const userId = currentUserId ?? user?.id;
+    if (!userId) {
+      toast({ title: 'Error', description: 'User ID not available', variant: 'destructive' });
+      return;
+    }
     if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
       toast({ title: 'Error', description: 'All password fields are required', variant: 'destructive' });
       return;
@@ -168,7 +172,7 @@ export default function ProfilePage() {
     setIsUpdatingPassword(true);
     updatePassword.mutate(
       {
-        id: user.id,
+        id: userId,
         data: {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword,

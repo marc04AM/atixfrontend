@@ -67,7 +67,15 @@ export const apiRequest = async <T>(
 // Auth API
 export const authApi = {
   login: (email: string, password: string) =>
-    apiRequest<{ token: string; email: string; firstName: string; lastName: string; role: string }>(
+    apiRequest<{
+      token: string;
+      email: string;
+      firstName: string;
+      lastName: string;
+      role: string;
+      id?: string;
+      profileImageUrl?: string;
+    }>(
       '/auth/login',
       {
         method: 'POST',
