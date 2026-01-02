@@ -61,6 +61,15 @@ const getTicketStatusColor = (status: TicketStatus) => {
   }
 };
 
+interface TicketFilters {
+  senderEmail: string;
+  name: string;
+  description: string;
+  status: string;
+  createdAtFrom: string;
+  createdAtTo: string;
+}
+
 export default function TicketsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -69,9 +78,16 @@ export default function TicketsPage() {
   const initialTab = searchParams.get('status') === 'CLOSED' ? 'closed' : 'open';
   const [activeTab, setActiveTab] = useState(initialTab);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [filters, setFilters] = useState<TicketFilters>({
+    senderEmail: '',
+    name: '',
+    description: '',
+    status: 'all',
+    createdAtFrom: '',
+    createdAtTo: '',
+  });
   const [newTicket, setNewTicket] = useState({
     name: '',
     senderEmail: '',
@@ -89,9 +105,29 @@ export default function TicketsPage() {
     }
 
     // Status filter
-    if (statusFilter !== 'all' && ticket.status !== statusFilter) {
+    if (filters.status !== 'all' && ticket.status !== filters.status) {
       return false;
     }
+
+    // Sender email filter
+    if (filters.senderEmail && !ticket.senderEmail?.toLowerCase().includes(filters.senderEmail.toLowerCase())) {
+      return false;
+    }
+
+    // Name filter
+    if (filters.name && !ticket.name.toLowerCase().includes(filters.name.toLowerCase())) {
+      return false;
+    }
+
+    // Description filter
+    if (filters.description && !ticket.description.toLowerCase().includes(filters.description.toLowerCase())) {
+      return false;
+    }
+
+    // Created at date range filter
+    const ticketDate = ticket.createdAt.split('T')[0];
+    if (filters.createdAtFrom && ticketDate < filters.createdAtFrom) return false;
+    if (filters.createdAtTo && ticketDate > filters.createdAtTo) return false;
 
     // Search filter
     if (searchQuery) {
@@ -106,6 +142,21 @@ export default function TicketsPage() {
     return true;
   });
 
+  const clearFilters = () => {
+    setFilters({
+      senderEmail: '',
+      name: '',
+      description: '',
+      status: 'all',
+      createdAtFrom: '',
+      createdAtTo: '',
+    });
+    setSearchQuery('');
+  };
+
+  const hasActiveFilters = filters.senderEmail !== '' || filters.name !== '' || filters.description !== '' || 
+    filters.status !== 'all' || filters.createdAtFrom !== '' || filters.createdAtTo !== '' || searchQuery !== '';
+
   const handleCreateTicket = () => {
     // In real app, call API
     toast({
@@ -118,7 +169,7 @@ export default function TicketsPage() {
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    setStatusFilter('all');
+    setFilters(prev => ({ ...prev, status: 'all' }));
   };
 
   return (
@@ -226,10 +277,11 @@ export default function TicketsPage() {
         {showFilters && (
           <Card className="mt-4">
             <CardContent className="pt-4">
-              <div className="flex flex-wrap gap-4">
-                <div className="w-48">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {/* Status */}
+                <div>
                   <Label className="mb-2 block text-sm">Status</Label>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <Select value={filters.status} onValueChange={(v) => setFilters({...filters, status: v})}>
                     <SelectTrigger>
                       <SelectValue placeholder="All statuses" />
                     </SelectTrigger>
@@ -242,15 +294,60 @@ export default function TicketsPage() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Sender Email */}
+                <div>
+                  <Label className="mb-2 block text-sm">Sender Email</Label>
+                  <Input
+                    placeholder="Search email..."
+                    value={filters.senderEmail}
+                    onChange={(e) => setFilters({...filters, senderEmail: e.target.value})}
+                  />
+                </div>
+
+                {/* Name */}
+                <div>
+                  <Label className="mb-2 block text-sm">Name</Label>
+                  <Input
+                    placeholder="Search name..."
+                    value={filters.name}
+                    onChange={(e) => setFilters({...filters, name: e.target.value})}
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <Label className="mb-2 block text-sm">Description</Label>
+                  <Input
+                    placeholder="Search description..."
+                    value={filters.description}
+                    onChange={(e) => setFilters({...filters, description: e.target.value})}
+                  />
+                </div>
+
+                {/* Created At From */}
+                <div>
+                  <Label className="mb-2 block text-sm">Created From</Label>
+                  <Input
+                    type="date"
+                    value={filters.createdAtFrom}
+                    onChange={(e) => setFilters({...filters, createdAtFrom: e.target.value})}
+                  />
+                </div>
+
+                {/* Created At To */}
+                <div>
+                  <Label className="mb-2 block text-sm">Created To</Label>
+                  <Input
+                    type="date"
+                    value={filters.createdAtTo}
+                    onChange={(e) => setFilters({...filters, createdAtTo: e.target.value})}
+                  />
+                </div>
+
+                {/* Clear Filters Button */}
                 <div className="flex items-end">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setStatusFilter('all');
-                      setSearchQuery('');
-                    }}
-                  >
+                  <Button variant="ghost" size="sm" onClick={clearFilters} disabled={!hasActiveFilters}>
                     <X className="h-4 w-4 mr-1" />
                     Clear filters
                   </Button>
