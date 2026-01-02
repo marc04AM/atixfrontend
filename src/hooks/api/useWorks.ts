@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { worksApi } from '@/lib/api';
 import { Work, PaginatedResponse } from '@/types';
 
@@ -16,6 +16,7 @@ export function useWorks(params?: Record<string, any>) {
   return useQuery<PaginatedResponse<Work>>({
     queryKey: worksKeys.list(params),
     queryFn: () => worksApi.getAll(params),
+    placeholderData: keepPreviousData,
   });
 }
 

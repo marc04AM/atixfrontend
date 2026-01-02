@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { ticketsApi } from '@/lib/api';
 import { Ticket, PaginatedResponse } from '@/types';
 
@@ -16,6 +16,7 @@ export function useTickets(params?: Record<string, any>) {
   return useQuery<PaginatedResponse<Ticket>>({
     queryKey: ticketsKeys.list(params),
     queryFn: () => ticketsApi.getAll(params),
+    placeholderData: keepPreviousData,
   });
 }
 
