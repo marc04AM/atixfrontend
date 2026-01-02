@@ -3,6 +3,7 @@ import { UserRole, UserType } from '@/types';
 
 interface AuthUser {
   id?: string;
+  profileImageUrl?: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -16,6 +17,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (token: string, user: AuthUser) => void;
+  updateUser: (updates: Partial<AuthUser>) => void;
   logout: () => void;
   isAdmin: () => boolean;
   isOwner: () => boolean;
@@ -53,6 +55,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(newUser);
   };
 
+  const updateUser = (updates: Partial<AuthUser>) => {
+    setUser((currentUser) => {
+      if (!currentUser) return currentUser;
+      const nextUser = { ...currentUser, ...updates };
+      localStorage.setItem('authUser', JSON.stringify(nextUser));
+      return nextUser;
+    });
+  };
+
   const logout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('authUser');
@@ -72,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!token && !!user,
         isLoading,
         login,
+        updateUser,
         logout,
         isAdmin,
         isOwner,

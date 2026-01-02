@@ -12,7 +12,7 @@ import { useUpdateUser, useUpdatePassword, useUploadAvatar, useUsers } from '@/h
 
 export default function ProfilePage() {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, updateUser: updateAuthUser } = useAuth();
 
   const updateUser = useUpdateUser();
   const updatePassword = useUpdatePassword();
@@ -38,8 +38,19 @@ export default function ProfilePage() {
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
     email: user?.email || '',
-    profileImageUrl: '',
+    profileImageUrl: user?.profileImageUrl || '',
   });
+
+  useEffect(() => {
+    if (!user) return;
+    setProfileData((prev) => ({
+      ...prev,
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      email: user.email || '',
+      profileImageUrl: user.profileImageUrl || '',
+    }));
+  }, [user]);
   
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -49,14 +60,45 @@ export default function ProfilePage() {
   
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setProfileData({ ...profileData, profileImageUrl: url });
-      toast({ title: 'Image uploaded', description: 'Click save to apply changes' });
+    if (!file) return;
+    if (!currentUserId) {
+      toast({ title: 'Error', description: 'User ID not available', variant: 'destructive' });
+      return;
     }
+
+    const previousUrl = profileData.profileImageUrl;
+    const previewUrl = URL.createObjectURL(file);
+    setProfileData((prev) => ({ ...prev, profileImageUrl: previewUrl }));
+    setIsUploadingAvatar(true);
+    uploadAvatar.mutate(
+      { id: currentUserId, file },
+      {
+        onSuccess: (data: any) => {
+          const nextUrl =
+            data?.profileImageUrl ||
+            data?.avatarUrl ||
+            data?.url ||
+            data?.imageUrl ||
+            data?.avatar ||
+            data?.user?.profileImageUrl;
+          if (nextUrl) {
+            updateAuthUser({ profileImageUrl: nextUrl });
+            setProfileData((prev) => ({ ...prev, profileImageUrl: nextUrl }));
+          }
+          toast({ title: 'Success', description: 'Avatar updated successfully' });
+          setIsUploadingAvatar(false);
+        },
+        onError: (error: any) => {
+          setProfileData((prev) => ({ ...prev, profileImageUrl: previousUrl }));
+          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+          setIsUploadingAvatar(false);
+        }
+      }
+    );
   };
 
   const handleProfileUpdate = () => {
@@ -80,7 +122,21 @@ export default function ProfilePage() {
         }
       },
       {
-        onSuccess: () => {
+        onSuccess: (updatedUser: any) => {
+          const nextFirstName = updatedUser?.firstName ?? profileData.firstName;
+          const nextLastName = updatedUser?.lastName ?? profileData.lastName;
+          const nextEmail = updatedUser?.email ?? profileData.email;
+          updateAuthUser({
+            firstName: nextFirstName,
+            lastName: nextLastName,
+            email: nextEmail,
+          });
+          setProfileData((prev) => ({
+            ...prev,
+            firstName: nextFirstName,
+            lastName: nextLastName,
+            email: nextEmail,
+          }));
           toast({ title: 'Success', description: 'Profile updated successfully' });
           setIsUpdatingProfile(false);
         },
@@ -164,6 +220,7 @@ export default function ProfilePage() {
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
+                  disabled={isUploadingAvatar}
                   className="hidden"
                 />
               </label>

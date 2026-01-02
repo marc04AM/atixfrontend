@@ -88,6 +88,7 @@ export function useUploadAvatar() {
       usersApi.uploadAvatar(id, file),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: usersKeys.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: usersKeys.lists() });
     },
   });
 }
