@@ -130,7 +130,7 @@ export default function LoginPage() {
               <Briefcase className="h-7 w-7 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl">Welcome to ATIX management system</CardTitle>
+          <CardTitle className="text-2xl">Welcome to ATIX Management System</CardTitle>
           <CardDescription>Sign in to your account to continue</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

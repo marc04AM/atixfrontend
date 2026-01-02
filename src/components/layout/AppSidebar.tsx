@@ -58,7 +58,7 @@ export function AppSidebar() {
           </div>
           <div className="flex flex-col">
             <span className="font-semibold text-sidebar-foreground">ATIX MS</span>
-            <span className="text-xs text-muted-foreground">Work Management</span>
+            <span className="text-xs text-muted-foreground">Management System</span>
           </div>
         </div>
       </SidebarHeader>

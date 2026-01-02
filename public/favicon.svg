@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="ATIX MS">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#fdba74" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0f172a" />
+  <path d="M12 18h40v6H12z" fill="url(#accent)" />
+  <text x="32" y="41" text-anchor="middle" font-size="22" font-family="Segoe UI, Arial, sans-serif" font-weight="700" fill="#f8fafc">
+    AX
+  </text>
+</svg>
