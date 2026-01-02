@@ -28,7 +28,7 @@ import {
   TrendingUp,
   BarChart3
 } from 'lucide-react';
-import { Work, Client, Plant, SellerUser } from '@/types';
+import { Work, Client, Plant, SellerUser, TechnicianUser, Ticket } from '@/types';
 
 // Mock data
 const mockWorks: Work[] = [
@@ -170,17 +170,55 @@ const mockSellers: SellerUser[] = [
   { id: 's2', firstName: 'Laura', lastName: 'Bianchi', email: 'laura@company.com', role: 'USER', userType: 'SELLER' },
 ];
 
+const mockTechnicians: TechnicianUser[] = [
+  { id: 't1', firstName: 'Giuseppe', lastName: 'Verdi', email: 'giuseppe@company.com', role: 'USER', userType: 'TECHNICIAN' },
+  { id: 't2', firstName: 'Anna', lastName: 'Ferrari', email: 'anna@company.com', role: 'USER', userType: 'TECHNICIAN' },
+  { id: 't3', firstName: 'Luca', lastName: 'Romano', email: 'luca@company.com', role: 'USER', userType: 'TECHNICIAN' },
+];
+
+const mockTickets: Ticket[] = [
+  { id: 'tk1', name: 'Machine malfunction', senderEmail: 'op@plant.com', description: 'Issue', status: 'OPEN', createdAt: '2024-01-16' },
+  { id: 'tk2', name: 'Software update', senderEmail: 'it@factory.com', description: 'Update', status: 'IN_PROGRESS', createdAt: '2024-01-15' },
+];
+
+interface WorkFilters {
+  atixClientId: string;
+  finalClientId: string;
+  sellerId: string;
+  plantId: string;
+  ticketId: string;
+  technicianId: string;
+  invoiced: string;
+  orderDateFrom: string;
+  orderDateTo: string;
+  expectedStartDateFrom: string;
+  expectedStartDateTo: string;
+  name: string;
+  bidNumber: string;
+  orderNumber: string;
+}
+
 export default function WorksPage() {
   const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState('open');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({
-    clientId: '',
-    plantId: '',
+  const [filters, setFilters] = useState<WorkFilters>({
+    atixClientId: '',
+    finalClientId: '',
     sellerId: '',
+    plantId: '',
+    ticketId: '',
+    technicianId: '',
     invoiced: '',
+    orderDateFrom: '',
+    orderDateTo: '',
+    expectedStartDateFrom: '',
+    expectedStartDateTo: '',
+    name: '',
+    bidNumber: '',
+    orderNumber: '',
   });
 
   // Filter works based on tab and filters
@@ -189,8 +227,13 @@ export default function WorksPage() {
     if (activeTab === 'open' && work.completed) return false;
     if (activeTab === 'closed' && !work.completed) return false;
 
-    // Filter by client
-    if (filters.clientId && work.atixClient?.id !== filters.clientId && work.finalClient?.id !== filters.clientId) {
+    // Filter by atix client
+    if (filters.atixClientId && work.atixClient?.id !== filters.atixClientId) {
+      return false;
+    }
+
+    // Filter by final client
+    if (filters.finalClientId && work.finalClient?.id !== filters.finalClientId) {
       return false;
     }
 
@@ -200,9 +243,34 @@ export default function WorksPage() {
     // Filter by seller
     if (filters.sellerId && work.seller?.id !== filters.sellerId) return false;
 
+    // Filter by technician
+    if (filters.technicianId && !work.assignments?.some(a => a.user?.id === filters.technicianId)) {
+      return false;
+    }
+
+    // Filter by ticket
+    if (filters.ticketId && work.ticket?.id !== filters.ticketId) return false;
+
     // Filter by invoiced
     if (filters.invoiced === 'true' && !work.invoiced) return false;
     if (filters.invoiced === 'false' && work.invoiced) return false;
+
+    // Filter by order date range
+    if (filters.orderDateFrom && work.orderDate < filters.orderDateFrom) return false;
+    if (filters.orderDateTo && work.orderDate > filters.orderDateTo) return false;
+
+    // Filter by expected start date range
+    if (filters.expectedStartDateFrom && work.expectedStartDate && work.expectedStartDate < filters.expectedStartDateFrom) return false;
+    if (filters.expectedStartDateTo && work.expectedStartDate && work.expectedStartDate > filters.expectedStartDateTo) return false;
+
+    // Filter by name
+    if (filters.name && !work.name.toLowerCase().includes(filters.name.toLowerCase())) return false;
+
+    // Filter by bid number
+    if (filters.bidNumber && !work.bidNumber.toLowerCase().includes(filters.bidNumber.toLowerCase())) return false;
+
+    // Filter by order number
+    if (filters.orderNumber && !work.orderNumber.toLowerCase().includes(filters.orderNumber.toLowerCase())) return false;
 
     // Search filter
     if (searchQuery) {
@@ -222,13 +290,25 @@ export default function WorksPage() {
 
   const clearFilters = () => {
     setFilters({
-      clientId: '',
-      plantId: '',
+      atixClientId: '',
+      finalClientId: '',
       sellerId: '',
+      plantId: '',
+      ticketId: '',
+      technicianId: '',
       invoiced: '',
+      orderDateFrom: '',
+      orderDateTo: '',
+      expectedStartDateFrom: '',
+      expectedStartDateTo: '',
+      name: '',
+      bidNumber: '',
+      orderNumber: '',
     });
     setSearchQuery('');
   };
+
+  const hasActiveFilters = Object.values(filters).some(v => v !== '') || searchQuery !== '';
 
   const openWorks = mockWorks.filter(w => !w.completed);
   const closedWorks = mockWorks.filter(w => w.completed);
@@ -287,50 +367,105 @@ export default function WorksPage() {
         {showFilters && (
           <Card className="mt-4">
             <CardContent className="pt-4">
-              <div className="flex flex-wrap gap-4">
-                <div className="w-48">
-                  <Label className="mb-2 block text-sm">Client</Label>
-                  <Select value={filters.clientId} onValueChange={(v) => setFilters({...filters, clientId: v})}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {/* Atix Client */}
+                <div>
+                  <Label className="mb-2 block text-sm">Atix Client</Label>
+                  <Select value={filters.atixClientId} onValueChange={(v) => setFilters({...filters, atixClientId: v})}>
                     <SelectTrigger>
-                      <SelectValue placeholder="All clients" />
+                      <SelectValue placeholder="All" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Clients</SelectItem>
-                      {mockClients.map(c => (
+                      <SelectItem value="">All</SelectItem>
+                      {mockClients.filter(c => c.type === 'ATIX').map(c => (
                         <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="w-48">
+
+                {/* Final Client */}
+                <div>
+                  <Label className="mb-2 block text-sm">Final Client</Label>
+                  <Select value={filters.finalClientId} onValueChange={(v) => setFilters({...filters, finalClientId: v})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All</SelectItem>
+                      {mockClients.filter(c => c.type === 'FINAL').map(c => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Plant */}
+                <div>
                   <Label className="mb-2 block text-sm">Plant</Label>
                   <Select value={filters.plantId} onValueChange={(v) => setFilters({...filters, plantId: v})}>
                     <SelectTrigger>
-                      <SelectValue placeholder="All plants" />
+                      <SelectValue placeholder="All" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Plants</SelectItem>
+                      <SelectItem value="">All</SelectItem>
                       {mockPlants.map(p => (
                         <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="w-48">
+
+                {/* Seller */}
+                <div>
                   <Label className="mb-2 block text-sm">Seller</Label>
                   <Select value={filters.sellerId} onValueChange={(v) => setFilters({...filters, sellerId: v})}>
                     <SelectTrigger>
-                      <SelectValue placeholder="All sellers" />
+                      <SelectValue placeholder="All" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Sellers</SelectItem>
+                      <SelectItem value="">All</SelectItem>
                       {mockSellers.map(s => (
                         <SelectItem key={s.id} value={s.id}>{s.firstName} {s.lastName}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="w-48">
+
+                {/* Technician */}
+                <div>
+                  <Label className="mb-2 block text-sm">Technician</Label>
+                  <Select value={filters.technicianId} onValueChange={(v) => setFilters({...filters, technicianId: v})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All</SelectItem>
+                      {mockTechnicians.map(t => (
+                        <SelectItem key={t.id} value={t.id}>{t.firstName} {t.lastName}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Ticket */}
+                <div>
+                  <Label className="mb-2 block text-sm">Ticket</Label>
+                  <Select value={filters.ticketId} onValueChange={(v) => setFilters({...filters, ticketId: v})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All</SelectItem>
+                      {mockTickets.map(t => (
+                        <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Invoiced */}
+                <div>
                   <Label className="mb-2 block text-sm">Invoiced</Label>
                   <Select value={filters.invoiced} onValueChange={(v) => setFilters({...filters, invoiced: v})}>
                     <SelectTrigger>
@@ -343,8 +478,80 @@ export default function WorksPage() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Order Date From */}
+                <div>
+                  <Label className="mb-2 block text-sm">Order Date From</Label>
+                  <Input
+                    type="date"
+                    value={filters.orderDateFrom}
+                    onChange={(e) => setFilters({...filters, orderDateFrom: e.target.value})}
+                  />
+                </div>
+
+                {/* Order Date To */}
+                <div>
+                  <Label className="mb-2 block text-sm">Order Date To</Label>
+                  <Input
+                    type="date"
+                    value={filters.orderDateTo}
+                    onChange={(e) => setFilters({...filters, orderDateTo: e.target.value})}
+                  />
+                </div>
+
+                {/* Expected Start From */}
+                <div>
+                  <Label className="mb-2 block text-sm">Expected Start From</Label>
+                  <Input
+                    type="date"
+                    value={filters.expectedStartDateFrom}
+                    onChange={(e) => setFilters({...filters, expectedStartDateFrom: e.target.value})}
+                  />
+                </div>
+
+                {/* Expected Start To */}
+                <div>
+                  <Label className="mb-2 block text-sm">Expected Start To</Label>
+                  <Input
+                    type="date"
+                    value={filters.expectedStartDateTo}
+                    onChange={(e) => setFilters({...filters, expectedStartDateTo: e.target.value})}
+                  />
+                </div>
+
+                {/* Name */}
+                <div>
+                  <Label className="mb-2 block text-sm">Name</Label>
+                  <Input
+                    placeholder="Search name..."
+                    value={filters.name}
+                    onChange={(e) => setFilters({...filters, name: e.target.value})}
+                  />
+                </div>
+
+                {/* Bid Number */}
+                <div>
+                  <Label className="mb-2 block text-sm">Bid Number</Label>
+                  <Input
+                    placeholder="Search bid..."
+                    value={filters.bidNumber}
+                    onChange={(e) => setFilters({...filters, bidNumber: e.target.value})}
+                  />
+                </div>
+
+                {/* Order Number */}
+                <div>
+                  <Label className="mb-2 block text-sm">Order Number</Label>
+                  <Input
+                    placeholder="Search order..."
+                    value={filters.orderNumber}
+                    onChange={(e) => setFilters({...filters, orderNumber: e.target.value})}
+                  />
+                </div>
+
+                {/* Clear Filters Button */}
                 <div className="flex items-end">
-                  <Button variant="ghost" size="sm" onClick={clearFilters}>
+                  <Button variant="ghost" size="sm" onClick={clearFilters} disabled={!hasActiveFilters}>
                     <X className="h-4 w-4 mr-1" />
                     Clear filters
                   </Button>
