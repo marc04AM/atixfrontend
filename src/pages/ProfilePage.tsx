@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User, Mail, Lock, Camera, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,17 +8,49 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUpdateUser, useUpdatePassword, useUploadAvatar, useUsers } from '@/hooks/api';
 
 export default function ProfilePage() {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, updateUser: updateAuthUser } = useAuth();
+
+  const updateUser = useUpdateUser();
+  const updatePassword = useUpdatePassword();
+  const uploadAvatar = useUploadAvatar();
+
+  // Fetch users to get the current user's ID if not available
+  const { data: usersData } = useUsers();
+  const [currentUserId, setCurrentUserId] = useState<string | undefined>(user?.id);
+
+  useEffect(() => {
+    if (user?.id) {
+      setCurrentUserId(user.id);
+    } else if (usersData && user?.email) {
+      // Find current user by email
+      const currentUser = usersData.find((u: any) => u.email === user.email);
+      if (currentUser) {
+        setCurrentUserId(currentUser.id);
+      }
+    }
+  }, [user, usersData]);
   
   const [profileData, setProfileData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
     email: user?.email || '',
-    profileImageUrl: '',
+    profileImageUrl: user?.profileImageUrl || '',
   });
+
+  useEffect(() => {
+    if (!user) return;
+    setProfileData((prev) => ({
+      ...prev,
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      email: user.email || '',
+      profileImageUrl: user.profileImageUrl || '',
+    }));
+  }, [user]);
   
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -28,35 +60,100 @@ export default function ProfilePage() {
   
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setProfileData({ ...profileData, profileImageUrl: url });
-      toast({ title: 'Image uploaded', description: 'Click save to apply changes' });
+    if (!file) return;
+    if (!currentUserId) {
+      toast({ title: 'Error', description: 'User ID not available', variant: 'destructive' });
+      return;
     }
+
+    const previousUrl = profileData.profileImageUrl;
+    const previewUrl = URL.createObjectURL(file);
+    setProfileData((prev) => ({ ...prev, profileImageUrl: previewUrl }));
+    setIsUploadingAvatar(true);
+    uploadAvatar.mutate(
+      { id: currentUserId, file },
+      {
+        onSuccess: (data: any) => {
+          const nextUrl =
+            data?.profileImageUrl ||
+            data?.avatarUrl ||
+            data?.url ||
+            data?.imageUrl ||
+            data?.avatar ||
+            data?.user?.profileImageUrl;
+          if (nextUrl) {
+            updateAuthUser({ profileImageUrl: nextUrl });
+            setProfileData((prev) => ({ ...prev, profileImageUrl: nextUrl }));
+          }
+          toast({ title: 'Success', description: 'Avatar updated successfully' });
+          setIsUploadingAvatar(false);
+        },
+        onError: (error: any) => {
+          setProfileData((prev) => ({ ...prev, profileImageUrl: previousUrl }));
+          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+          setIsUploadingAvatar(false);
+        }
+      }
+    );
   };
 
-  const handleProfileUpdate = async () => {
+  const handleProfileUpdate = () => {
+    if (!currentUserId) {
+      toast({ title: 'Error', description: 'User ID not available', variant: 'destructive' });
+      return;
+    }
     if (!profileData.firstName || !profileData.lastName || !profileData.email) {
       toast({ title: 'Error', description: 'All fields are required', variant: 'destructive' });
       return;
     }
 
     setIsUpdatingProfile(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast({ title: 'Success', description: 'Profile updated successfully' });
-    } catch {
-      toast({ title: 'Error', description: 'Failed to update profile', variant: 'destructive' });
-    } finally {
-      setIsUpdatingProfile(false);
-    }
+    updateUser.mutate(
+      {
+        id: currentUserId,
+        data: {
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          email: profileData.email,
+        }
+      },
+      {
+        onSuccess: (updatedUser: any) => {
+          const nextFirstName = updatedUser?.firstName ?? profileData.firstName;
+          const nextLastName = updatedUser?.lastName ?? profileData.lastName;
+          const nextEmail = updatedUser?.email ?? profileData.email;
+          updateAuthUser({
+            firstName: nextFirstName,
+            lastName: nextLastName,
+            email: nextEmail,
+          });
+          setProfileData((prev) => ({
+            ...prev,
+            firstName: nextFirstName,
+            lastName: nextLastName,
+            email: nextEmail,
+          }));
+          toast({ title: 'Success', description: 'Profile updated successfully' });
+          setIsUpdatingProfile(false);
+        },
+        onError: (error: any) => {
+          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+          setIsUpdatingProfile(false);
+        }
+      }
+    );
   };
 
-  const handlePasswordUpdate = async () => {
+  const handlePasswordUpdate = () => {
+    const userId = currentUserId ?? user?.id;
+    if (!userId) {
+      toast({ title: 'Error', description: 'User ID not available', variant: 'destructive' });
+      return;
+    }
     if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
       toast({ title: 'Error', description: 'All password fields are required', variant: 'destructive' });
       return;
@@ -73,16 +170,26 @@ export default function ProfilePage() {
     }
 
     setIsUpdatingPassword(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast({ title: 'Success', description: 'Password updated successfully' });
-      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    } catch {
-      toast({ title: 'Error', description: 'Failed to update password', variant: 'destructive' });
-    } finally {
-      setIsUpdatingPassword(false);
-    }
+    updatePassword.mutate(
+      {
+        id: userId,
+        data: {
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }
+      },
+      {
+        onSuccess: () => {
+          toast({ title: 'Success', description: 'Password updated successfully' });
+          setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+          setIsUpdatingPassword(false);
+        },
+        onError: (error: any) => {
+          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+          setIsUpdatingPassword(false);
+        }
+      }
+    );
   };
 
   return (
@@ -117,6 +224,7 @@ export default function ProfilePage() {
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
+                  disabled={isUploadingAvatar}
                   className="hidden"
                 />
               </label>
@@ -125,7 +233,7 @@ export default function ProfilePage() {
               <p className="font-medium">{profileData.firstName} {profileData.lastName}</p>
               <p className="text-sm text-muted-foreground">{profileData.email}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Role: {user?.role} • Type: {user?.userType || 'N/A'}
+                Role: {user?.role} • Type: {user?.type || 'N/A'}
               </p>
             </div>
           </div>

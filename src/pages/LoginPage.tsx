@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { authApi } from '@/lib/api';
+import { authApi, usersApi } from '@/lib/api';
+import { getUserIdFromToken } from '@/lib/auth';
 
 // Demo users for testing without backend
 const DEMO_USERS = {
@@ -38,7 +39,7 @@ const DEMO_USERS = {
 export default function LoginPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, updateUser: updateAuthUser } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -79,12 +80,29 @@ export default function LoginPage() {
     try {
       const response = await authApi.login(email, password);
       
+      const userId = response.id ?? getUserIdFromToken(response.token);
+
       login(response.token, {
+        id: userId ?? response.id,
         email: response.email,
         firstName: response.firstName,
         lastName: response.lastName,
         role: response.role as 'ADMIN' | 'OWNER' | 'USER',
+        profileImageUrl: response.profileImageUrl,
       });
+
+      try {
+        const resolvedUser = userId ? await usersApi.getById(userId) : null;
+        if (resolvedUser) {
+          updateAuthUser({
+            id: resolvedUser.id ?? userId ?? response.id,
+            profileImageUrl: resolvedUser.profileImageUrl ?? response.profileImageUrl,
+            type: resolvedUser.type,
+          });
+        }
+      } catch {
+        // Ignore profile hydration errors on login.
+      }
       
       toast({
         title: 'Welcome back!',
@@ -112,7 +130,7 @@ export default function LoginPage() {
               <Briefcase className="h-7 w-7 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl">Welcome to ATIX management system</CardTitle>
+          <CardTitle className="text-2xl">Welcome to ATIX Management System</CardTitle>
           <CardDescription>Sign in to your account to continue</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

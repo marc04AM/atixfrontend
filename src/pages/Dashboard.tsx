@@ -1,43 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
-import { 
+import {
   Briefcase,
   Ticket,
   AlertCircle
 } from 'lucide-react';
 import { TicketStatus } from '@/types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-
-// Mock data - replace with real API calls
-const mockDashboardData = {
-  ticketStatusCounts: [
-    { status: 'OPEN' as TicketStatus, count: 12 },
-    { status: 'IN_PROGRESS' as TicketStatus, count: 8 },
-    { status: 'RESOLVED' as TicketStatus, count: 5 },
-    { status: 'CLOSED' as TicketStatus, count: 45 },
-  ],
-  workStatusCounts: [
-    { status: 'PENDING', count: 15, label: 'Pending' },
-    { status: 'IN_PROGRESS', count: 22, label: 'In Progress' },
-    { status: 'COMPLETED', count: 38, label: 'Completed' },
-    { status: 'INVOICED', count: 52, label: 'Invoiced' },
-  ],
-  recentWorks: [
-    { id: '1', name: 'Automation System Upgrade', orderDate: '2024-01-15', completed: false, invoiced: false },
-    { id: '2', name: 'PLC Programming - Line 3', orderDate: '2024-01-12', completed: true, invoiced: false },
-    { id: '3', name: 'Electrical Panel Installation', orderDate: '2024-01-10', completed: true, invoiced: true },
-    { id: '4', name: 'SCADA System Integration', orderDate: '2024-01-08', completed: false, invoiced: false },
-    { id: '5', name: 'Safety System Audit', orderDate: '2024-01-05', completed: true, invoiced: true },
-  ],
-  recentTickets: [
-    { id: '1', name: 'Machine malfunction on Line 2', senderEmail: 'operator@plant.com', status: 'OPEN' as TicketStatus, createdAt: '2024-01-16T10:30:00' },
-    { id: '2', name: 'Software update required', senderEmail: 'it@factory.com', status: 'IN_PROGRESS' as TicketStatus, createdAt: '2024-01-15T14:00:00' },
-    { id: '3', name: 'Annual maintenance request', senderEmail: 'maintenance@client.com', status: 'OPEN' as TicketStatus, createdAt: '2024-01-14T09:15:00' },
-    { id: '4', name: 'Emergency repair needed', senderEmail: 'urgent@plant.com', status: 'RESOLVED' as TicketStatus, createdAt: '2024-01-13T16:45:00' },
-    { id: '5', name: 'New installation quote', senderEmail: 'sales@company.com', status: 'CLOSED' as TicketStatus, createdAt: '2024-01-12T11:20:00' },
-  ],
-};
+import { useDashboard } from '@/hooks/api';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { formatDate } from '@/lib/date';
 
 const getTicketStatusColor = (status: TicketStatus) => {
   switch (status) {
@@ -60,20 +33,36 @@ const TICKET_COLORS = ['#ea580c', '#f97316', '#fb923c', '#fdba74'];
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const data = mockDashboardData;
+  const { data, isLoading, error } = useDashboard();
 
-  const openTickets = data.ticketStatusCounts.find(t => t.status === 'OPEN')?.count || 0;
-  const inProgressTickets = data.ticketStatusCounts.find(t => t.status === 'IN_PROGRESS')?.count || 0;
+  if (isLoading) return <LoadingSpinner message="Loading dashboard..." />;
+  if (error) return (
+    <div className="flex items-center justify-center py-12">
+      <Card className="border-destructive">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-2 text-destructive">
+            <AlertCircle className="h-5 w-5" />
+            <p>Error loading dashboard: {(error as Error).message}</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+  if (!data) return null;
 
-  const ticketChartData = data.ticketStatusCounts.map(t => ({
+  const openTickets = data.ticketStatusCounts?.find((t: any) => t.status === 'OPEN')?.count || 0;
+  const inProgressTickets = data.ticketStatusCounts?.find((t: any) => t.status === 'IN_PROGRESS')?.count || 0;
+
+  const ticketChartData = (data.ticketStatusCounts || []).map((t: any) => ({
     name: t.status.replace('_', ' '),
     value: t.count,
   }));
 
-  const workChartData = data.workStatusCounts.map(w => ({
-    name: w.label,
-    value: w.count,
-  }));
+  // Build work chart data from completed and pending counts
+  const workChartData = [
+    { name: 'Pending', value: data.pendingWorkCount || 0 },
+    { name: 'Completed', value: data.completedWorkCount || 0 },
+  ];
 
   return (
     <div className="space-y-6">
@@ -81,7 +70,7 @@ export default function Dashboard() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground mt-1">
-          Overview of your work management system
+          Overview of the ATIX management system
         </p>
       </div>
 
@@ -260,7 +249,7 @@ export default function Dashboard() {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">{work.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(work.orderDate).toLocaleDateString()}
+                      {formatDate(work.orderDate, 'Not set')}
                     </p>
                   </div>
                   <div className="flex gap-2">

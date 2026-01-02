@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Trash2, Save, X, Factory, FolderOpen, Key, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,85 +12,89 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/hooks/use-toast';
 import { Plant, Attachment, Work } from '@/types';
 import AttachmentManager from '@/components/AttachmentManager';
-
-// Mock data
-const mockPlant: Plant = {
-  id: '1',
-  name: 'Plant Alpha',
-  notes: 'Main production facility with automated assembly lines',
-  nasDirectory: '/nas/alpha',
-  pswPhrase: 'phrase123',
-  pswPlatform: 'platform456',
-  pswStation: 'station789',
-};
-
-const mockLinkedWorks: Work[] = [
-  {
-    id: '1',
-    name: 'Automation System Upgrade',
-    bidNumber: 'BID-2024-001',
-    orderNumber: 'ORD-2024-001',
-    orderDate: '2024-01-15',
-    electricalSchemaProgression: 75,
-    programmingProgression: 50,
-    completed: false,
-    invoiced: false,
-    createdAt: '2024-01-15T10:00:00',
-    nasSubDirectory: '/projects/asu-2024',
-    expectedOfficeHours: 40,
-    expectedPlantHours: 80,
-    plant: { id: '1', name: 'Plant Alpha', notes: '', nasDirectory: '/nas/alpha', pswPhrase: '', pswPlatform: '', pswStation: '' }
-  },
-  {
-    id: '3',
-    name: 'Electrical Panel Installation',
-    bidNumber: 'BID-2024-003',
-    orderNumber: 'ORD-2024-003',
-    orderDate: '2024-01-10',
-    electricalSchemaProgression: 100,
-    programmingProgression: 100,
-    completed: true,
-    completedAt: '2024-01-18T12:00:00',
-    invoiced: true,
-    invoicedAt: '2024-01-25T10:00:00',
-    createdAt: '2024-01-10T14:00:00',
-    nasSubDirectory: '/projects/ep-install',
-    expectedOfficeHours: 16,
-    expectedPlantHours: 32,
-    plant: { id: '1', name: 'Plant Alpha', notes: '', nasDirectory: '/nas/alpha', pswPhrase: '', pswPlatform: '', pswStation: '' }
-  },
-];
+import { usePlant, useUpdatePlant, useDeletePlant, useWorks } from '@/hooks/api';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { formatDate } from '@/lib/date';
 
 export default function PlantDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const { data: plant, isLoading, error } = usePlant(id!);
+  const updatePlant = useUpdatePlant();
+  const deletePlant = useDeletePlant();
+
+  // Fetch works linked to this plant
+  const worksParams = useMemo(() => ({ plantId: id }), [id]);
+  const { data: worksData } = useWorks(worksParams);
+
   const [isEditing, setIsEditing] = useState(false);
-  const [plant, setPlant] = useState<Plant>(mockPlant);
-  const [editedPlant, setEditedPlant] = useState<Plant>(mockPlant);
+  const [editedPlant, setEditedPlant] = useState<Plant | null>(null);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [showPasswords, setShowPasswords] = useState(false);
 
+  useEffect(() => {
+    if (plant) {
+      setEditedPlant(plant);
+    }
+  }, [plant]);
+
+  const linkedWorks = worksData?.content || [];
+
   const handleSave = () => {
+    if (!plant || !editedPlant) return;
     if (!editedPlant.name.trim()) {
       toast({ title: 'Error', description: 'Name is required', variant: 'destructive' });
       return;
     }
-    setPlant(editedPlant);
-    setIsEditing(false);
-    toast({ title: 'Success', description: 'Plant updated successfully' });
+
+    updatePlant.mutate(
+      { id: plant.id, data: editedPlant },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          toast({ title: 'Success', description: 'Plant updated successfully' });
+        },
+        onError: (error: any) => {
+          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        }
+      }
+    );
   };
 
   const handleCancel = () => {
-    setEditedPlant(plant);
+    if (plant) {
+      setEditedPlant(plant);
+    }
     setIsEditing(false);
   };
 
   const handleDelete = () => {
-    toast({ title: 'Deleted', description: 'Plant has been deleted' });
-    navigate('/plants');
+    if (!plant) return;
+
+    deletePlant.mutate(plant.id, {
+      onSuccess: () => {
+        toast({ title: 'Deleted', description: 'Plant has been deleted' });
+        navigate('/plants');
+      },
+      onError: (error: any) => {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
+    });
   };
+
+  if (isLoading) return <LoadingSpinner message="Loading plant..." />;
+  if (error) return (
+    <div className="flex items-center justify-center py-12">
+      <Card className="border-destructive">
+        <CardContent className="pt-6">
+          <p className="text-destructive">Error loading plant: {(error as Error).message}</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+  if (!plant || !editedPlant) return null;
 
   return (
     <div className="space-y-6">
@@ -294,7 +298,7 @@ export default function PlantDetailPage() {
           <CardDescription>Works associated with this plant</CardDescription>
         </CardHeader>
         <CardContent>
-          {mockLinkedWorks.length === 0 ? (
+          {linkedWorks.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">No linked works</p>
           ) : (
             <div className="overflow-x-auto">
@@ -308,7 +312,7 @@ export default function PlantDetailPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockLinkedWorks.map((work) => (
+                  {linkedWorks.map((work) => (
                     <TableRow
                       key={work.id}
                       className="cursor-pointer hover:bg-muted/50"
@@ -316,7 +320,7 @@ export default function PlantDetailPage() {
                     >
                       <TableCell className="font-medium">{work.name}</TableCell>
                       <TableCell className="hidden sm:table-cell">{work.orderNumber}</TableCell>
-                      <TableCell className="hidden sm:table-cell">{new Date(work.orderDate).toLocaleDateString()}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{formatDate(work.orderDate, 'Not set')}</TableCell>
                       <TableCell>
                         {work.invoiced ? (
                           <Badge variant="secondary">Invoiced</Badge>

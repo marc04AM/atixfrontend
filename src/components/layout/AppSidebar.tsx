@@ -22,7 +22,7 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -58,7 +58,7 @@ export function AppSidebar() {
           </div>
           <div className="flex flex-col">
             <span className="font-semibold text-sidebar-foreground">ATIX MS</span>
-            <span className="text-xs text-muted-foreground">Work Management</span>
+            <span className="text-xs text-muted-foreground">Management System</span>
           </div>
         </div>
       </SidebarHeader>
@@ -131,6 +131,7 @@ export function AppSidebar() {
             )}
           >
             <Avatar className="h-8 w-8">
+              <AvatarImage src={user.profileImageUrl} alt={`${user.firstName} ${user.lastName}`} />
               <AvatarFallback className="text-xs">
                 {user.firstName[0]}{user.lastName[0]}
               </AvatarFallback>

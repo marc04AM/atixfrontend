@@ -10,20 +10,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Plant } from '@/types';
-
-// Mock data for demo
-const MOCK_PLANTS: Plant[] = [
-  { id: '1', name: 'Plant Alpha', notes: 'Main production facility', nasDirectory: '/nas/alpha', pswPhrase: '****', pswPlatform: '****', pswStation: '****' },
-  { id: '2', name: 'Plant Beta', notes: 'Secondary warehouse', nasDirectory: '/nas/beta', pswPhrase: '****', pswPlatform: '****', pswStation: '****' },
-  { id: '3', name: 'Plant Gamma', notes: 'R&D center', nasDirectory: '/nas/gamma', pswPhrase: '****', pswPlatform: '****', pswStation: '****' },
-  { id: '4', name: 'Plant Delta', notes: 'Distribution hub', nasDirectory: '/nas/delta', pswPhrase: '****', pswPlatform: '****', pswStation: '****' },
-];
+import { usePlants, useCreatePlant } from '@/hooks/api';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export default function PlantsPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [plants, setPlants] = useState<Plant[]>(MOCK_PLANTS);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newPlant, setNewPlant] = useState({
     name: '',
@@ -34,7 +27,12 @@ export default function PlantsPage() {
     pswStation: '',
   });
 
-  const filteredPlants = plants.filter(plant =>
+  // Fetch plants
+  const { data: plantsData, isLoading, error } = usePlants(0, 100);
+  const createPlant = useCreatePlant();
+
+  const plants = plantsData?.content || [];
+  const filteredPlants = plants.filter((plant: Plant) =>
     plant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     plant.notes.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -45,17 +43,30 @@ export default function PlantsPage() {
       return;
     }
 
-    const plant: Plant = {
-      id: String(Date.now()),
-      name: newPlant.name,
-      notes: newPlant.notes,
-      nasDirectory: newPlant.nasDirectory,
-      pswPhrase: newPlant.pswPhrase,
-      pswPlatform: newPlant.pswPlatform,
-      pswStation: newPlant.pswStation,
-    };
+    createPlant.mutate(newPlant, {
+      onSuccess: () => {
+        setNewPlant({ name: '', notes: '', nasDirectory: '', pswPhrase: '', pswPlatform: '', pswStation: '' });
+        setIsCreateOpen(false);
+        toast({ title: 'Success', description: 'Plant created successfully' });
+      },
+      onError: (error: any) => {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
+    });
+  };
 
-    setPlants([...plants, plant]);
+  if (isLoading) return <LoadingSpinner message="Loading plants..." />;
+  if (error) return (
+    <div className="flex items-center justify-center py-12">
+      <Card className="border-destructive">
+        <CardContent className="pt-6">
+          <p className="text-destructive">Error loading plants: {(error as Error).message}</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  const handleSaveComplete = () => {
     setNewPlant({ name: '', notes: '', nasDirectory: '', pswPhrase: '', pswPlatform: '', pswStation: '' });
     setIsCreateOpen(false);
     toast({ title: 'Success', description: 'Plant created successfully' });

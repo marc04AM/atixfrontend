@@ -23,25 +23,8 @@ import {
 import { ArrowLeft, Plus, Save } from 'lucide-react';
 import { Client, Plant, SellerUser } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-
-// Mock data
-const mockClients: Client[] = [
-  { id: 'c1', name: 'Atix Industries', type: 'ATIX' },
-  { id: 'c2', name: 'Final Corp', type: 'FINAL' },
-  { id: 'c3', name: 'Tech Solutions', type: 'ATIX' },
-  { id: 'c4', name: 'Industrial Co', type: 'ATIX' },
-];
-
-const mockPlants: Plant[] = [
-  { id: 'p1', name: 'Plant Alpha', notes: '', nasDirectory: '/nas/alpha', pswPhrase: '', pswPlatform: '', pswStation: '' },
-  { id: 'p2', name: 'Plant Beta', notes: '', nasDirectory: '/nas/beta', pswPhrase: '', pswPlatform: '', pswStation: '' },
-  { id: 'p3', name: 'Plant Gamma', notes: '', nasDirectory: '/nas/gamma', pswPhrase: '', pswPlatform: '', pswStation: '' },
-];
-
-const mockSellers: SellerUser[] = [
-  { id: 's1', firstName: 'Marco', lastName: 'Rossi', email: 'marco@company.com', role: 'USER', userType: 'SELLER' },
-  { id: 's2', firstName: 'Laura', lastName: 'Bianchi', email: 'laura@company.com', role: 'USER', userType: 'SELLER' },
-];
+import { useCreateWork, useClients, usePlants, useUsersByType, useCreateClient, useCreatePlant } from '@/hooks/api';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export default function CreateWorkPage() {
   const navigate = useNavigate();
@@ -51,8 +34,18 @@ export default function CreateWorkPage() {
   // Pre-fill from ticket if coming from ticket detail
   const ticketState = location.state as { fromTicket?: string; ticketName?: string; ticketDescription?: string } | null;
 
-  const [clients, setClients] = useState<Client[]>(mockClients);
-  const [plants, setPlants] = useState<Plant[]>(mockPlants);
+  // Fetch data from API
+  const { data: clientsData, isLoading: loadingClients } = useClients(0, 100);
+  const { data: plantsData, isLoading: loadingPlants } = usePlants(0, 100);
+  const { data: sellersData, isLoading: loadingSellers } = useUsersByType('SELLER');
+
+  const createWork = useCreateWork();
+  const createClient = useCreateClient();
+  const createPlant = useCreatePlant();
+
+  const clients = clientsData?.content || [];
+  const plants = plantsData?.content || [];
+  const sellers = sellersData || [];
 
   const [formData, setFormData] = useState({
     name: ticketState?.ticketName || '',
@@ -85,63 +78,106 @@ export default function CreateWorkPage() {
   });
 
   const handleAddClient = () => {
-    const client: Client = {
-      id: `c${Date.now()}`,
-      name: newClient.name,
-      type: newClient.type as 'ATIX' | 'FINAL',
-    };
-    setClients([...clients, client]);
-    setFormData({ ...formData, atixClientId: client.id });
-    setIsAddClientOpen(false);
-    setNewClient({ name: '', type: 'ATIX' });
-    toast({
-      title: 'Client Added',
-      description: `${client.name} has been added successfully.`,
-    });
+    if (!newClient.name.trim()) {
+      toast({ title: 'Error', description: 'Client name is required', variant: 'destructive' });
+      return;
+    }
+
+    createClient.mutate(
+      { name: newClient.name, type: newClient.type as 'ATIX' | 'FINAL' },
+      {
+        onSuccess: (data) => {
+          setFormData({ ...formData, atixClientId: data.id });
+          setIsAddClientOpen(false);
+          setNewClient({ name: '', type: 'ATIX' });
+          toast({ title: 'Success', description: `${data.name} has been added successfully.` });
+        },
+        onError: (error: any) => {
+          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        }
+      }
+    );
   };
 
   const handleAddPlant = () => {
-    const plant: Plant = {
-      id: `p${Date.now()}`,
-      ...newPlant,
-    };
-    setPlants([...plants, plant]);
-    setFormData({ ...formData, plantId: plant.id });
-    setIsAddPlantOpen(false);
-    setNewPlant({
-      name: '',
-      notes: '',
-      nasDirectory: '',
-      pswPhrase: '',
-      pswPlatform: '',
-      pswStation: '',
-    });
-    toast({
-      title: 'Plant Added',
-      description: `${plant.name} has been added successfully.`,
+    if (!newPlant.name.trim()) {
+      toast({ title: 'Error', description: 'Plant name is required', variant: 'destructive' });
+      return;
+    }
+
+    createPlant.mutate(newPlant, {
+      onSuccess: (data) => {
+        setFormData({ ...formData, plantId: data.id });
+        setIsAddPlantOpen(false);
+        setNewPlant({
+          name: '',
+          notes: '',
+          nasDirectory: '',
+          pswPhrase: '',
+          pswPlatform: '',
+          pswStation: '',
+        });
+        toast({ title: 'Success', description: `${data.name} has been added successfully.` });
+      },
+      onError: (error: any) => {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
     });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate required fields
-    if (!formData.name || !formData.bidNumber || !formData.orderNumber || !formData.sellerId) {
+    if (!formData.name || !formData.bidNumber || !formData.orderNumber || !formData.atixClientId || !formData.nasSubDirectory) {
       toast({
         title: 'Validation Error',
-        description: 'Please fill in all required fields.',
+        description: 'Please fill in all required fields (name, bid number, order number, atix client, NAS directory).',
         variant: 'destructive',
       });
       return;
     }
 
-    // In real app, call API to create work
-    toast({
-      title: 'Work Created',
-      description: `Work "${formData.name}" has been created successfully.`,
+    // Prepare data for API
+    const workData: any = {
+      name: formData.name,
+      bidNumber: formData.bidNumber,
+      orderNumber: formData.orderNumber,
+      orderDate: formData.orderDate,
+      atixClientId: formData.atixClientId,
+      nasSubDirectory: formData.nasSubDirectory,
+    };
+
+    // Add optional fields
+    if (formData.sellerId) workData.sellerId = formData.sellerId;
+    if (formData.expectedStartDate) workData.expectedStartDate = formData.expectedStartDate;
+    if (formData.finalClientId) workData.finalClientId = formData.finalClientId;
+    if (formData.plantId) workData.plantId = formData.plantId;
+    if (formData.expectedOfficeHours > 0) workData.expectedOfficeHours = formData.expectedOfficeHours;
+    if (formData.expectedPlantHours > 0) workData.expectedPlantHours = formData.expectedPlantHours;
+    if (ticketState?.fromTicket) workData.ticketId = ticketState.fromTicket;
+
+    createWork.mutate(workData, {
+      onSuccess: (data) => {
+        toast({
+          title: 'Work Created',
+          description: `Work "${data.name}" has been created successfully.`,
+        });
+        navigate('/works');
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
     });
-    navigate('/works');
   };
+
+  if (loadingClients || loadingPlants || loadingSellers) {
+    return <LoadingSpinner message="Loading form data..." />;
+  }
 
   return (
     <div className="space-y-6">
@@ -265,16 +301,16 @@ export default function CreateWorkPage() {
             <CardContent className="space-y-4">
               {/* Seller */}
               <div className="grid gap-2">
-                <Label>Seller *</Label>
+                <Label>Seller</Label>
                 <Select
                   value={formData.sellerId}
                   onValueChange={(v) => setFormData({ ...formData, sellerId: v })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select seller" />
+                    <SelectValue placeholder="Select seller (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    {mockSellers.map((seller) => (
+                    {sellers.map((seller) => (
                       <SelectItem key={seller.id} value={seller.id}>
                         {seller.firstName} {seller.lastName}
                       </SelectItem>

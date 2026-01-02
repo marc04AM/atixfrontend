@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,121 +15,42 @@ import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, 
 import { Work, WorkReportEntry, User as UserType, WorkStatus, Attachment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
+import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useAssignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType } from '@/hooks/api';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { useAuth } from '@/contexts/AuthContext';
+import { formatDate, formatDateTime } from '@/lib/date';
 
-// Mock data
-const mockWork: Work = {
-  id: '1',
-  name: 'Automation System Upgrade',
-  bidNumber: 'BID-2024-001',
-  orderNumber: 'ORD-2024-001',
-  orderDate: '2024-01-15',
-  electricalSchemaProgression: 75,
-  programmingProgression: 50,
-  expectedStartDate: '2024-02-01',
-  completed: false,
-  invoiced: false,
-  createdAt: '2024-01-15T10:00:00',
-  nasSubDirectory: '/projects/asu-2024',
-  expectedOfficeHours: 40,
-  expectedPlantHours: 80,
-  seller: {
-    id: 's1',
-    firstName: 'Marco',
-    lastName: 'Rossi',
-    email: 'marco@company.com',
-    role: 'USER',
-    userType: 'SELLER'
-  },
-  plant: {
-    id: 'p1',
-    name: 'Plant Alpha',
-    notes: '',
-    nasDirectory: '/nas/alpha',
-    pswPhrase: '',
-    pswPlatform: '',
-    pswStation: ''
-  },
-  atixClient: {
-    id: 'c1',
-    name: 'Atix Industries',
-    type: 'ATIX'
-  },
-  finalClient: {
-    id: 'c2',
-    name: 'Final Corp',
-    type: 'FINAL'
-  },
-  assignments: [{
-    id: 'a1',
-    assignedAt: '2024-01-16T09:00:00',
-    user: {
-      id: 't1',
-      firstName: 'Giuseppe',
-      lastName: 'Verdi',
-      email: 'giuseppe@company.com',
-      role: 'USER',
-      userType: 'TECHNICIAN'
-    }
-  }]
-};
-const mockReportEntries: WorkReportEntry[] = [{
-  id: 'e1',
-  description: 'Initial site inspection and assessment',
-  hours: 4
-}, {
-  id: 'e2',
-  description: 'Electrical schema design - Phase 1',
-  hours: 8
-}, {
-  id: 'e3',
-  description: 'PLC programming setup',
-  hours: 6
-}];
-const mockTechnicians: UserType[] = [{
-  id: 't1',
-  firstName: 'Giuseppe',
-  lastName: 'Verdi',
-  email: 'giuseppe@company.com',
-  role: 'USER',
-  userType: 'TECHNICIAN'
-}, {
-  id: 't2',
-  firstName: 'Anna',
-  lastName: 'Ferrari',
-  email: 'anna@company.com',
-  role: 'USER',
-  userType: 'TECHNICIAN'
-}, {
-  id: 't3',
-  firstName: 'Luca',
-  lastName: 'Romano',
-  email: 'luca@company.com',
-  role: 'USER',
-  userType: 'TECHNICIAN'
-}];
-
-// Simulated current user (in real app, get from auth context)
-const currentUser: UserType = {
-  id: 't2',
-  firstName: 'Anna',
-  lastName: 'Ferrari',
-  email: 'anna@company.com',
-  role: 'ADMIN',
-  userType: 'TECHNICIAN'
-};
 export default function WorkDetailPage() {
-  const {
-    id
-  } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  const { user: currentUser, isAdmin } = useAuth();
+
+  // Fetch data
+  const { data: work, isLoading, error } = useWork(id!);
+  const { data: reportEntriesData } = useWorkReportEntries(id!);
+  const { data: techniciansData } = useUsersByType('TECHNICIAN');
+
+  // Mutations
+  const updateWork = useUpdateWork();
+  const closeWork = useCloseWork();
+  const invoiceWork = useInvoiceWork();
+  const assignTechnician = useAssignTechnician();
+  const createReportEntry = useCreateReportEntry();
+
   const [isEditing, setIsEditing] = useState(false);
-  const [work, setWork] = useState<Work>(mockWork);
-  const [editedWork, setEditedWork] = useState<Work>(mockWork);
-  const [reportEntries, setReportEntries] = useState<WorkReportEntry[]>(mockReportEntries);
+  const [editedWork, setEditedWork] = useState<any>({});
   const [attachments, setAttachments] = useState<Attachment[]>([]);
+
+  const reportEntries = reportEntriesData || [];
+  const technicians = techniciansData || [];
+
+  // Update editedWork when work data loads
+  useEffect(() => {
+    if (work) {
+      setEditedWork(work);
+    }
+  }, [work]);
 
   // New entry dialog
   const [isAddEntryOpen, setIsAddEntryOpen] = useState(false);
@@ -141,7 +62,19 @@ export default function WorkDetailPage() {
   // Assign technician dialog
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [selectedTechnician, setSelectedTechnician] = useState('');
-  const isAdmin = currentUser.role === 'ADMIN' || currentUser.role === 'OWNER';
+
+  // Loading and error states
+  if (isLoading) return <LoadingSpinner message="Loading work details..." />;
+  if (error) return (
+    <div className="flex items-center justify-center py-12">
+      <Card className="border-destructive">
+        <CardContent className="pt-6">
+          <p className="text-destructive">Error loading work: {(error as Error).message}</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+  if (!work) return null;
 
   // Work status helper
   const getWorkStatus = (): WorkStatus => {
@@ -164,43 +97,57 @@ export default function WorkDetailPage() {
     return plantDir + workDir;
   };
   const handleStatusChange = (status: WorkStatus) => {
-    const updates: Partial<Work> = {};
-    switch (status) {
-      case 'INVOICED':
-        updates.invoiced = true;
-        updates.invoicedAt = new Date().toISOString();
-        updates.completed = true;
-        updates.completedAt = work.completedAt || new Date().toISOString();
-        break;
-      case 'COMPLETED':
-        updates.completed = true;
-        updates.completedAt = new Date().toISOString();
-        updates.invoiced = false;
-        updates.invoicedAt = undefined;
-        break;
-      case 'IN_PROGRESS':
-        updates.completed = false;
-        updates.completedAt = undefined;
-        updates.invoiced = false;
-        updates.invoicedAt = undefined;
-        break;
+    if (status === 'COMPLETED' && !work.completed) {
+      closeWork.mutate(work.id, {
+        onSuccess: () => {
+          toast({
+            title: 'Work Completed',
+            description: 'The work has been marked as complete.'
+          });
+        },
+        onError: (error: any) => {
+          toast({
+            title: 'Error',
+            description: error.message,
+            variant: 'destructive'
+          });
+        }
+      });
+    } else if (status === 'INVOICED' && !work.invoiced) {
+      invoiceWork.mutate(work.id, {
+        onSuccess: () => {
+          toast({
+            title: 'Work Invoiced',
+            description: 'The work has been marked as invoiced.'
+          });
+        },
+        onError: (error: any) => {
+          toast({
+            title: 'Error',
+            description: error.message,
+            variant: 'destructive'
+          });
+        }
+      });
     }
-    setWork({
-      ...work,
-      ...updates
-    });
-    toast({
-      title: 'Status Updated',
-      description: `Work status changed to ${status.replace('_', ' ').toLowerCase()}.`
-    });
   };
-  const isAssigned = work.assignments?.some(a => a.user?.id === currentUser.id);
+  const isAssigned = work.assignments?.some((a: any) => a.user?.id === currentUser?.id);
   const handleSave = () => {
-    setWork(editedWork);
-    setIsEditing(false);
-    toast({
-      title: 'Work Updated',
-      description: 'The work has been updated successfully.'
+    updateWork.mutate({ id: work.id, data: editedWork }, {
+      onSuccess: () => {
+        setIsEditing(false);
+        toast({
+          title: 'Work Updated',
+          description: 'The work has been updated successfully.'
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive'
+        });
+      }
     });
   };
   const handleCancel = () => {
@@ -208,88 +155,119 @@ export default function WorkDetailPage() {
     setIsEditing(false);
   };
   const handleAddEntry = () => {
-    const entry: WorkReportEntry = {
-      id: `e${Date.now()}`,
+    createReportEntry.mutate({
+      workId: work.id,
       description: newEntry.description,
       hours: newEntry.hours
-    };
-    setReportEntries([...reportEntries, entry]);
-    setIsAddEntryOpen(false);
-    setNewEntry({
-      description: '',
-      hours: 0
-    });
-    toast({
-      title: 'Entry Added',
-      description: 'Work report entry has been added.'
+    }, {
+      onSuccess: () => {
+        setIsAddEntryOpen(false);
+        setNewEntry({
+          description: '',
+          hours: 0
+        });
+        toast({
+          title: 'Entry Added',
+          description: 'Work report entry has been added.'
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive'
+        });
+      }
     });
   };
   const handleDeleteEntry = (entryId: string) => {
-    setReportEntries(reportEntries.filter(e => e.id !== entryId));
     toast({
       title: 'Entry Deleted',
       description: 'Work report entry has been deleted.'
     });
   };
   const handleAssignMyself = () => {
-    const newAssignment = {
-      id: `a${Date.now()}`,
-      assignedAt: new Date().toISOString(),
-      user: currentUser
-    };
-    setWork({
-      ...work,
-      assignments: [...(work.assignments || []), newAssignment]
-    });
-    toast({
-      title: 'Assigned',
-      description: 'You have been assigned to this work.'
+    if (!currentUser) return;
+    assignTechnician.mutate({
+      workId: work.id,
+      technicianId: currentUser.id
+    }, {
+      onSuccess: () => {
+        toast({
+          title: 'Assigned',
+          description: 'You have been assigned to this work.'
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive'
+        });
+      }
     });
   };
   const handleAssignTechnician = () => {
-    const technician = mockTechnicians.find(t => t.id === selectedTechnician);
-    if (!technician) return;
-    const newAssignment = {
-      id: `a${Date.now()}`,
-      assignedAt: new Date().toISOString(),
-      user: technician
-    };
-    setWork({
-      ...work,
-      assignments: [...(work.assignments || []), newAssignment]
-    });
-    setIsAssignOpen(false);
-    setSelectedTechnician('');
-    toast({
-      title: 'Technician Assigned',
-      description: `${technician.firstName} ${technician.lastName} has been assigned.`
+    if (!selectedTechnician) return;
+    const technician = technicians.find((t: any) => t.id === selectedTechnician);
+    assignTechnician.mutate({
+      workId: work.id,
+      technicianId: selectedTechnician
+    }, {
+      onSuccess: () => {
+        setIsAssignOpen(false);
+        setSelectedTechnician('');
+        toast({
+          title: 'Technician Assigned',
+          description: `${technician?.firstName} ${technician?.lastName} has been assigned.`
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive'
+        });
+      }
     });
   };
   const handleMarkComplete = () => {
-    setWork({
-      ...work,
-      completed: true,
-      completedAt: new Date().toISOString()
-    });
-    toast({
-      title: 'Work Completed',
-      description: 'The work has been marked as complete.'
+    closeWork.mutate(work.id, {
+      onSuccess: () => {
+        toast({
+          title: 'Work Completed',
+          description: 'The work has been marked as complete.'
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive'
+        });
+      }
     });
   };
   const handleMarkInvoiced = () => {
-    setWork({
-      ...work,
-      invoiced: true,
-      invoicedAt: new Date().toISOString()
-    });
-    toast({
-      title: 'Work Invoiced',
-      description: 'The work has been marked as invoiced.'
+    invoiceWork.mutate(work.id, {
+      onSuccess: () => {
+        toast({
+          title: 'Work Invoiced',
+          description: 'The work has been marked as invoiced.'
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive'
+        });
+      }
     });
   };
-  const totalHours = reportEntries.reduce((sum, e) => sum + e.hours, 0);
-  const assignedTechnicianIds = work.assignments?.map(a => a.user?.id) || [];
-  const availableTechnicians = mockTechnicians.filter(t => !assignedTechnicianIds.includes(t.id));
+  const totalHours = reportEntries.reduce((sum: number, e: any) => sum + e.hours, 0);
+  const assignedTechnicianIds = work.assignments?.map((a: any) => a.user?.id) || [];
+  const availableTechnicians = technicians.filter((t: any) => !assignedTechnicianIds.includes(t.id));
   return <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -437,11 +415,11 @@ export default function WorkDetailPage() {
                     </div>
                     <div>
                       <Label className="text-muted-foreground text-xs">Order Date</Label>
-                      <p>{new Date(work.orderDate).toLocaleDateString()}</p>
+                      <p>{formatDate(work.orderDate, 'Not set')}</p>
                     </div>
                     <div>
                       <Label className="text-muted-foreground text-xs">Expected Start</Label>
-                      <p>{work.expectedStartDate ? new Date(work.expectedStartDate).toLocaleDateString() : 'Not set'}</p>
+                      <p>{formatDate(work.expectedStartDate, 'Not set')}</p>
                     </div>
                   </div>
                   
@@ -607,7 +585,7 @@ export default function WorkDetailPage() {
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <Label className="text-muted-foreground text-xs">Created At</Label>
-                  <p className="text-sm">{new Date(work.createdAt).toLocaleString()}</p>
+                  <p className="text-sm">{formatDateTime(work.createdAt, 'Not set')}</p>
                 </div>
               </div>
             </CardContent>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,10 +23,10 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
+import {
+  Plus,
+  Search,
+  Filter,
   Ticket as TicketIcon,
   Calendar,
   Mail,
@@ -34,17 +34,9 @@ import {
 } from 'lucide-react';
 import { TicketStatus, Ticket } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-
-// Mock data
-const mockTickets: Ticket[] = [
-  { id: '1', name: 'Machine malfunction on Line 2', senderEmail: 'operator@plant.com', description: 'The main conveyor belt is not working properly and needs immediate attention.', status: 'OPEN', createdAt: '2024-01-16T10:30:00' },
-  { id: '2', name: 'Software update required', senderEmail: 'it@factory.com', description: 'SCADA system needs to be updated to the latest version.', status: 'IN_PROGRESS', createdAt: '2024-01-15T14:00:00' },
-  { id: '3', name: 'Annual maintenance request', senderEmail: 'maintenance@client.com', description: 'Request for annual preventive maintenance scheduling.', status: 'OPEN', createdAt: '2024-01-14T09:15:00' },
-  { id: '4', name: 'Emergency repair needed', senderEmail: 'urgent@plant.com', description: 'Critical pump failure in section A.', status: 'RESOLVED', createdAt: '2024-01-13T16:45:00' },
-  { id: '5', name: 'New installation quote', senderEmail: 'sales@company.com', description: 'Customer requesting quote for new automation system.', status: 'CLOSED', createdAt: '2024-01-12T11:20:00' },
-  { id: '6', name: 'PLC programming issue', senderEmail: 'tech@plant.com', description: 'PLC on Line 4 showing communication errors.', status: 'IN_PROGRESS', createdAt: '2024-01-11T08:00:00' },
-  { id: '7', name: 'Safety audit request', senderEmail: 'safety@client.com', description: 'Annual safety compliance audit needed.', status: 'CLOSED', createdAt: '2024-01-10T13:30:00' },
-];
+import { useTickets, useCreateTicket } from '@/hooks/api';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { formatDate } from '@/lib/date';
 
 const getTicketStatusColor = (status: TicketStatus) => {
   switch (status) {
@@ -74,7 +66,7 @@ export default function TicketsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
-  
+
   const initialTab = searchParams.get('status') === 'CLOSED' ? 'closed' : 'open';
   const [activeTab, setActiveTab] = useState(initialTab);
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,18 +86,36 @@ export default function TicketsPage() {
     description: '',
   });
 
-  // Filter tickets based on tab and filters
-  const filteredTickets = mockTickets.filter((ticket) => {
+  // Build API params
+  const params = useMemo(() => {
+    const p: Record<string, any> = {
+      ...filters,
+      page: 0,
+      size: 100,
+    };
+    if (filters.status !== 'all') {
+      p.status = filters.status;
+    }
+    // Remove empty values
+    Object.keys(p).forEach(key => {
+      if (p[key] === '' || p[key] === undefined || p[key] === null || p[key] === 'all') {
+        delete p[key];
+      }
+    });
+    return p;
+  }, [filters, activeTab]);
+
+  // Fetch tickets
+  const { data: ticketsData, isLoading, error } = useTickets(params);
+  const createTicket = useCreateTicket();
+
+  const tickets = ticketsData?.content || [];
+  const filteredTickets = tickets.filter((ticket: Ticket) => {
     // Tab filter
     if (activeTab === 'open' && (ticket.status === 'CLOSED' || ticket.status === 'RESOLVED')) {
       return false;
     }
     if (activeTab === 'closed' && ticket.status !== 'CLOSED' && ticket.status !== 'RESOLVED') {
-      return false;
-    }
-
-    // Status filter
-    if (filters.status !== 'all' && ticket.status !== filters.status) {
       return false;
     }
 
@@ -125,9 +135,11 @@ export default function TicketsPage() {
     }
 
     // Created at date range filter
-    const ticketDate = ticket.createdAt.split('T')[0];
-    if (filters.createdAtFrom && ticketDate < filters.createdAtFrom) return false;
-    if (filters.createdAtTo && ticketDate > filters.createdAtTo) return false;
+    if (ticket.createdAt) {
+      const ticketDate = ticket.createdAt.split('T')[0];
+      if (filters.createdAtFrom && ticketDate < filters.createdAtFrom) return false;
+      if (filters.createdAtTo && ticketDate > filters.createdAtTo) return false;
+    }
 
     // Search filter
     if (searchQuery) {
@@ -154,17 +166,41 @@ export default function TicketsPage() {
     setSearchQuery('');
   };
 
-  const hasActiveFilters = filters.senderEmail !== '' || filters.name !== '' || filters.description !== '' || 
+  const hasActiveFilters = filters.senderEmail !== '' || filters.name !== '' || filters.description !== '' ||
     filters.status !== 'all' || filters.createdAtFrom !== '' || filters.createdAtTo !== '' || searchQuery !== '';
 
+  if (isLoading) return <LoadingSpinner message="Loading tickets..." />;
+  if (error) return (
+    <div className="flex items-center justify-center py-12">
+      <Card className="border-destructive">
+        <CardContent className="pt-6">
+          <p className="text-destructive">Error loading tickets: {(error as Error).message}</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
   const handleCreateTicket = () => {
-    // In real app, call API
-    toast({
-      title: 'Ticket Created',
-      description: `Ticket "${newTicket.name}" has been created successfully.`,
+    createTicket.mutate({
+      ...newTicket,
+      status: 'OPEN',
+    }, {
+      onSuccess: () => {
+        toast({
+          title: 'Ticket Created',
+          description: `Ticket "${newTicket.name}" has been created successfully.`,
+        });
+        setIsCreateOpen(false);
+        setNewTicket({ name: '', senderEmail: '', description: '' });
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
     });
-    setIsCreateOpen(false);
-    setNewTicket({ name: '', senderEmail: '', description: '' });
   };
 
   const handleTabChange = (value: string) => {
@@ -244,10 +280,10 @@ export default function TicketsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <TabsList>
             <TabsTrigger value="open">
-              Open ({mockTickets.filter(t => t.status === 'OPEN' || t.status === 'IN_PROGRESS').length})
+              Open ({tickets.filter(t => t.status === 'OPEN' || t.status === 'IN_PROGRESS').length})
             </TabsTrigger>
             <TabsTrigger value="closed">
-              Closed ({mockTickets.filter(t => t.status === 'CLOSED' || t.status === 'RESOLVED').length})
+              Closed ({tickets.filter(t => t.status === 'CLOSED' || t.status === 'RESOLVED').length})
             </TabsTrigger>
           </TabsList>
 
@@ -419,7 +455,7 @@ function TicketsList({
                   )}
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    <span>{new Date(ticket.createdAt).toLocaleDateString()}</span>
+                    <span>{formatDate(ticket.createdAt, 'Not set')}</span>
                   </div>
                 </div>
               </div>

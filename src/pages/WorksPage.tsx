@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,10 +13,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
+import {
+  Plus,
+  Search,
+  Filter,
   Briefcase,
   Calendar,
   Building2,
@@ -28,158 +28,10 @@ import {
   TrendingUp,
   BarChart3
 } from 'lucide-react';
-import { Work, Client, Plant, SellerUser, TechnicianUser, Ticket } from '@/types';
-
-// Mock data
-const mockWorks: Work[] = [
-  {
-    id: '1',
-    name: 'Automation System Upgrade',
-    bidNumber: 'BID-2024-001',
-    orderNumber: 'ORD-2024-001',
-    orderDate: '2024-01-15',
-    expectedStartDate: '2024-02-01',
-    electricalSchemaProgression: 75,
-    programmingProgression: 50,
-    completed: false,
-    invoiced: false,
-    createdAt: '2024-01-15T10:00:00',
-    nasSubDirectory: '/projects/asu-2024',
-    expectedOfficeHours: 40,
-    expectedPlantHours: 80,
-    seller: { id: 's1', firstName: 'Marco', lastName: 'Rossi', email: 'marco@company.com', role: 'USER', userType: 'SELLER' },
-    plant: { id: 'p1', name: 'Plant Alpha', notes: '', nasDirectory: '/nas/alpha', pswPhrase: '', pswPlatform: '', pswStation: '' },
-    atixClient: { id: 'c1', name: 'Atix Industries', type: 'ATIX' },
-    finalClient: { id: 'c2', name: 'Final Corp', type: 'FINAL' },
-    assignments: [
-      { id: 'a1', assignedAt: '2024-01-16T09:00:00', user: { id: 't1', firstName: 'Giuseppe', lastName: 'Verdi', email: 'giuseppe@company.com', role: 'USER', userType: 'TECHNICIAN' } },
-      { id: 'a2', assignedAt: '2024-01-17T10:00:00', user: { id: 't2', firstName: 'Anna', lastName: 'Ferrari', email: 'anna@company.com', role: 'USER', userType: 'TECHNICIAN' } }
-    ]
-  },
-  {
-    id: '2',
-    name: 'PLC Programming - Line 3',
-    bidNumber: 'BID-2024-002',
-    orderNumber: 'ORD-2024-002',
-    orderDate: '2024-01-12',
-    expectedStartDate: '2024-01-18',
-    electricalSchemaProgression: 100,
-    programmingProgression: 100,
-    completed: true,
-    completedAt: '2024-01-20T15:00:00',
-    invoiced: false,
-    createdAt: '2024-01-12T09:00:00',
-    nasSubDirectory: '/projects/plc-line3',
-    expectedOfficeHours: 20,
-    expectedPlantHours: 40,
-    seller: { id: 's1', firstName: 'Marco', lastName: 'Rossi', email: 'marco@company.com', role: 'USER', userType: 'SELLER' },
-    plant: { id: 'p2', name: 'Plant Beta', notes: '', nasDirectory: '/nas/beta', pswPhrase: '', pswPlatform: '', pswStation: '' },
-    atixClient: { id: 'c3', name: 'Tech Solutions', type: 'ATIX' },
-    assignments: [
-      { id: 'a3', assignedAt: '2024-01-13T09:00:00', user: { id: 't3', firstName: 'Luca', lastName: 'Romano', email: 'luca@company.com', role: 'USER', userType: 'TECHNICIAN' } }
-    ]
-  },
-  {
-    id: '3',
-    name: 'Electrical Panel Installation',
-    bidNumber: 'BID-2024-003',
-    orderNumber: 'ORD-2024-003',
-    orderDate: '2024-01-10',
-    expectedStartDate: '2024-01-15',
-    electricalSchemaProgression: 100,
-    programmingProgression: 100,
-    completed: true,
-    completedAt: '2024-01-18T12:00:00',
-    invoiced: true,
-    invoicedAt: '2024-01-25T10:00:00',
-    createdAt: '2024-01-10T14:00:00',
-    nasSubDirectory: '/projects/ep-install',
-    expectedOfficeHours: 16,
-    expectedPlantHours: 32,
-    seller: { id: 's2', firstName: 'Laura', lastName: 'Bianchi', email: 'laura@company.com', role: 'USER', userType: 'SELLER' },
-    plant: { id: 'p1', name: 'Plant Alpha', notes: '', nasDirectory: '/nas/alpha', pswPhrase: '', pswPlatform: '', pswStation: '' },
-    atixClient: { id: 'c1', name: 'Atix Industries', type: 'ATIX' },
-    assignments: [
-      { id: 'a4', assignedAt: '2024-01-11T08:00:00', user: { id: 't1', firstName: 'Giuseppe', lastName: 'Verdi', email: 'giuseppe@company.com', role: 'USER', userType: 'TECHNICIAN' } }
-    ]
-  },
-  {
-    id: '4',
-    name: 'SCADA System Integration',
-    bidNumber: 'BID-2024-004',
-    orderNumber: 'ORD-2024-004',
-    orderDate: '2024-01-08',
-    expectedStartDate: '2024-02-10',
-    electricalSchemaProgression: 30,
-    programmingProgression: 15,
-    completed: false,
-    invoiced: false,
-    createdAt: '2024-01-08T11:00:00',
-    nasSubDirectory: '/projects/scada-int',
-    expectedOfficeHours: 60,
-    expectedPlantHours: 120,
-    seller: { id: 's2', firstName: 'Laura', lastName: 'Bianchi', email: 'laura@company.com', role: 'USER', userType: 'SELLER' },
-    plant: { id: 'p3', name: 'Plant Gamma', notes: '', nasDirectory: '/nas/gamma', pswPhrase: '', pswPlatform: '', pswStation: '' },
-    atixClient: { id: 'c4', name: 'Industrial Co', type: 'ATIX' },
-    assignments: [
-      { id: 'a5', assignedAt: '2024-01-09T09:00:00', user: { id: 't2', firstName: 'Anna', lastName: 'Ferrari', email: 'anna@company.com', role: 'USER', userType: 'TECHNICIAN' } },
-      { id: 'a6', assignedAt: '2024-01-10T10:00:00', user: { id: 't3', firstName: 'Luca', lastName: 'Romano', email: 'luca@company.com', role: 'USER', userType: 'TECHNICIAN' } }
-    ]
-  },
-  {
-    id: '5',
-    name: 'Safety System Audit',
-    bidNumber: 'BID-2024-005',
-    orderNumber: 'ORD-2024-005',
-    orderDate: '2024-01-05',
-    expectedStartDate: '2024-01-08',
-    electricalSchemaProgression: 100,
-    programmingProgression: 100,
-    completed: true,
-    completedAt: '2024-01-15T16:00:00',
-    invoiced: true,
-    invoicedAt: '2024-01-20T09:00:00',
-    createdAt: '2024-01-05T08:00:00',
-    nasSubDirectory: '/projects/safety-audit',
-    expectedOfficeHours: 24,
-    expectedPlantHours: 16,
-    seller: { id: 's1', firstName: 'Marco', lastName: 'Rossi', email: 'marco@company.com', role: 'USER', userType: 'SELLER' },
-    plant: { id: 'p2', name: 'Plant Beta', notes: '', nasDirectory: '/nas/beta', pswPhrase: '', pswPlatform: '', pswStation: '' },
-    atixClient: { id: 'c2', name: 'Final Corp', type: 'FINAL' },
-    assignments: [
-      { id: 'a7', assignedAt: '2024-01-06T08:00:00', user: { id: 't1', firstName: 'Giuseppe', lastName: 'Verdi', email: 'giuseppe@company.com', role: 'USER', userType: 'TECHNICIAN' } }
-    ]
-  },
-];
-
-const mockClients: Client[] = [
-  { id: 'c1', name: 'Atix Industries', type: 'ATIX' },
-  { id: 'c2', name: 'Final Corp', type: 'FINAL' },
-  { id: 'c3', name: 'Tech Solutions', type: 'ATIX' },
-  { id: 'c4', name: 'Industrial Co', type: 'ATIX' },
-];
-
-const mockPlants: Plant[] = [
-  { id: 'p1', name: 'Plant Alpha', notes: '', nasDirectory: '/nas/alpha', pswPhrase: '', pswPlatform: '', pswStation: '' },
-  { id: 'p2', name: 'Plant Beta', notes: '', nasDirectory: '/nas/beta', pswPhrase: '', pswPlatform: '', pswStation: '' },
-  { id: 'p3', name: 'Plant Gamma', notes: '', nasDirectory: '/nas/gamma', pswPhrase: '', pswPlatform: '', pswStation: '' },
-];
-
-const mockSellers: SellerUser[] = [
-  { id: 's1', firstName: 'Marco', lastName: 'Rossi', email: 'marco@company.com', role: 'USER', userType: 'SELLER' },
-  { id: 's2', firstName: 'Laura', lastName: 'Bianchi', email: 'laura@company.com', role: 'USER', userType: 'SELLER' },
-];
-
-const mockTechnicians: TechnicianUser[] = [
-  { id: 't1', firstName: 'Giuseppe', lastName: 'Verdi', email: 'giuseppe@company.com', role: 'USER', userType: 'TECHNICIAN' },
-  { id: 't2', firstName: 'Anna', lastName: 'Ferrari', email: 'anna@company.com', role: 'USER', userType: 'TECHNICIAN' },
-  { id: 't3', firstName: 'Luca', lastName: 'Romano', email: 'luca@company.com', role: 'USER', userType: 'TECHNICIAN' },
-];
-
-const mockTickets: Ticket[] = [
-  { id: 'tk1', name: 'Machine malfunction', senderEmail: 'op@plant.com', description: 'Issue', status: 'OPEN', createdAt: '2024-01-16' },
-  { id: 'tk2', name: 'Software update', senderEmail: 'it@factory.com', description: 'Update', status: 'IN_PROGRESS', createdAt: '2024-01-15' },
-];
+import { Work } from '@/types';
+import { useWorks, useClients, usePlants, useUsersByType, useTickets } from '@/hooks/api';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { formatDate } from '@/lib/date';
 
 interface WorkFilters {
   atixClientId: string;
@@ -200,7 +52,7 @@ interface WorkFilters {
 
 export default function WorksPage() {
   const navigate = useNavigate();
-  
+
   const [activeTab, setActiveTab] = useState('open');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -221,72 +73,85 @@ export default function WorksPage() {
     orderNumber: '',
   });
 
-  // Filter works based on tab and filters
-  const filteredWorks = mockWorks.filter((work) => {
-    // Tab filter
-    if (activeTab === 'open' && work.completed) return false;
-    if (activeTab === 'closed' && !work.completed) return false;
+  // Build API params from filters
+  const baseParams = useMemo(() => {
+    const p: Record<string, any> = {
+      ...filters,
+    };
+    // Remove empty values
+    Object.keys(p).forEach(key => {
+      if (p[key] === '' || p[key] === undefined || p[key] === null) {
+        delete p[key];
+      }
+    });
+    return p;
+  }, [filters]);
 
-    // Filter by atix client
-    if (filters.atixClientId && work.atixClient?.id !== filters.atixClientId) {
-      return false;
-    }
+  const listParams = useMemo(() => ({
+    ...baseParams,
+    completed: activeTab === 'closed',
+    page: 0,
+    size: 100,
+  }), [baseParams, activeTab]);
 
-    // Filter by final client
-    if (filters.finalClientId && work.finalClient?.id !== filters.finalClientId) {
-      return false;
-    }
+  const countParams = useMemo(() => ({
+    ...baseParams,
+    page: 0,
+    size: 1,
+  }), [baseParams]);
 
-    // Filter by plant
-    if (filters.plantId && work.plant?.id !== filters.plantId) return false;
+  const openCountParams = useMemo(() => ({
+    ...countParams,
+    completed: false,
+  }), [countParams]);
 
-    // Filter by seller
-    if (filters.sellerId && work.seller?.id !== filters.sellerId) return false;
+  const closedCountParams = useMemo(() => ({
+    ...countParams,
+    completed: true,
+  }), [countParams]);
 
-    // Filter by technician
-    if (filters.technicianId && !work.assignments?.some(a => a.user?.id === filters.technicianId)) {
-      return false;
-    }
+  // Fetch data
+  const { data: worksData, isLoading: worksLoading, error: worksError } = useWorks(listParams);
+  const { data: openWorksData } = useWorks(openCountParams);
+  const { data: closedWorksData } = useWorks(closedCountParams);
+  const { data: clientsData } = useClients(0, 100);
+  const { data: plantsData } = usePlants(0, 100);
+  const { data: sellersData } = useUsersByType('SELLER');
+  const { data: techniciansData } = useUsersByType('TECHNICIAN');
+  const { data: ticketsData } = useTickets();
 
-    // Filter by ticket
-    if (filters.ticketId && work.ticket?.id !== filters.ticketId) return false;
+  const works = worksData?.content || [];
+  const clients = clientsData?.content || [];
+  const plants = plantsData?.content || [];
+  const sellers = sellersData || [];
+  const technicians = techniciansData || [];
+  const tickets = ticketsData?.content || [];
+  const filteredWorks = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return works;
 
-    // Filter by invoiced
-    if (filters.invoiced === 'true' && !work.invoiced) return false;
-    if (filters.invoiced === 'false' && work.invoiced) return false;
+    return works.filter((work) => {
+      const sellerName = work.seller ? `${work.seller.firstName} ${work.seller.lastName}` : '';
+      const assignmentNames = (work.assignments || [])
+        .map((assignment) => `${assignment.user?.firstName || ''} ${assignment.user?.lastName || ''}`.trim())
+        .join(' ');
+      const fields = [
+        work.name,
+        work.bidNumber,
+        work.orderNumber,
+        work.atixClient?.name,
+        work.finalClient?.name,
+        work.plant?.name,
+        work.plant?.nasDirectory,
+        work.nasSubDirectory,
+        sellerName,
+        assignmentNames,
+        work.ticket?.name,
+      ];
 
-    // Filter by order date range
-    if (filters.orderDateFrom && work.orderDate < filters.orderDateFrom) return false;
-    if (filters.orderDateTo && work.orderDate > filters.orderDateTo) return false;
-
-    // Filter by expected start date range
-    if (filters.expectedStartDateFrom && work.expectedStartDate && work.expectedStartDate < filters.expectedStartDateFrom) return false;
-    if (filters.expectedStartDateTo && work.expectedStartDate && work.expectedStartDate > filters.expectedStartDateTo) return false;
-
-    // Filter by name
-    if (filters.name && !work.name.toLowerCase().includes(filters.name.toLowerCase())) return false;
-
-    // Filter by bid number
-    if (filters.bidNumber && !work.bidNumber.toLowerCase().includes(filters.bidNumber.toLowerCase())) return false;
-
-    // Filter by order number
-    if (filters.orderNumber && !work.orderNumber.toLowerCase().includes(filters.orderNumber.toLowerCase())) return false;
-
-    // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      return (
-        work.name.toLowerCase().includes(query) ||
-        work.bidNumber.toLowerCase().includes(query) ||
-        work.orderNumber.toLowerCase().includes(query) ||
-        work.atixClient?.name.toLowerCase().includes(query) ||
-        work.finalClient?.name.toLowerCase().includes(query) ||
-        work.plant?.name.toLowerCase().includes(query)
-      );
-    }
-
-    return true;
-  });
+      return fields.some((field) => field && field.toLowerCase().includes(query));
+    });
+  }, [searchQuery, works]);
 
   const clearFilters = () => {
     setFilters({
@@ -310,8 +175,24 @@ export default function WorksPage() {
 
   const hasActiveFilters = Object.values(filters).some(v => v !== '') || searchQuery !== '';
 
-  const openWorks = mockWorks.filter(w => !w.completed);
-  const closedWorks = mockWorks.filter(w => w.completed);
+  const openWorksCount = openWorksData?.totalElements || 0;
+  const closedWorksCount = closedWorksData?.totalElements || 0;
+
+  if (worksLoading) {
+    return <LoadingSpinner message="Loading works..." />;
+  }
+
+  if (worksError) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Card className="border-destructive">
+          <CardContent className="pt-6">
+            <p className="text-destructive">Error loading works: {(worksError as Error).message}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -334,10 +215,10 @@ export default function WorksPage() {
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <TabsList>
             <TabsTrigger value="open">
-              Open ({openWorks.length})
+              Open ({openWorksCount})
             </TabsTrigger>
             <TabsTrigger value="closed">
-              Closed ({closedWorks.length})
+              Closed ({closedWorksCount})
             </TabsTrigger>
           </TabsList>
 
@@ -377,7 +258,7 @@ export default function WorksPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__all__">All</SelectItem>
-                      {mockClients.filter(c => c.type === 'ATIX').map(c => (
+                      {clients.filter((c: any) => c.type === 'ATIX').map((c: any) => (
                         <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}
                     </SelectContent>
@@ -393,7 +274,7 @@ export default function WorksPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__all__">All</SelectItem>
-                      {mockClients.filter(c => c.type === 'FINAL').map(c => (
+                      {clients.filter((c: any) => c.type === 'FINAL').map((c: any) => (
                         <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}
                     </SelectContent>
@@ -409,7 +290,7 @@ export default function WorksPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__all__">All</SelectItem>
-                      {mockPlants.map(p => (
+                      {plants.map((p: any) => (
                         <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                       ))}
                     </SelectContent>
@@ -425,7 +306,7 @@ export default function WorksPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__all__">All</SelectItem>
-                      {mockSellers.map(s => (
+                      {sellers.map((s: any) => (
                         <SelectItem key={s.id} value={s.id}>{s.firstName} {s.lastName}</SelectItem>
                       ))}
                     </SelectContent>
@@ -441,7 +322,7 @@ export default function WorksPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__all__">All</SelectItem>
-                      {mockTechnicians.map(t => (
+                      {technicians.map((t: any) => (
                         <SelectItem key={t.id} value={t.id}>{t.firstName} {t.lastName}</SelectItem>
                       ))}
                     </SelectContent>
@@ -457,7 +338,7 @@ export default function WorksPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__all__">All</SelectItem>
-                      {mockTickets.map(t => (
+                      {tickets.map((t: any) => (
                         <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
                       ))}
                     </SelectContent>
@@ -603,99 +484,103 @@ function WorksList({
 
   return (
     <div className="space-y-3">
-      {works.map((work) => (
-        <Card
-          key={work.id}
-          className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => navigate(`/works/${work.id}`)}
-        >
-          <CardContent className="py-4">
-            <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <Badge variant="outline" className="font-mono text-xs">
-                    {getWorkIndex(work)}
-                  </Badge>
-                  <h3 className="font-medium">{work.name}</h3>
-                  {work.completed ? (
-                    <Badge variant="outline" className="border-chart-3 text-chart-3">
-                      <CheckCircle2 className="h-3 w-3 mr-1" />
-                      Completed
+      {works.map((work) => {
+        const expectedStartDateLabel = formatDate(work.expectedStartDate);
+
+        return (
+          <Card
+            key={work.id}
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => navigate(`/works/${work.id}`)}
+          >
+            <CardContent className="py-4">
+              <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <Badge variant="outline" className="font-mono text-xs">
+                      {getWorkIndex(work)}
                     </Badge>
-                  ) : (
-                    <Badge variant="outline" className="border-primary text-primary">
-                      <Clock className="h-3 w-3 mr-1" />
-                      In Progress
-                    </Badge>
-                  )}
-                  {work.invoiced && (
-                    <Badge variant="secondary">
-                      <TrendingUp className="h-3 w-3 mr-1" />
-                      Invoiced
-                    </Badge>
-                  )}
+                    <h3 className="font-medium">{work.name}</h3>
+                    {work.completed ? (
+                      <Badge variant="outline" className="border-chart-3 text-chart-3">
+                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        Completed
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="border-primary text-primary">
+                        <Clock className="h-3 w-3 mr-1" />
+                        In Progress
+                      </Badge>
+                    )}
+                    {work.invoiced && (
+                      <Badge variant="secondary">
+                        <TrendingUp className="h-3 w-3 mr-1" />
+                        Invoiced
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
+                    {expectedStartDateLabel && (
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        <span>{expectedStartDateLabel}</span>
+                      </div>
+                    )}
+                    {work.atixClient && (
+                      <div className="flex items-center gap-1">
+                        <Building2 className="h-3 w-3" />
+                        <span>{work.atixClient.name}</span>
+                      </div>
+                    )}
+                    {work.plant && (
+                      <div className="flex items-center gap-1">
+                        <Factory className="h-3 w-3" />
+                        <span>{work.plant.name}</span>
+                      </div>
+                    )}
+                    {work.assignments && work.assignments.length > 0 && (
+                      <div className="flex items-center gap-1">
+                        <User className="h-3 w-3" />
+                        <span>{work.assignments.map(a => `${a.user?.firstName} ${a.user?.lastName}`).join(', ')}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
-                  {work.expectedStartDate && (
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      <span>{new Date(work.expectedStartDate).toLocaleDateString()}</span>
+
+                {/* Progress indicators */}
+                <div className="flex gap-4 lg:gap-6">
+                  <div className="text-center">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+                      <BarChart3 className="h-3 w-3" />
+                      Electrical
                     </div>
-                  )}
-                  {work.atixClient && (
-                    <div className="flex items-center gap-1">
-                      <Building2 className="h-3 w-3" />
-                      <span>{work.atixClient.name}</span>
+                    <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary rounded-full transition-all"
+                        style={{ width: `${work.electricalSchemaProgression}%` }}
+                      />
                     </div>
-                  )}
-                  {work.plant && (
-                    <div className="flex items-center gap-1">
-                      <Factory className="h-3 w-3" />
-                      <span>{work.plant.name}</span>
+                    <span className="text-xs text-muted-foreground">{work.electricalSchemaProgression}%</span>
+                  </div>
+                  <div className="text-center">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+                      <BarChart3 className="h-3 w-3" />
+                      Programming
                     </div>
-                  )}
-                  {work.assignments && work.assignments.length > 0 && (
-                    <div className="flex items-center gap-1">
-                      <User className="h-3 w-3" />
-                      <span>{work.assignments.map(a => `${a.user?.firstName} ${a.user?.lastName}`).join(', ')}</span>
+                    <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-chart-2 rounded-full transition-all"
+                        style={{ width: `${work.programmingProgression}%` }}
+                      />
                     </div>
-                  )}
+                    <span className="text-xs text-muted-foreground">{work.programmingProgression}%</span>
+                  </div>
                 </div>
               </div>
-              
-              {/* Progress indicators */}
-              <div className="flex gap-4 lg:gap-6">
-                <div className="text-center">
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
-                    <BarChart3 className="h-3 w-3" />
-                    Electrical
-                  </div>
-                  <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-primary rounded-full transition-all"
-                      style={{ width: `${work.electricalSchemaProgression}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-muted-foreground">{work.electricalSchemaProgression}%</span>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
-                    <BarChart3 className="h-3 w-3" />
-                    Programming
-                  </div>
-                  <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-chart-2 rounded-full transition-all"
-                      style={{ width: `${work.programmingProgression}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-muted-foreground">{work.programmingProgression}%</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }
