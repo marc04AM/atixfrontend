@@ -371,12 +371,12 @@ export default function WorksPage() {
                 {/* Atix Client */}
                 <div>
                   <Label className="mb-2 block text-sm">Atix Client</Label>
-                  <Select value={filters.atixClientId} onValueChange={(v) => setFilters({...filters, atixClientId: v})}>
+                  <Select value={filters.atixClientId || "__all__"} onValueChange={(v) => setFilters({...filters, atixClientId: v === "__all__" ? "" : v})}>
                     <SelectTrigger>
                       <SelectValue placeholder="All" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All</SelectItem>
+                      <SelectItem value="__all__">All</SelectItem>
                       {mockClients.filter(c => c.type === 'ATIX').map(c => (
                         <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}
@@ -387,12 +387,12 @@ export default function WorksPage() {
                 {/* Final Client */}
                 <div>
                   <Label className="mb-2 block text-sm">Final Client</Label>
-                  <Select value={filters.finalClientId} onValueChange={(v) => setFilters({...filters, finalClientId: v})}>
+                  <Select value={filters.finalClientId || "__all__"} onValueChange={(v) => setFilters({...filters, finalClientId: v === "__all__" ? "" : v})}>
                     <SelectTrigger>
                       <SelectValue placeholder="All" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All</SelectItem>
+                      <SelectItem value="__all__">All</SelectItem>
                       {mockClients.filter(c => c.type === 'FINAL').map(c => (
                         <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}
@@ -403,12 +403,12 @@ export default function WorksPage() {
                 {/* Plant */}
                 <div>
                   <Label className="mb-2 block text-sm">Plant</Label>
-                  <Select value={filters.plantId} onValueChange={(v) => setFilters({...filters, plantId: v})}>
+                  <Select value={filters.plantId || "__all__"} onValueChange={(v) => setFilters({...filters, plantId: v === "__all__" ? "" : v})}>
                     <SelectTrigger>
                       <SelectValue placeholder="All" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All</SelectItem>
+                      <SelectItem value="__all__">All</SelectItem>
                       {mockPlants.map(p => (
                         <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                       ))}
@@ -419,12 +419,12 @@ export default function WorksPage() {
                 {/* Seller */}
                 <div>
                   <Label className="mb-2 block text-sm">Seller</Label>
-                  <Select value={filters.sellerId} onValueChange={(v) => setFilters({...filters, sellerId: v})}>
+                  <Select value={filters.sellerId || "__all__"} onValueChange={(v) => setFilters({...filters, sellerId: v === "__all__" ? "" : v})}>
                     <SelectTrigger>
                       <SelectValue placeholder="All" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All</SelectItem>
+                      <SelectItem value="__all__">All</SelectItem>
                       {mockSellers.map(s => (
                         <SelectItem key={s.id} value={s.id}>{s.firstName} {s.lastName}</SelectItem>
                       ))}
@@ -435,12 +435,12 @@ export default function WorksPage() {
                 {/* Technician */}
                 <div>
                   <Label className="mb-2 block text-sm">Technician</Label>
-                  <Select value={filters.technicianId} onValueChange={(v) => setFilters({...filters, technicianId: v})}>
+                  <Select value={filters.technicianId || "__all__"} onValueChange={(v) => setFilters({...filters, technicianId: v === "__all__" ? "" : v})}>
                     <SelectTrigger>
                       <SelectValue placeholder="All" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All</SelectItem>
+                      <SelectItem value="__all__">All</SelectItem>
                       {mockTechnicians.map(t => (
                         <SelectItem key={t.id} value={t.id}>{t.firstName} {t.lastName}</SelectItem>
                       ))}
@@ -451,12 +451,12 @@ export default function WorksPage() {
                 {/* Ticket */}
                 <div>
                   <Label className="mb-2 block text-sm">Ticket</Label>
-                  <Select value={filters.ticketId} onValueChange={(v) => setFilters({...filters, ticketId: v})}>
+                  <Select value={filters.ticketId || "__all__"} onValueChange={(v) => setFilters({...filters, ticketId: v === "__all__" ? "" : v})}>
                     <SelectTrigger>
                       <SelectValue placeholder="All" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All</SelectItem>
+                      <SelectItem value="__all__">All</SelectItem>
                       {mockTickets.map(t => (
                         <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
                       ))}
@@ -467,12 +467,12 @@ export default function WorksPage() {
                 {/* Invoiced */}
                 <div>
                   <Label className="mb-2 block text-sm">Invoiced</Label>
-                  <Select value={filters.invoiced} onValueChange={(v) => setFilters({...filters, invoiced: v})}>
+                  <Select value={filters.invoiced || "__all__"} onValueChange={(v) => setFilters({...filters, invoiced: v === "__all__" ? "" : v})}>
                     <SelectTrigger>
                       <SelectValue placeholder="All" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All</SelectItem>
+                      <SelectItem value="__all__">All</SelectItem>
                       <SelectItem value="true">Invoiced</SelectItem>
                       <SelectItem value="false">Not Invoiced</SelectItem>
                     </SelectContent>
