@@ -18,6 +18,7 @@ import AttachmentManager from '@/components/AttachmentManager';
 import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useAssignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
+import { formatDate, formatDateTime } from '@/lib/date';
 
 export default function WorkDetailPage() {
   const { id } = useParams();
@@ -414,11 +415,11 @@ export default function WorkDetailPage() {
                     </div>
                     <div>
                       <Label className="text-muted-foreground text-xs">Order Date</Label>
-                      <p>{new Date(work.orderDate).toLocaleDateString()}</p>
+                      <p>{formatDate(work.orderDate, 'Not set')}</p>
                     </div>
                     <div>
                       <Label className="text-muted-foreground text-xs">Expected Start</Label>
-                      <p>{work.expectedStartDate ? new Date(work.expectedStartDate).toLocaleDateString() : 'Not set'}</p>
+                      <p>{formatDate(work.expectedStartDate, 'Not set')}</p>
                     </div>
                   </div>
                   
@@ -584,7 +585,7 @@ export default function WorkDetailPage() {
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <Label className="text-muted-foreground text-xs">Created At</Label>
-                  <p className="text-sm">{new Date(work.createdAt).toLocaleString()}</p>
+                  <p className="text-sm">{formatDateTime(work.createdAt, 'Not set')}</p>
                 </div>
               </div>
             </CardContent>

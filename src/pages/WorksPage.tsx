@@ -31,6 +31,7 @@ import {
 import { Work } from '@/types';
 import { useWorks, useClients, usePlants, useUsersByType, useTickets } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { formatDate } from '@/lib/date';
 
 interface WorkFilters {
   atixClientId: string;
@@ -483,99 +484,103 @@ function WorksList({
 
   return (
     <div className="space-y-3">
-      {works.map((work) => (
-        <Card
-          key={work.id}
-          className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => navigate(`/works/${work.id}`)}
-        >
-          <CardContent className="py-4">
-            <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <Badge variant="outline" className="font-mono text-xs">
-                    {getWorkIndex(work)}
-                  </Badge>
-                  <h3 className="font-medium">{work.name}</h3>
-                  {work.completed ? (
-                    <Badge variant="outline" className="border-chart-3 text-chart-3">
-                      <CheckCircle2 className="h-3 w-3 mr-1" />
-                      Completed
+      {works.map((work) => {
+        const expectedStartDateLabel = formatDate(work.expectedStartDate);
+
+        return (
+          <Card
+            key={work.id}
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => navigate(`/works/${work.id}`)}
+          >
+            <CardContent className="py-4">
+              <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <Badge variant="outline" className="font-mono text-xs">
+                      {getWorkIndex(work)}
                     </Badge>
-                  ) : (
-                    <Badge variant="outline" className="border-primary text-primary">
-                      <Clock className="h-3 w-3 mr-1" />
-                      In Progress
-                    </Badge>
-                  )}
-                  {work.invoiced && (
-                    <Badge variant="secondary">
-                      <TrendingUp className="h-3 w-3 mr-1" />
-                      Invoiced
-                    </Badge>
-                  )}
+                    <h3 className="font-medium">{work.name}</h3>
+                    {work.completed ? (
+                      <Badge variant="outline" className="border-chart-3 text-chart-3">
+                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        Completed
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="border-primary text-primary">
+                        <Clock className="h-3 w-3 mr-1" />
+                        In Progress
+                      </Badge>
+                    )}
+                    {work.invoiced && (
+                      <Badge variant="secondary">
+                        <TrendingUp className="h-3 w-3 mr-1" />
+                        Invoiced
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
+                    {expectedStartDateLabel && (
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        <span>{expectedStartDateLabel}</span>
+                      </div>
+                    )}
+                    {work.atixClient && (
+                      <div className="flex items-center gap-1">
+                        <Building2 className="h-3 w-3" />
+                        <span>{work.atixClient.name}</span>
+                      </div>
+                    )}
+                    {work.plant && (
+                      <div className="flex items-center gap-1">
+                        <Factory className="h-3 w-3" />
+                        <span>{work.plant.name}</span>
+                      </div>
+                    )}
+                    {work.assignments && work.assignments.length > 0 && (
+                      <div className="flex items-center gap-1">
+                        <User className="h-3 w-3" />
+                        <span>{work.assignments.map(a => `${a.user?.firstName} ${a.user?.lastName}`).join(', ')}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
-                  {work.expectedStartDate && (
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      <span>{new Date(work.expectedStartDate).toLocaleDateString()}</span>
+
+                {/* Progress indicators */}
+                <div className="flex gap-4 lg:gap-6">
+                  <div className="text-center">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+                      <BarChart3 className="h-3 w-3" />
+                      Electrical
                     </div>
-                  )}
-                  {work.atixClient && (
-                    <div className="flex items-center gap-1">
-                      <Building2 className="h-3 w-3" />
-                      <span>{work.atixClient.name}</span>
+                    <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary rounded-full transition-all"
+                        style={{ width: `${work.electricalSchemaProgression}%` }}
+                      />
                     </div>
-                  )}
-                  {work.plant && (
-                    <div className="flex items-center gap-1">
-                      <Factory className="h-3 w-3" />
-                      <span>{work.plant.name}</span>
+                    <span className="text-xs text-muted-foreground">{work.electricalSchemaProgression}%</span>
+                  </div>
+                  <div className="text-center">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+                      <BarChart3 className="h-3 w-3" />
+                      Programming
                     </div>
-                  )}
-                  {work.assignments && work.assignments.length > 0 && (
-                    <div className="flex items-center gap-1">
-                      <User className="h-3 w-3" />
-                      <span>{work.assignments.map(a => `${a.user?.firstName} ${a.user?.lastName}`).join(', ')}</span>
+                    <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-chart-2 rounded-full transition-all"
+                        style={{ width: `${work.programmingProgression}%` }}
+                      />
                     </div>
-                  )}
+                    <span className="text-xs text-muted-foreground">{work.programmingProgression}%</span>
+                  </div>
                 </div>
               </div>
-              
-              {/* Progress indicators */}
-              <div className="flex gap-4 lg:gap-6">
-                <div className="text-center">
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
-                    <BarChart3 className="h-3 w-3" />
-                    Electrical
-                  </div>
-                  <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-primary rounded-full transition-all"
-                      style={{ width: `${work.electricalSchemaProgression}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-muted-foreground">{work.electricalSchemaProgression}%</span>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
-                    <BarChart3 className="h-3 w-3" />
-                    Programming
-                  </div>
-                  <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-chart-2 rounded-full transition-all"
-                      style={{ width: `${work.programmingProgression}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-muted-foreground">{work.programmingProgression}%</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }

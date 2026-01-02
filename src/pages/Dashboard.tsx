@@ -10,6 +10,7 @@ import { TicketStatus } from '@/types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useDashboard } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { formatDate } from '@/lib/date';
 
 const getTicketStatusColor = (status: TicketStatus) => {
   switch (status) {
@@ -248,7 +249,7 @@ export default function Dashboard() {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">{work.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(work.orderDate).toLocaleDateString()}
+                      {formatDate(work.orderDate, 'Not set')}
                     </p>
                   </div>
                   <div className="flex gap-2">

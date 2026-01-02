@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Client, ClientType, Work } from '@/types';
 import { useClient, useUpdateClient, useDeleteClient, useWorks } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { formatDate } from '@/lib/date';
 
 export default function ClientDetailPage() {
   const { id } = useParams();
@@ -243,7 +244,7 @@ export default function ClientDetailPage() {
                     >
                       <TableCell className="font-medium">{work.name}</TableCell>
                       <TableCell className="hidden sm:table-cell">{work.orderNumber}</TableCell>
-                      <TableCell className="hidden sm:table-cell">{new Date(work.orderDate).toLocaleDateString()}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{formatDate(work.orderDate, 'Not set')}</TableCell>
                       <TableCell>
                         {work.invoiced ? (
                           <Badge variant="secondary">Invoiced</Badge>

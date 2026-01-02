@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
 import { useTicket, useUpdateTicket, useDeleteTicket } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { formatDateTime } from '@/lib/date';
 
 const getTicketStatusColor = (status: TicketStatus) => {
   switch (status) {
@@ -273,7 +274,7 @@ export default function TicketDetailPage() {
                 <div>
                   <Label className="text-muted-foreground text-xs">Created At</Label>
                   <p className="text-sm">
-                    {new Date(ticket.createdAt).toLocaleString()}
+                    {formatDateTime(ticket.createdAt, 'Not set')}
                   </p>
                 </div>
               </div>

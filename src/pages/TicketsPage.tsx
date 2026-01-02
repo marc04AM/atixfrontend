@@ -36,6 +36,7 @@ import { TicketStatus, Ticket } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { useTickets, useCreateTicket } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { formatDate } from '@/lib/date';
 
 const getTicketStatusColor = (status: TicketStatus) => {
   switch (status) {
@@ -454,7 +455,7 @@ function TicketsList({
                   )}
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    <span>{new Date(ticket.createdAt).toLocaleDateString()}</span>
+                    <span>{formatDate(ticket.createdAt, 'Not set')}</span>
                   </div>
                 </div>
               </div>

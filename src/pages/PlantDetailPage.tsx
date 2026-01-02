@@ -14,6 +14,7 @@ import { Plant, Attachment, Work } from '@/types';
 import AttachmentManager from '@/components/AttachmentManager';
 import { usePlant, useUpdatePlant, useDeletePlant, useWorks } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { formatDate } from '@/lib/date';
 
 export default function PlantDetailPage() {
   const { id } = useParams();
@@ -319,7 +320,7 @@ export default function PlantDetailPage() {
                     >
                       <TableCell className="font-medium">{work.name}</TableCell>
                       <TableCell className="hidden sm:table-cell">{work.orderNumber}</TableCell>
-                      <TableCell className="hidden sm:table-cell">{new Date(work.orderDate).toLocaleDateString()}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{formatDate(work.orderDate, 'Not set')}</TableCell>
                       <TableCell>
                         {work.invoiced ? (
                           <Badge variant="secondary">Invoiced</Badge>
