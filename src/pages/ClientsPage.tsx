@@ -11,25 +11,22 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Client, ClientType } from '@/types';
-
-// Mock data for demo
-const MOCK_CLIENTS: Client[] = [
-  { id: '1', name: 'Acme Corporation', type: 'ATIX' },
-  { id: '2', name: 'John Smith', type: 'FINAL' },
-  { id: '3', name: 'Tech Solutions Ltd', type: 'ATIX' },
-  { id: '4', name: 'Maria Rossi', type: 'FINAL' },
-  { id: '5', name: 'Industrial Systems SpA', type: 'ATIX' },
-];
+import { useClients, useCreateClient } from '@/hooks/api';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export default function ClientsPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [clients, setClients] = useState<Client[]>(MOCK_CLIENTS);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newClient, setNewClient] = useState({ name: '', type: 'ATIX' as ClientType });
 
-  const filteredClients = clients.filter(client =>
+  // Fetch clients
+  const { data: clientsData, isLoading, error } = useClients(0, 100);
+  const createClient = useCreateClient();
+
+  const clients = clientsData?.content || [];
+  const filteredClients = clients.filter((client: Client) =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -39,20 +36,34 @@ export default function ClientsPage() {
       return;
     }
 
-    const client: Client = {
-      id: String(Date.now()),
+    createClient.mutate({
       name: newClient.name,
       type: newClient.type,
-    };
-
-    setClients([...clients, client]);
-    setNewClient({ name: '', type: 'ATIX' });
-    setIsCreateOpen(false);
-    toast({ title: 'Success', description: 'Client created successfully' });
+    }, {
+      onSuccess: () => {
+        setNewClient({ name: '', type: 'ATIX' });
+        setIsCreateOpen(false);
+        toast({ title: 'Success', description: 'Client created successfully' });
+      },
+      onError: (error: any) => {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
+    });
   };
 
-  const atixCount = clients.filter(c => c.type === 'ATIX').length;
-  const finalCount = clients.filter(c => c.type === 'FINAL').length;
+  if (isLoading) return <LoadingSpinner message="Loading clients..." />;
+  if (error) return (
+    <div className="flex items-center justify-center py-12">
+      <Card className="border-destructive">
+        <CardContent className="pt-6">
+          <p className="text-destructive">Error loading clients: {(error as Error).message}</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  const atixCount = clients.filter((c: Client) => c.type === 'ATIX').length;
+  const finalCount = clients.filter((c: Client) => c.type === 'FINAL').length;
 
   return (
     <div className="space-y-6">

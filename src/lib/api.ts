@@ -1,7 +1,7 @@
 // API configuration and helper functions
-// This will connect to your backend at localhost:3001/api
+// This will connect to your backend
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
 
 // Get stored auth token
 const getAuthToken = (): string | null => {
@@ -27,8 +27,38 @@ export const apiRequest = async <T>(
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Request failed' }));
+    // Try to parse error response
+    const error = await response.json().catch(() => ({
+      message: `HTTP error! status: ${response.status}`
+    }));
+
+    // Handle specific status codes
+    if (response.status === 401) {
+      // Unauthorized - clear auth and redirect to login
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('authUser');
+      window.location.href = '/login';
+      throw new Error(error.message || 'Authentication required');
+    }
+
+    if (response.status === 403) {
+      throw new Error(error.message || 'Permission denied');
+    }
+
+    if (response.status === 404) {
+      throw new Error(error.message || 'Resource not found');
+    }
+
+    if (response.status === 500) {
+      throw new Error(error.message || 'Server error. Please try again later.');
+    }
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
+  }
+
+  // Handle 204 No Content
+  if (response.status === 204) {
+    return null as T;
   }
 
   return response.json();
@@ -57,7 +87,7 @@ export const usersApi = {
     email: string;
     password: string;
     role: string;
-    userType: string;
+    type: string;
   }) =>
     apiRequest<any>('/users', {
       method: 'POST',
@@ -68,6 +98,30 @@ export const usersApi = {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
+  updatePassword: (id: string, data: { currentPassword: string; newPassword: string }) =>
+    apiRequest<void>(`/users/${id}/password`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+  uploadAvatar: async (id: string, file: File) => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const token = getAuthToken();
+    const response = await fetch(`${API_BASE_URL}/users/${id}/avatar`, {
+      method: 'PATCH',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to upload avatar');
+    }
+
+    return response.json();
+  },
   delete: (id: string) =>
     apiRequest<void>(`/users/${id}`, { method: 'DELETE' }),
 };
@@ -198,43 +252,111 @@ export const workReportsApi = {
     apiRequest<void>(`/work-reports/entries/${id}`, { method: 'DELETE' }),
 };
 
-// Dashboard API (GraphQL)
+// Dashboard API
 export const dashboardApi = {
   getSummary: async (limit = 5) => {
-    const query = `
-      query {
-        dashboardSummary(limit: ${limit}) {
-          clientCount
-          plantCount
-          completedWorkCount
-          pendingWorkCount
-          ticketStatusCounts {
-            status
-            count
-          }
-          recentWorks {
-            id
-            name
-            orderDate
-            completed
-            invoiced
-          }
-          recentTickets {
-            id
-            name
-            senderEmail
-            status
-            createdAt
+    try {
+      // Try GraphQL endpoint first
+      const query = `
+        query {
+          dashboardSummary(limit: ${limit}) {
+            clientCount
+            plantCount
+            completedWorkCount
+            pendingWorkCount
+            ticketStatusCounts {
+              status
+              count
+            }
+            recentWorks {
+              id
+              name
+              orderDate
+              completed
+              invoiced
+            }
+            recentTickets {
+              id
+              name
+              senderEmail
+              status
+              createdAt
+            }
           }
         }
+      `;
+
+      const response = await apiRequest<any>('/graphql', {
+        method: 'POST',
+        body: JSON.stringify({ query }),
+      });
+
+      // Handle GraphQL response
+      if (response?.data?.dashboardSummary) {
+        return response.data.dashboardSummary;
       }
-    `;
-    
-    const response = await apiRequest<{ data: { dashboardSummary: any } }>('/graphql', {
-      method: 'POST',
-      body: JSON.stringify({ query }),
-    });
-    
-    return response.data.dashboardSummary;
+    } catch (graphqlError) {
+      console.warn('GraphQL dashboard endpoint not available, using REST endpoints');
+    }
+
+    // Fallback: Use REST endpoints to build dashboard data
+    try {
+      const [clientsRes, plantsRes, worksRes, ticketsRes] = await Promise.all([
+        apiRequest<PaginatedResponse<any>>('/clients?page=0&size=1'),
+        apiRequest<PaginatedResponse<any>>('/plants?page=0&size=1'),
+        apiRequest<PaginatedResponse<any>>('/works?page=0&size=100'),
+        apiRequest<PaginatedResponse<any>>('/tickets?page=0&size=100'),
+      ]);
+
+      const works = worksRes.content || [];
+      const tickets = ticketsRes.content || [];
+
+      // Calculate counts
+      const completedWorks = works.filter((w: any) => w.completed);
+      const pendingWorks = works.filter((w: any) => !w.completed);
+
+      // Count tickets by status
+      const ticketStatusCounts = tickets.reduce((acc: any[], ticket: any) => {
+        const existing = acc.find((t) => t.status === ticket.status);
+        if (existing) {
+          existing.count++;
+        } else {
+          acc.push({ status: ticket.status, count: 1 });
+        }
+        return acc;
+      }, []);
+
+      // Get recent works (sorted by orderDate descending)
+      const recentWorks = works
+        .sort((a: any, b: any) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime())
+        .slice(0, limit);
+
+      // Get recent tickets (sorted by createdAt descending)
+      const recentTickets = tickets
+        .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, limit);
+
+      return {
+        clientCount: clientsRes.totalElements || 0,
+        plantCount: plantsRes.totalElements || 0,
+        completedWorkCount: completedWorks.length,
+        pendingWorkCount: pendingWorks.length,
+        ticketStatusCounts,
+        recentWorks,
+        recentTickets,
+      };
+    } catch (restError) {
+      console.error('Dashboard REST fallback error:', restError);
+      // Return empty data as last resort
+      return {
+        clientCount: 0,
+        plantCount: 0,
+        completedWorkCount: 0,
+        pendingWorkCount: 0,
+        ticketStatusCounts: [],
+        recentWorks: [],
+        recentTickets: [],
+      };
+    }
   },
 };

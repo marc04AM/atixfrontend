@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,16 +12,9 @@ import { ArrowLeft, Save, Briefcase, Mail, Calendar, Edit2, X, Trash2 } from 'lu
 import { TicketStatus, Ticket, Attachment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
+import { useTicket, useUpdateTicket, useDeleteTicket } from '@/hooks/api';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
-// Mock data - in real app, fetch from API
-const mockTicket: Ticket = {
-  id: '1',
-  name: 'Machine malfunction on Line 2',
-  senderEmail: 'operator@plant.com',
-  description: 'The main conveyor belt is not working properly and needs immediate attention. The motor seems to be overheating and there are unusual sounds coming from the gearbox. This is affecting production output significantly.',
-  status: 'OPEN',
-  createdAt: '2024-01-16T10:30:00'
-};
 const getTicketStatusColor = (status: TicketStatus) => {
   switch (status) {
     case 'OPEN':
@@ -37,49 +30,102 @@ const getTicketStatusColor = (status: TicketStatus) => {
   }
 };
 export default function TicketDetailPage() {
-  const {
-    id
-  } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+
+  const { data: ticket, isLoading, error } = useTicket(id!);
+  const updateTicket = useUpdateTicket();
+  const deleteTicket = useDeleteTicket();
+
   const [isEditing, setIsEditing] = useState(false);
-  const [ticket, setTicket] = useState<Ticket>(mockTicket);
-  const [editedTicket, setEditedTicket] = useState<Ticket>(mockTicket);
+  const [editedTicket, setEditedTicket] = useState<Ticket | null>(null);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
+
+  useEffect(() => {
+    if (ticket) {
+      setEditedTicket(ticket);
+    }
+  }, [ticket]);
+
   const handleStatusChange = (status: TicketStatus) => {
-    setTicket({
-      ...ticket,
-      status
-    });
-    toast({
-      title: 'Status Updated',
-      description: `Ticket status changed to ${status.replace('_', ' ').toLowerCase()}.`
-    });
+    if (!ticket) return;
+
+    updateTicket.mutate(
+      { id: ticket.id, data: { status } },
+      {
+        onSuccess: () => {
+          toast({
+            title: 'Status Updated',
+            description: `Ticket status changed to ${status.replace('_', ' ').toLowerCase()}.`
+          });
+        },
+        onError: (error: any) => {
+          toast({
+            title: 'Error',
+            description: error.message,
+            variant: 'destructive'
+          });
+        }
+      }
+    );
   };
+
   const handleSave = () => {
-    setTicket(editedTicket);
-    setIsEditing(false);
-    toast({
-      title: 'Ticket Updated',
-      description: 'The ticket has been updated successfully.'
-    });
+    if (!ticket || !editedTicket) return;
+
+    updateTicket.mutate(
+      { id: ticket.id, data: editedTicket },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          toast({
+            title: 'Ticket Updated',
+            description: 'The ticket has been updated successfully.'
+          });
+        },
+        onError: (error: any) => {
+          toast({
+            title: 'Error',
+            description: error.message,
+            variant: 'destructive'
+          });
+        }
+      }
+    );
   };
+
   const handleCancel = () => {
-    setEditedTicket(ticket);
+    if (ticket) {
+      setEditedTicket(ticket);
+    }
     setIsEditing(false);
   };
+
   const handleDelete = () => {
-    toast({
-      title: 'Ticket Deleted',
-      description: 'The ticket has been deleted.',
-      variant: 'destructive'
+    if (!ticket) return;
+
+    deleteTicket.mutate(ticket.id, {
+      onSuccess: () => {
+        toast({
+          title: 'Ticket Deleted',
+          description: 'The ticket has been deleted.',
+          variant: 'destructive'
+        });
+        navigate('/tickets');
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive'
+        });
+      }
     });
-    navigate('/tickets');
   };
+
   const handleCreateWork = () => {
-    // Navigate to create work page with ticket info pre-filled
+    if (!ticket) return;
     navigate('/works/new', {
       state: {
         fromTicket: ticket.id,
@@ -88,6 +134,18 @@ export default function TicketDetailPage() {
       }
     });
   };
+
+  if (isLoading) return <LoadingSpinner message="Loading ticket..." />;
+  if (error) return (
+    <div className="flex items-center justify-center py-12">
+      <Card className="border-destructive">
+        <CardContent className="pt-6">
+          <p className="text-destructive">Error loading ticket: {(error as Error).message}</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+  if (!ticket || !editedTicket) return null;
   return <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">

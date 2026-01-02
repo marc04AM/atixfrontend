@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Trash2, Save, X, Building2, User, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,47 +11,86 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Client, ClientType, Work } from '@/types';
-
-// Mock data
-const mockClient: Client = {
-  id: '1',
-  name: 'Acme Corporation',
-  type: 'ATIX',
-};
-
-const mockLinkedWorks: Work[] = [
-  { id: '1', name: 'Automation System', bidNumber: 'BID001', orderNumber: 'ORD001', orderDate: '2024-01-15', electricalSchemaProgression: 80, programmingProgression: 60, completed: false, createdAt: '2024-01-10', invoiced: false, nasSubDirectory: '/nas/acme', expectedOfficeHours: 40, expectedPlantHours: 60 },
-  { id: '2', name: 'PLC Programming', bidNumber: 'BID002', orderNumber: 'ORD002', orderDate: '2024-01-10', electricalSchemaProgression: 100, programmingProgression: 100, completed: true, completedAt: '2024-01-20', createdAt: '2024-01-05', invoiced: true, invoicedAt: '2024-01-25', nasSubDirectory: '/nas/acme', expectedOfficeHours: 20, expectedPlantHours: 30 },
-];
+import { useClient, useUpdateClient, useDeleteClient, useWorks } from '@/hooks/api';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export default function ClientDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const { data: client, isLoading, error } = useClient(id!);
+  const updateClient = useUpdateClient();
+  const deleteClient = useDeleteClient();
+
+  // Fetch works linked to this client (either as atix or final client)
+  const worksParams = useMemo(() => ({ clientId: id }), [id]);
+  const { data: worksData } = useWorks(worksParams);
+
   const [isEditing, setIsEditing] = useState(false);
-  const [client, setClient] = useState<Client>(mockClient);
-  const [editedClient, setEditedClient] = useState<Client>(mockClient);
+  const [editedClient, setEditedClient] = useState<Client | null>(null);
+
+  useEffect(() => {
+    if (client) {
+      setEditedClient(client);
+    }
+  }, [client]);
+
+  const linkedWorks = worksData?.content || [];
 
   const handleSave = () => {
+    if (!client || !editedClient) return;
     if (!editedClient.name.trim()) {
       toast({ title: 'Error', description: 'Name is required', variant: 'destructive' });
       return;
     }
-    setClient(editedClient);
-    setIsEditing(false);
-    toast({ title: 'Success', description: 'Client updated successfully' });
+
+    updateClient.mutate(
+      { id: client.id, data: editedClient },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          toast({ title: 'Success', description: 'Client updated successfully' });
+        },
+        onError: (error: any) => {
+          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        }
+      }
+    );
   };
 
   const handleCancel = () => {
-    setEditedClient(client);
+    if (client) {
+      setEditedClient(client);
+    }
     setIsEditing(false);
   };
 
   const handleDelete = () => {
-    toast({ title: 'Deleted', description: 'Client has been deleted' });
-    navigate('/clients');
+    if (!client) return;
+
+    deleteClient.mutate(client.id, {
+      onSuccess: () => {
+        toast({ title: 'Deleted', description: 'Client has been deleted' });
+        navigate('/clients');
+      },
+      onError: (error: any) => {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
+    });
   };
+
+  if (isLoading) return <LoadingSpinner message="Loading client..." />;
+  if (error) return (
+    <div className="flex items-center justify-center py-12">
+      <Card className="border-destructive">
+        <CardContent className="pt-6">
+          <p className="text-destructive">Error loading client: {(error as Error).message}</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+  if (!client || !editedClient) return null;
 
   return (
     <div className="space-y-6">
@@ -182,7 +221,7 @@ export default function ClientDetailPage() {
           <CardDescription>Works associated with this client</CardDescription>
         </CardHeader>
         <CardContent>
-          {mockLinkedWorks.length === 0 ? (
+          {linkedWorks.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">No linked works</p>
           ) : (
             <div className="overflow-x-auto">
@@ -196,7 +235,7 @@ export default function ClientDetailPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockLinkedWorks.map((work) => (
+                  {linkedWorks.map((work) => (
                     <TableRow
                       key={work.id}
                       className="cursor-pointer hover:bg-muted/50"

@@ -16,19 +16,19 @@ export interface User {
   lastName: string;
   email: string;
   role: UserRole;
-  userType: UserType;
+  type: UserType;
 }
 
 export interface TechnicianUser extends User {
-  userType: 'TECHNICIAN';
+  type: 'TECHNICIAN';
 }
 
 export interface AdministrativeUser extends User {
-  userType: 'ADMINISTRATION';
+  type: 'ADMINISTRATION';
 }
 
 export interface SellerUser extends User {
-  userType: 'SELLER';
+  type: 'SELLER';
   soldWorks?: Work[];
 }
 

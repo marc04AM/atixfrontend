@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User, Mail, Lock, Camera, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,10 +8,31 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUpdateUser, useUpdatePassword, useUploadAvatar, useUsers } from '@/hooks/api';
 
 export default function ProfilePage() {
   const { toast } = useToast();
   const { user } = useAuth();
+
+  const updateUser = useUpdateUser();
+  const updatePassword = useUpdatePassword();
+  const uploadAvatar = useUploadAvatar();
+
+  // Fetch users to get the current user's ID if not available
+  const { data: usersData } = useUsers();
+  const [currentUserId, setCurrentUserId] = useState<string | undefined>(user?.id);
+
+  useEffect(() => {
+    if (user?.id) {
+      setCurrentUserId(user.id);
+    } else if (usersData && user?.email) {
+      // Find current user by email
+      const currentUser = usersData.find((u: any) => u.email === user.email);
+      if (currentUser) {
+        setCurrentUserId(currentUser.id);
+      }
+    }
+  }, [user, usersData]);
   
   const [profileData, setProfileData] = useState({
     firstName: user?.firstName || '',
@@ -38,25 +59,41 @@ export default function ProfilePage() {
     }
   };
 
-  const handleProfileUpdate = async () => {
+  const handleProfileUpdate = () => {
+    if (!currentUserId) {
+      toast({ title: 'Error', description: 'User ID not available', variant: 'destructive' });
+      return;
+    }
     if (!profileData.firstName || !profileData.lastName || !profileData.email) {
       toast({ title: 'Error', description: 'All fields are required', variant: 'destructive' });
       return;
     }
 
     setIsUpdatingProfile(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast({ title: 'Success', description: 'Profile updated successfully' });
-    } catch {
-      toast({ title: 'Error', description: 'Failed to update profile', variant: 'destructive' });
-    } finally {
-      setIsUpdatingProfile(false);
-    }
+    updateUser.mutate(
+      {
+        id: currentUserId,
+        data: {
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          email: profileData.email,
+        }
+      },
+      {
+        onSuccess: () => {
+          toast({ title: 'Success', description: 'Profile updated successfully' });
+          setIsUpdatingProfile(false);
+        },
+        onError: (error: any) => {
+          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+          setIsUpdatingProfile(false);
+        }
+      }
+    );
   };
 
-  const handlePasswordUpdate = async () => {
+  const handlePasswordUpdate = () => {
+    if (!user?.id) return;
     if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
       toast({ title: 'Error', description: 'All password fields are required', variant: 'destructive' });
       return;
@@ -73,16 +110,26 @@ export default function ProfilePage() {
     }
 
     setIsUpdatingPassword(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast({ title: 'Success', description: 'Password updated successfully' });
-      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    } catch {
-      toast({ title: 'Error', description: 'Failed to update password', variant: 'destructive' });
-    } finally {
-      setIsUpdatingPassword(false);
-    }
+    updatePassword.mutate(
+      {
+        id: user.id,
+        data: {
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }
+      },
+      {
+        onSuccess: () => {
+          toast({ title: 'Success', description: 'Password updated successfully' });
+          setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+          setIsUpdatingPassword(false);
+        },
+        onError: (error: any) => {
+          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+          setIsUpdatingPassword(false);
+        }
+      }
+    );
   };
 
   return (
@@ -125,7 +172,7 @@ export default function ProfilePage() {
               <p className="font-medium">{profileData.firstName} {profileData.lastName}</p>
               <p className="text-sm text-muted-foreground">{profileData.email}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Role: {user?.role} • Type: {user?.userType || 'N/A'}
+                Role: {user?.role} • Type: {user?.type || 'N/A'}
               </p>
             </div>
           </div>

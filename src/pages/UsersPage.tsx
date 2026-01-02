@@ -44,6 +44,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole, UserType } from '@/types';
+import { useUsers, useCreateUser, useUpdateUser, useDeleteUser } from '@/hooks/api';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface UserData {
   id: string;
@@ -51,22 +53,21 @@ interface UserData {
   lastName: string;
   email: string;
   role: UserRole;
-  userType: UserType;
+  type: UserType;
 }
-
-// Mock data for users
-const initialMockUsers: UserData[] = [
-  { id: '1', firstName: 'Mario', lastName: 'Rossi', email: 'mario.rossi@example.com', role: 'ADMIN' as UserRole, userType: 'ADMINISTRATION' as UserType },
-  { id: '2', firstName: 'Luigi', lastName: 'Verdi', email: 'luigi.verdi@example.com', role: 'USER' as UserRole, userType: 'TECHNICIAN' as UserType },
-  { id: '3', firstName: 'Anna', lastName: 'Bianchi', email: 'anna.bianchi@example.com', role: 'USER' as UserRole, userType: 'SELLER' as UserType },
-  { id: '4', firstName: 'Giuseppe', lastName: 'Neri', email: 'giuseppe.neri@example.com', role: 'USER' as UserRole, userType: 'TECHNICIAN' as UserType },
-];
 
 export default function UsersPage() {
   const { toast } = useToast();
   const { canManageUsers } = useAuth();
-  const [users, setUsers] = useState<UserData[]>(initialMockUsers);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Fetch users
+  const { data: usersData, isLoading, error } = useUsers();
+  const createUser = useCreateUser();
+  const updateUser = useUpdateUser();
+  const deleteUser = useDeleteUser();
+
+  const users = usersData || [];
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
@@ -76,7 +77,7 @@ export default function UsersPage() {
     email: '',
     password: '',
     role: 'USER' as UserRole,
-    userType: 'TECHNICIAN' as UserType,
+    type: 'TECHNICIAN' as UserType,
   });
 
   // Filter users based on search
@@ -88,6 +89,17 @@ export default function UsersPage() {
     );
   });
 
+  if (isLoading) return <LoadingSpinner message="Loading users..." />;
+  if (error) return (
+    <div className="flex items-center justify-center py-12">
+      <Card className="border-destructive">
+        <CardContent className="pt-6">
+          <p className="text-destructive">Error loading users: {(error as Error).message}</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
   const handleCreateUser = () => {
     if (!newUser.firstName || !newUser.lastName || !newUser.email || !newUser.password) {
       toast({
@@ -98,51 +110,74 @@ export default function UsersPage() {
       return;
     }
 
-    const createdUser: UserData = {
-      id: String(Date.now()),
-      firstName: newUser.firstName,
-      lastName: newUser.lastName,
-      email: newUser.email,
-      role: newUser.role,
-      userType: newUser.userType,
-    };
-    setUsers([...users, createdUser]);
-    
-    toast({
-      title: 'User Created',
-      description: `${newUser.firstName} ${newUser.lastName} has been created successfully.`,
+    createUser.mutate(newUser, {
+      onSuccess: () => {
+        toast({
+          title: 'User Created',
+          description: `${newUser.firstName} ${newUser.lastName} has been created successfully.`,
+        });
+        setNewUser({
+          firstName: '',
+          lastName: '',
+          email: '',
+          password: '',
+          role: 'USER',
+          type: 'TECHNICIAN',
+        });
+        setIsCreateDialogOpen(false);
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
     });
-    
-    setNewUser({
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
-      role: 'USER',
-      userType: 'TECHNICIAN',
-    });
-    setIsCreateDialogOpen(false);
   };
 
   const handleEditUser = () => {
     if (!editingUser) return;
-    
-    setUsers(users.map((u) => (u.id === editingUser.id ? editingUser : u)));
-    toast({
-      title: 'User Updated',
-      description: `${editingUser.firstName} ${editingUser.lastName} has been updated.`,
-    });
-    setIsEditDialogOpen(false);
-    setEditingUser(null);
+
+    updateUser.mutate(
+      { id: editingUser.id, data: editingUser },
+      {
+        onSuccess: () => {
+          toast({
+            title: 'User Updated',
+            description: `${editingUser.firstName} ${editingUser.lastName} has been updated.`,
+          });
+          setIsEditDialogOpen(false);
+          setEditingUser(null);
+        },
+        onError: (error: any) => {
+          toast({
+            title: 'Error',
+            description: error.message,
+            variant: 'destructive',
+          });
+        }
+      }
+    );
   };
 
   const handleDeleteUser = (userId: string) => {
-    const user = users.find((u) => u.id === userId);
-    setUsers(users.filter((u) => u.id !== userId));
-    toast({
-      title: 'User Deleted',
-      description: `${user?.firstName} ${user?.lastName} has been deleted.`,
-      variant: 'destructive',
+    const user = users.find((u: any) => u.id === userId);
+    deleteUser.mutate(userId, {
+      onSuccess: () => {
+        toast({
+          title: 'User Deleted',
+          description: `${user?.firstName} ${user?.lastName} has been deleted.`,
+          variant: 'destructive',
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
     });
   };
 
@@ -266,10 +301,10 @@ export default function UsersPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="userType">User Type *</Label>
+                  <Label htmlFor="type">User Type *</Label>
                   <Select
-                    value={newUser.userType}
-                    onValueChange={(value: UserType) => setNewUser({ ...newUser, userType: value })}
+                    value={newUser.type}
+                    onValueChange={(value: UserType) => setNewUser({ ...newUser, type: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -311,7 +346,7 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.filter((u) => u.userType === 'SELLER').length}
+              {users.filter((u) => u.type === 'SELLER').length}
             </div>
           </CardContent>
         </Card>
@@ -322,7 +357,7 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.filter((u) => u.userType === 'TECHNICIAN').length}
+              {users.filter((u) => u.type === 'TECHNICIAN').length}
             </div>
           </CardContent>
         </Card>
@@ -333,7 +368,7 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.filter((u) => u.userType === 'ADMINISTRATION').length}
+              {users.filter((u) => u.type === 'ADMINISTRATION').length}
             </div>
           </CardContent>
         </Card>
@@ -384,7 +419,7 @@ export default function UsersPage() {
                             {user.email}
                           </div>
                           <div className="text-xs text-muted-foreground sm:hidden">
-                            {getUserTypeIcon(user.userType)} {user.role}
+                            {getUserTypeIcon(user.type)} {user.role}
                           </div>
                         </div>
                       </div>
@@ -393,8 +428,8 @@ export default function UsersPage() {
                       <div className="space-y-1">
                         <Badge variant={getRoleBadgeVariant(user.role)}>{user.role}</Badge>
                         <div className="text-xs text-muted-foreground flex items-center gap-1">
-                          {getUserTypeIcon(user.userType)}
-                          {user.userType.charAt(0) + user.userType.slice(1).toLowerCase()}
+                          {getUserTypeIcon(user.type)}
+                          {user.type.charAt(0) + user.type.slice(1).toLowerCase()}
                         </div>
                       </div>
                     </TableCell>
@@ -497,8 +532,8 @@ export default function UsersPage() {
                 <div className="space-y-2">
                   <Label htmlFor="editUserType">User Type *</Label>
                   <Select
-                    value={editingUser.userType}
-                    onValueChange={(value: UserType) => setEditingUser({ ...editingUser, userType: value })}
+                    value={editingUser.type}
+                    onValueChange={(value: UserType) => setEditingUser({ ...editingUser, type: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />

@@ -2,11 +2,12 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { UserRole, UserType } from '@/types';
 
 interface AuthUser {
+  id?: string;
   email: string;
   firstName: string;
   lastName: string;
   role: UserRole;
-  userType?: UserType;
+  type?: UserType;
 }
 
 interface AuthContextType {
