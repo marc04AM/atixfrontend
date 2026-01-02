@@ -6,34 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { 
-  ArrowLeft, 
-  Save, 
-  Briefcase,
-  Mail,
-  Calendar,
-  Edit2,
-  X,
-  Trash2
-} from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { ArrowLeft, Save, Briefcase, Mail, Calendar, Edit2, X, Trash2 } from 'lucide-react';
 import { TicketStatus, Ticket, Attachment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
@@ -45,9 +20,8 @@ const mockTicket: Ticket = {
   senderEmail: 'operator@plant.com',
   description: 'The main conveyor belt is not working properly and needs immediate attention. The motor seems to be overheating and there are unusual sounds coming from the gearbox. This is affecting production output significantly.',
   status: 'OPEN',
-  createdAt: '2024-01-16T10:30:00',
+  createdAt: '2024-01-16T10:30:00'
 };
-
 const getTicketStatusColor = (status: TicketStatus) => {
   switch (status) {
     case 'OPEN':
@@ -62,61 +36,59 @@ const getTicketStatusColor = (status: TicketStatus) => {
       return 'bg-muted text-muted-foreground';
   }
 };
-
 export default function TicketDetailPage() {
-  const { id } = useParams();
+  const {
+    id
+  } = useParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [ticket, setTicket] = useState<Ticket>(mockTicket);
   const [editedTicket, setEditedTicket] = useState<Ticket>(mockTicket);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
-
   const handleStatusChange = (status: TicketStatus) => {
-    setTicket({ ...ticket, status });
+    setTicket({
+      ...ticket,
+      status
+    });
     toast({
       title: 'Status Updated',
-      description: `Ticket status changed to ${status.replace('_', ' ').toLowerCase()}.`,
+      description: `Ticket status changed to ${status.replace('_', ' ').toLowerCase()}.`
     });
   };
-
   const handleSave = () => {
     setTicket(editedTicket);
     setIsEditing(false);
     toast({
       title: 'Ticket Updated',
-      description: 'The ticket has been updated successfully.',
+      description: 'The ticket has been updated successfully.'
     });
   };
-
   const handleCancel = () => {
     setEditedTicket(ticket);
     setIsEditing(false);
   };
-
   const handleDelete = () => {
     toast({
       title: 'Ticket Deleted',
       description: 'The ticket has been deleted.',
-      variant: 'destructive',
+      variant: 'destructive'
     });
     navigate('/tickets');
   };
-
   const handleCreateWork = () => {
     // Navigate to create work page with ticket info pre-filled
-    navigate('/works/new', { 
-      state: { 
+    navigate('/works/new', {
+      state: {
         fromTicket: ticket.id,
         ticketName: ticket.name,
-        ticketDescription: ticket.description 
-      } 
+        ticketDescription: ticket.description
+      }
     });
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate('/tickets')}>
@@ -127,7 +99,7 @@ export default function TicketDetailPage() {
             <h1 className="text-2xl font-bold tracking-tight">
               {isEditing ? 'Edit Ticket' : ticket.name}
             </h1>
-            <Select value={ticket.status} onValueChange={(value) => handleStatusChange(value as TicketStatus)}>
+            <Select value={ticket.status} onValueChange={value => handleStatusChange(value as TicketStatus)}>
               <SelectTrigger className="w-[140px]">
                 <SelectValue />
               </SelectTrigger>
@@ -139,11 +111,10 @@ export default function TicketDetailPage() {
               </SelectContent>
             </Select>
           </div>
-          <p className="text-muted-foreground mt-1">Ticket #{id}</p>
+          
         </div>
         <div className="flex gap-2">
-          {!isEditing ? (
-            <>
+          {!isEditing ? <>
               <Button variant="outline" onClick={() => setIsEditing(true)}>
                 <Edit2 className="h-4 w-4 mr-2" />
                 Edit
@@ -152,9 +123,7 @@ export default function TicketDetailPage() {
                 <Briefcase className="h-4 w-4 mr-2" />
                 Create Work
               </Button>
-            </>
-          ) : (
-            <>
+            </> : <>
               <Button variant="outline" onClick={handleCancel}>
                 <X className="h-4 w-4 mr-2" />
                 Cancel
@@ -163,8 +132,7 @@ export default function TicketDetailPage() {
                 <Save className="h-4 w-4 mr-2" />
                 Save Changes
               </Button>
-            </>
-          )}
+            </>}
         </div>
       </div>
 
@@ -176,31 +144,27 @@ export default function TicketDetailPage() {
               <CardTitle>Ticket Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {isEditing ? (
-                <>
+              {isEditing ? <>
                   <div className="grid gap-2">
                     <Label htmlFor="name">Ticket Name</Label>
-                    <Input
-                      id="name"
-                      value={editedTicket.name}
-                      onChange={(e) => setEditedTicket({ ...editedTicket, name: e.target.value })}
-                    />
+                    <Input id="name" value={editedTicket.name} onChange={e => setEditedTicket({
+                  ...editedTicket,
+                  name: e.target.value
+                })} />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="email">Sender Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={editedTicket.senderEmail || ''}
-                      onChange={(e) => setEditedTicket({ ...editedTicket, senderEmail: e.target.value })}
-                    />
+                    <Input id="email" type="email" value={editedTicket.senderEmail || ''} onChange={e => setEditedTicket({
+                  ...editedTicket,
+                  senderEmail: e.target.value
+                })} />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="status">Status</Label>
-                    <Select
-                      value={editedTicket.status}
-                      onValueChange={(value) => setEditedTicket({ ...editedTicket, status: value as TicketStatus })}
-                    >
+                    <Select value={editedTicket.status} onValueChange={value => setEditedTicket({
+                  ...editedTicket,
+                  status: value as TicketStatus
+                })}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -214,33 +178,22 @@ export default function TicketDetailPage() {
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      rows={6}
-                      value={editedTicket.description}
-                      onChange={(e) => setEditedTicket({ ...editedTicket, description: e.target.value })}
-                    />
+                    <Textarea id="description" rows={6} value={editedTicket.description} onChange={e => setEditedTicket({
+                  ...editedTicket,
+                  description: e.target.value
+                })} />
                   </div>
-                </>
-              ) : (
-                <>
+                </> : <>
                   <div>
                     <Label className="text-muted-foreground">Description</Label>
                     <p className="mt-1 whitespace-pre-wrap">{ticket.description}</p>
                   </div>
-                </>
-              )}
+                </>}
             </CardContent>
           </Card>
 
           {/* Attachments */}
-          <AttachmentManager
-            targetType="TICKET"
-            targetId={id || ''}
-            attachments={attachments}
-            onAttachmentsChange={setAttachments}
-            readOnly={false}
-          />
+          <AttachmentManager targetType="TICKET" targetId={id || ''} attachments={attachments} onAttachmentsChange={setAttachments} readOnly={false} />
         </div>
 
         {/* Sidebar */}
@@ -302,6 +255,5 @@ export default function TicketDetailPage() {
           </Card>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 }
