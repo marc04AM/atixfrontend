@@ -298,14 +298,17 @@ const createDemoStore = () => {
     {
       id: 'worksite-ref-1',
       name: 'Mario Rossi - Idraulico',
+      telephone: '+39 02 1234567',
     },
     {
       id: 'worksite-ref-2',
       name: 'Luca Bianchi - Elettricista',
+      telephone: '+39 02 7654321',
     },
     {
       id: 'worksite-ref-3',
       name: 'Giulia Verdi - Responsabile Impianto',
+      telephone: '+39 051 445566',
     },
   ];
 

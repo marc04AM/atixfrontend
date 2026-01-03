@@ -160,6 +160,8 @@
     "createNew": "Create New",
     "referenceNameLabel": "Reference Name",
     "referenceNamePlaceholder": "Mario Rossi - Plumber",
+    "referencePhoneLabel": "Phone",
+    "referencePhonePlaceholder": "Enter phone",
     "referenceLabel": "Reference",
     "referencePlaceholder": "Select reference",
     "roleLabel": "Role",

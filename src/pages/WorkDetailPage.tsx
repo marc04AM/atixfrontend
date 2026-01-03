@@ -126,6 +126,7 @@ export default function WorkDetailPage() {
   const [selectedRole, setSelectedRole] = useState<'PLUMBER' | 'ELECTRICIAN'>('PLUMBER');
   const [isCreatingNewReference, setIsCreatingNewReference] = useState(false);
   const [newReferenceName, setNewReferenceName] = useState('');
+  const [newReferencePhone, setNewReferencePhone] = useState('');
 
   // Loading and error states
   if (isLoading) return <LoadingSpinner message={t('messages.loadingDetails')} />;
@@ -373,7 +374,14 @@ export default function WorkDetailPage() {
         return;
       }
 
-      createWorksiteReference.mutate({ name: newReferenceName }, {
+      const payload = {
+        name: newReferenceName,
+        ...(newReferencePhone.trim()
+          ? { telephone: newReferencePhone.trim() }
+          : {}),
+      };
+
+      createWorksiteReference.mutate(payload, {
         onSuccess: (newRef) => {
           // After creating, add it to the work
           addReference.mutate({
@@ -389,6 +397,7 @@ export default function WorkDetailPage() {
               setSelectedRole('PLUMBER');
               setIsCreatingNewReference(false);
               setNewReferenceName('');
+              setNewReferencePhone('');
               toast({
                 title: t('messages.referenceCreatedAndAddedTitle'),
                 description: t('messages.referenceCreatedAndAddedDescription', {
@@ -462,6 +471,23 @@ export default function WorkDetailPage() {
 
     const match = allWorksiteReferences.find((ref: any) => String(ref.id) === String(referenceId));
     return match?.name || t('common:messages.notSet');
+  };
+  const resolveWorksiteReferencePhone = (assignment: any) => {
+    const directPhone = assignment?.worksiteReference?.telephone
+      || assignment?.worksiteReferenceTelephone
+      || assignment?.referenceTelephone
+      || assignment?.telephone
+      || assignment?.phone;
+    if (directPhone) return directPhone;
+
+    const referenceId = assignment?.worksiteReferenceId
+      ?? assignment?.referenceId
+      ?? assignment?.worksiteReference?.id
+      ?? assignment?.reference?.id;
+    if (!referenceId) return '';
+
+    const match = allWorksiteReferences.find((ref: any) => String(ref.id) === String(referenceId));
+    return match?.telephone || '';
   };
   const totalHours = reportEntries.reduce((sum: number, e: any) => sum + e.hours, 0);
   return <div className="space-y-6">
@@ -902,6 +928,11 @@ export default function WorkDetailPage() {
                       <p className="text-xs text-muted-foreground">
                         {t(`worksite-references:roles.${assignment.role}`)}
                       </p>
+                      {resolveWorksiteReferencePhone(assignment) && (
+                        <p className="text-xs text-muted-foreground">
+                          {resolveWorksiteReferencePhone(assignment)}
+                        </p>
+                      )}
                     </div>
                   </div>) : <p className="text-sm text-muted-foreground">{t('references.empty')}</p>}
 
@@ -912,6 +943,7 @@ export default function WorkDetailPage() {
                   if (!open) {
                     setIsCreatingNewReference(false);
                     setNewReferenceName('');
+                    setNewReferencePhone('');
                     setSelectedReference('');
                   }
                 }}>
@@ -954,6 +986,14 @@ export default function WorkDetailPage() {
                             value={newReferenceName}
                             onChange={(e) => setNewReferenceName(e.target.value)}
                             placeholder={t('references.referenceNamePlaceholder')}
+                          />
+                          <Label htmlFor="newReferencePhone">{t('references.referencePhoneLabel')}</Label>
+                          <Input
+                            id="newReferencePhone"
+                            type="tel"
+                            value={newReferencePhone}
+                            onChange={(e) => setNewReferencePhone(e.target.value)}
+                            placeholder={t('references.referencePhonePlaceholder')}
                           />
                         </div>
                       ) : (

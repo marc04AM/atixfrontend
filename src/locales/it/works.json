@@ -160,6 +160,8 @@
     "createNew": "Crea nuovo",
     "referenceNameLabel": "Nome riferimento",
     "referenceNamePlaceholder": "Mario Rossi - Idraulico",
+    "referencePhoneLabel": "Telefono",
+    "referencePhonePlaceholder": "Inserisci telefono",
     "referenceLabel": "Riferimento",
     "referencePlaceholder": "Seleziona riferimento",
     "roleLabel": "Ruolo",

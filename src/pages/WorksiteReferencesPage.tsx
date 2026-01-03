@@ -56,11 +56,16 @@ export default function WorksiteReferencesPage() {
   const [editingReference, setEditingReference] = useState<any>(null);
   const [newReference, setNewReference] = useState({
     name: '',
+    telephone: '',
   });
 
   // Filter references based on search
+  const normalizedQuery = searchQuery.trim().toLowerCase();
   const filteredReferences = references.filter((ref: any) => {
-    return ref.name.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!normalizedQuery) return true;
+    const nameMatch = ref.name?.toLowerCase().includes(normalizedQuery);
+    const phoneMatch = ref.telephone?.toLowerCase().includes(normalizedQuery);
+    return nameMatch || phoneMatch;
   });
 
   if (isLoading) return <LoadingSpinner message={t('messages.loading')} />;
@@ -86,13 +91,20 @@ export default function WorksiteReferencesPage() {
       return;
     }
 
-    createReference.mutate(newReference, {
+    const payload = {
+      name: newReference.name,
+      ...(newReference.telephone?.trim()
+        ? { telephone: newReference.telephone.trim() }
+        : {}),
+    };
+
+    createReference.mutate(payload, {
       onSuccess: () => {
         toast({
           title: t('common:titles.success'),
           description: t('messages.createdDescription', { name: newReference.name }),
         });
-        setNewReference({ name: '' });
+        setNewReference({ name: '', telephone: '' });
         setIsCreateDialogOpen(false);
       },
       onError: (error: any) => {
@@ -108,8 +120,15 @@ export default function WorksiteReferencesPage() {
   const handleEditReference = () => {
     if (!editingReference) return;
 
+    const payload = {
+      name: editingReference.name,
+      ...(editingReference.telephone?.trim()
+        ? { telephone: editingReference.telephone.trim() }
+        : {}),
+    };
+
     updateReference.mutate(
-      { id: editingReference.id, data: { name: editingReference.name } },
+      { id: editingReference.id, data: payload },
       {
         onSuccess: () => {
           toast({
@@ -179,14 +198,24 @@ export default function WorksiteReferencesPage() {
               <div className="grid gap-4 py-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">{t('form.nameLabel')} *</Label>
-                  <Input
-                    id="name"
-                    value={newReference.name}
-                    onChange={(e) => setNewReference({ ...newReference, name: e.target.value })}
-                    placeholder={t('form.namePlaceholder')}
-                  />
+                    <Input
+                      id="name"
+                      value={newReference.name}
+                      onChange={(e) => setNewReference({ ...newReference, name: e.target.value })}
+                      placeholder={t('form.namePlaceholder')}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="telephone">{t('form.phoneLabel')}</Label>
+                    <Input
+                      id="telephone"
+                      type="tel"
+                      value={newReference.telephone}
+                      onChange={(e) => setNewReference({ ...newReference, telephone: e.target.value })}
+                      placeholder={t('form.phonePlaceholder')}
+                    />
+                  </div>
                 </div>
-              </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                   {t('common:actions.cancel')}
@@ -232,6 +261,7 @@ export default function WorksiteReferencesPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('columns.name')}</TableHead>
+                  <TableHead>{t('columns.phone')}</TableHead>
                   {isAdmin && <TableHead className="text-right">{t('columns.actions')}</TableHead>}
                 </TableRow>
               </TableHeader>
@@ -240,6 +270,15 @@ export default function WorksiteReferencesPage() {
                   <TableRow key={reference.id}>
                     <TableCell>
                       <div className="font-medium">{reference.name}</div>
+                    </TableCell>
+                    <TableCell>
+                      {reference.telephone ? (
+                        <div className="text-sm">{reference.telephone}</div>
+                      ) : (
+                        <div className="text-sm text-muted-foreground">
+                          {t('common:messages.notSet')}
+                        </div>
+                      )}
                     </TableCell>
                     {isAdmin && (
                       <TableCell className="text-right">
@@ -275,7 +314,7 @@ export default function WorksiteReferencesPage() {
                 ))}
                 {filteredReferences.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={isAdmin ? 2 : 1} className="h-24 text-center">
+                    <TableCell colSpan={isAdmin ? 3 : 2} className="h-24 text-center">
                       {t('messages.noReferences')}
                     </TableCell>
                   </TableRow>
@@ -301,6 +340,15 @@ export default function WorksiteReferencesPage() {
                   id="editName"
                   value={editingReference.name}
                   onChange={(e) => setEditingReference({ ...editingReference, name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editTelephone">{t('form.phoneLabel')}</Label>
+                <Input
+                  id="editTelephone"
+                  type="tel"
+                  value={editingReference.telephone || ''}
+                  onChange={(e) => setEditingReference({ ...editingReference, telephone: e.target.value })}
                 />
               </div>
             </div>
