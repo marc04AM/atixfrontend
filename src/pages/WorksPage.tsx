@@ -734,10 +734,10 @@ function WorksList({
                     <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
                       <div
                         className="h-full bg-primary rounded-full transition-all"
-                        style={{ width: `${work.electricalSchemaProgression}%` }}
+                        style={{ width: `${work.electricalSchemaProgression || 0}%` }}
                       />
                     </div>
-                    <span className="text-xs text-muted-foreground">{work.electricalSchemaProgression}%</span>
+                    <span className="text-xs text-muted-foreground">{work.electricalSchemaProgression || 0}%</span>
                   </div>
                   <div className="text-center">
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
@@ -746,11 +746,11 @@ function WorksList({
                     </div>
                     <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-chart-2 rounded-full transition-all"
-                        style={{ width: `${work.programmingProgression}%` }}
+                        className="h-full bg-primary rounded-full transition-all"
+                        style={{ width: `${work.programmingProgression || 0}%` }}
                       />
                     </div>
-                    <span className="text-xs text-muted-foreground">{work.programmingProgression}%</span>
+                    <span className="text-xs text-muted-foreground">{work.programmingProgression || 0}%</span>
                   </div>
                 </div>
               </div>
