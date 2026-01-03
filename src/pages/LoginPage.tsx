@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, Eye, EyeOff, Loader2, Play } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -126,8 +126,12 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary">
-              <Briefcase className="h-7 w-7 text-primary-foreground" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-xl">
+              <img
+                src="/favicon.svg"
+                alt="ATIX"
+                className="h-full w-full"
+              />
             </div>
           </div>
           <CardTitle className="text-2xl">Welcome to ATIX Management System</CardTitle>
