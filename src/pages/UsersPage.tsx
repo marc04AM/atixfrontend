@@ -512,39 +512,21 @@ export default function UsersPage() {
                   onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="editRole">Role *</Label>
-                  <Select
-                    value={editingUser.role}
-                    onValueChange={(value: UserRole) => setEditingUser({ ...editingUser, role: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="USER">User</SelectItem>
-                      <SelectItem value="ADMIN">Admin</SelectItem>
-                      <SelectItem value="OWNER">Owner</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="editUserType">User Type *</Label>
-                  <Select
-                    value={editingUser.type}
-                    onValueChange={(value: UserType) => setEditingUser({ ...editingUser, type: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="TECHNICIAN">Technician</SelectItem>
-                      <SelectItem value="ADMINISTRATION">Administration</SelectItem>
-                      <SelectItem value="SELLER">Seller</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="editRole">Role *</Label>
+                <Select
+                  value={editingUser.role}
+                  onValueChange={(value: UserRole) => setEditingUser({ ...editingUser, role: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USER">User</SelectItem>
+                    <SelectItem value="ADMIN">Admin</SelectItem>
+                    <SelectItem value="OWNER">Owner</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           )}
