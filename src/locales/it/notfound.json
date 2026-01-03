@@ -1,5 +1,6 @@
 {
   "title": "404",
   "message": "Ops! Pagina non trovata",
+  "description": "La pagina che cerchi e' stata spostata, rimossa o non e' mai esistita.",
   "returnHome": "Torna alla Home"
 }
