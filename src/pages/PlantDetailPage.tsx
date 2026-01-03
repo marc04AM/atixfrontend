@@ -245,7 +245,7 @@ export default function PlantDetailPage() {
                 <Label htmlFor="pswPhrase">PSW Phrase</Label>
                 <Input
                   id="pswPhrase"
-                  type="password"
+                  type={showPasswords ? 'text' : 'password'}
                   value={editedPlant.pswPhrase}
                   onChange={(e) => setEditedPlant({ ...editedPlant, pswPhrase: e.target.value })}
                 />
@@ -254,7 +254,7 @@ export default function PlantDetailPage() {
                 <Label htmlFor="pswPlatform">PSW Platform</Label>
                 <Input
                   id="pswPlatform"
-                  type="password"
+                  type={showPasswords ? 'text' : 'password'}
                   value={editedPlant.pswPlatform}
                   onChange={(e) => setEditedPlant({ ...editedPlant, pswPlatform: e.target.value })}
                 />
@@ -263,7 +263,7 @@ export default function PlantDetailPage() {
                 <Label htmlFor="pswStation">PSW Station</Label>
                 <Input
                   id="pswStation"
-                  type="password"
+                  type={showPasswords ? 'text' : 'password'}
                   value={editedPlant.pswStation}
                   onChange={(e) => setEditedPlant({ ...editedPlant, pswStation: e.target.value })}
                 />
