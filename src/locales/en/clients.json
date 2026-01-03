@@ -1,0 +1,65 @@
+{
+  "title": "Clients",
+  "subtitle": "Manage clients and relationships",
+  "createButton": "Create Client",
+  "searchPlaceholder": "Search clients...",
+  "tabs": {
+    "all": "All",
+    "atixClients": "ATIX Clients",
+    "finalClients": "Final Clients"
+  },
+  "columns": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "type": "Type",
+    "actions": "Actions"
+  },
+  "types": {
+    "ATIX_CLIENT": "ATIX Client",
+    "FINAL_CLIENT": "Final Client"
+  },
+  "details": {
+    "title": "Client Details",
+    "information": "Information",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "city": "City",
+    "zipCode": "ZIP Code",
+    "country": "Country",
+    "type": "Client Type",
+    "notes": "Notes",
+    "createdAt": "Created at",
+    "updatedAt": "Updated at",
+    "associatedWorks": "Associated Works",
+    "associatedPlants": "Associated Plants"
+  },
+  "form": {
+    "createTitle": "Create New Client",
+    "editTitle": "Edit Client",
+    "nameLabel": "Client Name",
+    "namePlaceholder": "Enter client name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter email",
+    "phoneLabel": "Phone",
+    "phonePlaceholder": "Enter phone",
+    "addressLabel": "Address",
+    "addressPlaceholder": "Enter address",
+    "cityLabel": "City",
+    "cityPlaceholder": "Enter city",
+    "zipCodeLabel": "ZIP Code",
+    "zipCodePlaceholder": "Enter ZIP code",
+    "countryLabel": "Country",
+    "countryPlaceholder": "Enter country",
+    "typeLabel": "Client Type",
+    "notesLabel": "Notes",
+    "notesPlaceholder": "Add notes (optional)"
+  },
+  "messages": {
+    "loading": "Loading clients...",
+    "noClients": "No clients found",
+    "error": "Error loading clients"
+  }
+}

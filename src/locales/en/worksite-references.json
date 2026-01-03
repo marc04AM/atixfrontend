@@ -1,0 +1,54 @@
+{
+  "title": "Worksite References",
+  "subtitle": "Manage worksite references",
+  "createButton": "Create Reference",
+  "searchPlaceholder": "Search references...",
+  "columns": {
+    "name": "Name",
+    "company": "Company",
+    "role": "Role",
+    "phone": "Phone",
+    "actions": "Actions"
+  },
+  "roles": {
+    "PLUMBER": "Plumber",
+    "ELECTRICIAN": "Electrician",
+    "CARPENTER": "Carpenter",
+    "MASON": "Mason",
+    "PAINTER": "Painter",
+    "OTHER": "Other"
+  },
+  "details": {
+    "title": "Reference Details",
+    "information": "Information",
+    "name": "Name",
+    "company": "Company",
+    "role": "Role",
+    "phone": "Phone",
+    "email": "Email",
+    "notes": "Notes",
+    "createdAt": "Created at",
+    "updatedAt": "Updated at"
+  },
+  "form": {
+    "createTitle": "Create New Reference",
+    "editTitle": "Edit Reference",
+    "nameLabel": "Name",
+    "namePlaceholder": "Enter name",
+    "companyLabel": "Company",
+    "companyPlaceholder": "Enter company",
+    "roleLabel": "Role",
+    "rolePlaceholder": "Select a role",
+    "phoneLabel": "Phone",
+    "phonePlaceholder": "Enter phone",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter email (optional)",
+    "notesLabel": "Notes",
+    "notesPlaceholder": "Add notes (optional)"
+  },
+  "messages": {
+    "loading": "Loading references...",
+    "noReferences": "No references found",
+    "error": "Error loading references"
+  }
+}

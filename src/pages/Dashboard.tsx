@@ -11,6 +11,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 import { useDashboard } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
+import { useTranslation } from 'react-i18next';
 
 const getTicketStatusColor = (status: TicketStatus) => {
   switch (status) {
@@ -34,15 +35,16 @@ const TICKET_COLORS = ['#ea580c', '#f97316', '#fb923c', '#fdba74'];
 export default function Dashboard() {
   const navigate = useNavigate();
   const { data, isLoading, error } = useDashboard();
+  const { t } = useTranslation('dashboard');
 
-  if (isLoading) return <LoadingSpinner message="Loading dashboard..." />;
+  if (isLoading) return <LoadingSpinner message={t('loading')} />;
   if (error) return (
     <div className="flex items-center justify-center py-12">
       <Card className="border-destructive">
         <CardContent className="pt-6">
           <div className="flex items-center gap-2 text-destructive">
             <AlertCircle className="h-5 w-5" />
-            <p>Error loading dashboard: {(error as Error).message}</p>
+            <p>{t('error', { message: (error as Error).message })}</p>
           </div>
         </CardContent>
       </Card>
@@ -68,9 +70,9 @@ export default function Dashboard() {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
         <p className="text-muted-foreground mt-1">
-          Overview of the ATIX management system
+          {t('subtitle')}
         </p>
       </div>
 
@@ -81,7 +83,7 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Briefcase className="h-5 w-5 text-primary" />
-              Works by Status
+              {t('charts.worksByStatus')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
@@ -115,15 +117,15 @@ export default function Dashboard() {
                       />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--popover))', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--popover))',
                       borderColor: 'hsl(var(--border))',
                       borderRadius: '12px',
                       boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                       padding: '8px 12px'
                     }}
-                    formatter={(value: number, name: string) => [`${value} works`, name]}
+                    formatter={(value: number, name: string) => [`${value} ${t('charts.works')}`, name]}
                   />
                   <Legend 
                     verticalAlign="bottom"
@@ -146,7 +148,7 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Ticket className="h-5 w-5 text-primary" />
-              Tickets by Status
+              {t('charts.ticketsByStatus')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
@@ -180,15 +182,15 @@ export default function Dashboard() {
                       />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--popover))', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--popover))',
                       borderColor: 'hsl(var(--border))',
                       borderRadius: '12px',
                       boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                       padding: '8px 12px'
                     }}
-                    formatter={(value: number, name: string) => [`${value} tickets`, name]}
+                    formatter={(value: number, name: string) => [`${value} ${t('charts.tickets')}`, name]}
                   />
                   <Legend 
                     verticalAlign="bottom"
@@ -213,10 +215,12 @@ export default function Dashboard() {
           <CardContent className="py-4">
             <div className="flex items-center gap-3">
               <AlertCircle className="h-5 w-5 text-primary" />
-              <p className="text-sm">
-                You have <strong>{openTickets} open</strong> and{' '}
-                <strong>{inProgressTickets} in-progress</strong> tickets that need attention.
-              </p>
+              <p className="text-sm" dangerouslySetInnerHTML={{
+                __html: t('alerts.ticketsNeedAttention', {
+                  open: openTickets,
+                  inProgress: inProgressTickets
+                })
+              }} />
             </div>
           </CardContent>
         </Card>
@@ -229,13 +233,13 @@ export default function Dashboard() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
               <Briefcase className="h-5 w-5 text-primary" />
-              <CardTitle>Recent Works</CardTitle>
+              <CardTitle>{t('recentWorks.title')}</CardTitle>
             </div>
             <button
               onClick={() => navigate('/works')}
               className="text-sm text-primary hover:underline"
             >
-              View all
+              {t('recentWorks.viewAll')}
             </button>
           </CardHeader>
           <CardContent>
@@ -249,16 +253,16 @@ export default function Dashboard() {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">{work.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      {formatDate(work.orderDate, 'Not set')}
+                      {formatDate(work.orderDate, t('recentWorks.notSet'))}
                     </p>
                   </div>
                   <div className="flex gap-2">
                     {work.invoiced ? (
-                      <Badge variant="secondary">Invoiced</Badge>
+                      <Badge variant="secondary">{t('recentWorks.badges.invoiced')}</Badge>
                     ) : work.completed ? (
-                      <Badge className="bg-chart-3/20 text-chart-3 border-chart-3">Completed</Badge>
+                      <Badge className="bg-chart-3/20 text-chart-3 border-chart-3">{t('recentWorks.badges.completed')}</Badge>
                     ) : (
-                      <Badge variant="outline">In Progress</Badge>
+                      <Badge variant="outline">{t('recentWorks.badges.inProgress')}</Badge>
                     )}
                   </div>
                 </div>
@@ -272,13 +276,13 @@ export default function Dashboard() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
               <Ticket className="h-5 w-5 text-primary" />
-              <CardTitle>Recent Tickets</CardTitle>
+              <CardTitle>{t('recentTickets.title')}</CardTitle>
             </div>
             <button
               onClick={() => navigate('/tickets')}
               className="text-sm text-primary hover:underline"
             >
-              View all
+              {t('recentTickets.viewAll')}
             </button>
           </CardHeader>
           <CardContent>

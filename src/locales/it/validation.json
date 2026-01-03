@@ -1,0 +1,33 @@
+{
+  "required": "Questo campo è obbligatorio",
+  "email": {
+    "invalid": "Indirizzo email non valido",
+    "required": "L'email è obbligatoria"
+  },
+  "password": {
+    "required": "La password è obbligatoria",
+    "minLength": "La password deve contenere almeno {{min}} caratteri",
+    "mismatch": "Le password non coincidono"
+  },
+  "name": {
+    "required": "Il nome è obbligatorio",
+    "minLength": "Il nome deve contenere almeno {{min}} caratteri",
+    "maxLength": "Il nome deve contenere al massimo {{max}} caratteri"
+  },
+  "phone": {
+    "invalid": "Numero di telefono non valido"
+  },
+  "number": {
+    "min": "Il valore deve essere almeno {{min}}",
+    "max": "Il valore deve essere al massimo {{max}}",
+    "positive": "Il valore deve essere positivo"
+  },
+  "string": {
+    "minLength": "Deve contenere almeno {{min}} caratteri",
+    "maxLength": "Deve contenere al massimo {{max}} caratteri"
+  },
+  "date": {
+    "invalid": "Data non valida",
+    "required": "La data è obbligatoria"
+  }
+}

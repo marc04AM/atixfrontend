@@ -1,0 +1,30 @@
+{
+  "sidebar": {
+    "appName": "ATIX MS",
+    "appSubtitle": "Management System",
+    "main": "Main",
+    "management": "Management",
+    "theme": "Theme",
+    "language": "Language",
+    "logout": "Logout"
+  },
+  "menu": {
+    "dashboard": "Dashboard",
+    "tickets": "Tickets",
+    "works": "Works",
+    "clients": "Clients",
+    "plants": "Plants",
+    "worksiteReferences": "Worksite References",
+    "users": "Users",
+    "profile": "Profile"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "language": {
+    "it": "Italiano",
+    "en": "English"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "title": "Lavori",
+  "subtitle": "Gestisci i lavori e i progetti",
+  "createButton": "Crea Lavoro",
+  "searchPlaceholder": "Cerca lavori...",
+  "filters": {
+    "all": "Tutti",
+    "status": "Stato",
+    "completed": "Completati",
+    "pending": "In Attesa",
+    "invoiced": "Fatturati"
+  },
+  "columns": {
+    "name": "Nome",
+    "client": "Cliente",
+    "orderDate": "Data Ordine",
+    "status": "Stato",
+    "progress": "Progresso",
+    "actions": "Azioni"
+  },
+  "badges": {
+    "completed": "Completato",
+    "invoiced": "Fatturato",
+    "inProgress": "In Corso"
+  },
+  "details": {
+    "title": "Dettagli Lavoro",
+    "information": "Informazioni",
+    "name": "Nome",
+    "client": "Cliente",
+    "plant": "Impianto",
+    "orderDate": "Data Ordine",
+    "deliveryDate": "Data Consegna",
+    "completed": "Completato",
+    "invoiced": "Fatturato",
+    "progress": "Progresso",
+    "electricalSchematic": "Schema Elettrico",
+    "programming": "Programmazione",
+    "notes": "Note",
+    "createdAt": "Creato il",
+    "updatedAt": "Aggiornato il"
+  },
+  "form": {
+    "createTitle": "Crea Nuovo Lavoro",
+    "editTitle": "Modifica Lavoro",
+    "nameLabel": "Nome Lavoro",
+    "namePlaceholder": "Inserisci il nome del lavoro",
+    "clientLabel": "Cliente",
+    "clientPlaceholder": "Seleziona un cliente",
+    "plantLabel": "Impianto",
+    "plantPlaceholder": "Seleziona un impianto (opzionale)",
+    "orderDateLabel": "Data Ordine",
+    "deliveryDateLabel": "Data Consegna",
+    "completedLabel": "Lavoro Completato",
+    "invoicedLabel": "Lavoro Fatturato",
+    "progressLabel": "Progresso",
+    "electricalSchematicLabel": "Progresso Schema Elettrico (%)",
+    "programmingLabel": "Progresso Programmazione (%)",
+    "notesLabel": "Note",
+    "notesPlaceholder": "Aggiungi note (opzionale)"
+  },
+  "actions": {
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "markCompleted": "Segna come Completato",
+    "markInvoiced": "Segna come Fatturato"
+  },
+  "messages": {
+    "loading": "Caricamento lavori...",
+    "noWorks": "Nessun lavoro trovato",
+    "error": "Errore nel caricamento dei lavori",
+    "createSuccess": "Lavoro creato con successo",
+    "updateSuccess": "Lavoro aggiornato con successo",
+    "deleteSuccess": "Lavoro eliminato con successo"
+  }
+}

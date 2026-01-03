@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { authApi, usersApi } from '@/lib/api';
 import { getUserIdFromToken } from '@/lib/auth';
+import { useTranslation } from 'react-i18next';
 
 // Demo users for testing without backend
 const DEMO_USERS = {
@@ -40,7 +41,8 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { login, updateUser: updateAuthUser } = useAuth();
-  
+  const { t } = useTranslation('auth');
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -112,8 +114,8 @@ export default function LoginPage() {
       navigate('/');
     } catch (error) {
       toast({
-        title: 'Login Failed',
-        description: error instanceof Error ? error.message : 'Invalid credentials. Please try again.',
+        title: t('login.errors.invalidCredentials'),
+        description: error instanceof Error ? error.message : t('login.errors.unexpectedError'),
         variant: 'destructive',
       });
     } finally {
@@ -134,8 +136,8 @@ export default function LoginPage() {
               />
             </div>
           </div>
-          <CardTitle className="text-2xl">Welcome to ATIX Management System</CardTitle>
-          <CardDescription>Sign in to your account to continue</CardDescription>
+          <CardTitle className="text-2xl">{t('login.title')}</CardTitle>
+          <CardDescription>{t('login.subtitle')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Demo Login Section */}
@@ -184,25 +186,25 @@ export default function LoginPage() {
           {/* Email Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('login.emailLabel')}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t('login.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
                 autoComplete="email"
               />
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('login.passwordLabel')}</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
+                  placeholder={t('login.passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
@@ -230,10 +232,10 @@ export default function LoginPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
+                  {t('login.loggingIn')}
                 </>
               ) : (
-                'Sign In'
+                t('login.submitButton')
               )}
             </Button>
           </form>

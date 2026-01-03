@@ -1,0 +1,76 @@
+{
+  "title": "Works",
+  "subtitle": "Manage works and projects",
+  "createButton": "Create Work",
+  "searchPlaceholder": "Search works...",
+  "filters": {
+    "all": "All",
+    "status": "Status",
+    "completed": "Completed",
+    "pending": "Pending",
+    "invoiced": "Invoiced"
+  },
+  "columns": {
+    "name": "Name",
+    "client": "Client",
+    "orderDate": "Order Date",
+    "status": "Status",
+    "progress": "Progress",
+    "actions": "Actions"
+  },
+  "badges": {
+    "completed": "Completed",
+    "invoiced": "Invoiced",
+    "inProgress": "In Progress"
+  },
+  "details": {
+    "title": "Work Details",
+    "information": "Information",
+    "name": "Name",
+    "client": "Client",
+    "plant": "Plant",
+    "orderDate": "Order Date",
+    "deliveryDate": "Delivery Date",
+    "completed": "Completed",
+    "invoiced": "Invoiced",
+    "progress": "Progress",
+    "electricalSchematic": "Electrical Schematic",
+    "programming": "Programming",
+    "notes": "Notes",
+    "createdAt": "Created at",
+    "updatedAt": "Updated at"
+  },
+  "form": {
+    "createTitle": "Create New Work",
+    "editTitle": "Edit Work",
+    "nameLabel": "Work Name",
+    "namePlaceholder": "Enter work name",
+    "clientLabel": "Client",
+    "clientPlaceholder": "Select a client",
+    "plantLabel": "Plant",
+    "plantPlaceholder": "Select a plant (optional)",
+    "orderDateLabel": "Order Date",
+    "deliveryDateLabel": "Delivery Date",
+    "completedLabel": "Work Completed",
+    "invoicedLabel": "Work Invoiced",
+    "progressLabel": "Progress",
+    "electricalSchematicLabel": "Electrical Schematic Progress (%)",
+    "programmingLabel": "Programming Progress (%)",
+    "notesLabel": "Notes",
+    "notesPlaceholder": "Add notes (optional)"
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "markCompleted": "Mark as Completed",
+    "markInvoiced": "Mark as Invoiced"
+  },
+  "messages": {
+    "loading": "Loading works...",
+    "noWorks": "No works found",
+    "error": "Error loading works",
+    "createSuccess": "Work created successfully",
+    "updateSuccess": "Work updated successfully",
+    "deleteSuccess": "Work deleted successfully"
+  }
+}

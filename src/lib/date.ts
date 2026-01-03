@@ -1,3 +1,12 @@
+import { format } from 'date-fns';
+import { it, enUS } from 'date-fns/locale';
+import i18n from '@/lib/i18n';
+
+const getDateLocale = () => {
+  const language = i18n.language;
+  return language === 'it' ? it : enUS;
+};
+
 const normalizeDateInput = (value: string): string => {
   const trimmed = value.trim();
   if (!trimmed) return '';
@@ -34,10 +43,12 @@ const toDate = (value?: string | number | Date): Date | null => {
 
 export const formatDate = (value?: string | number | Date, fallback = ''): string => {
   const date = toDate(value);
-  return date ? date.toLocaleDateString() : fallback;
+  if (!date) return fallback;
+  return format(date, 'PP', { locale: getDateLocale() });
 };
 
 export const formatDateTime = (value?: string | number | Date, fallback = ''): string => {
   const date = toDate(value);
-  return date ? date.toLocaleString() : fallback;
+  if (!date) return fallback;
+  return format(date, 'PPp', { locale: getDateLocale() });
 };

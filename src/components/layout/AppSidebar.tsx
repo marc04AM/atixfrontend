@@ -28,24 +28,27 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
-
-const mainNavItems = [
-  { title: 'Dashboard', url: '/', icon: LayoutDashboard },
-  { title: 'Tickets', url: '/tickets', icon: Ticket },
-  { title: 'Works', url: '/works', icon: Briefcase },
-];
-
-const managementItems = [
-  { title: 'Clients', url: '/clients', icon: Building2 },
-  { title: 'Plants', url: '/plants', icon: Factory },
-  { title: 'Worksite References', url: '/worksite-references', icon: Wrench },
-  { title: 'Users', url: '/users', icon: Users, adminOnly: true },
-];
+import { LanguageToggle } from '@/components/LanguageToggle';
+import { useTranslation } from 'react-i18next';
 
 export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, canManageUsers } = useAuth();
+  const { t } = useTranslation('navigation');
+
+  const mainNavItems = [
+    { title: t('menu.dashboard'), url: '/', icon: LayoutDashboard },
+    { title: t('menu.tickets'), url: '/tickets', icon: Ticket },
+    { title: t('menu.works'), url: '/works', icon: Briefcase },
+  ];
+
+  const managementItems = [
+    { title: t('menu.clients'), url: '/clients', icon: Building2 },
+    { title: t('menu.plants'), url: '/plants', icon: Factory },
+    { title: t('menu.worksiteReferences'), url: '/worksite-references', icon: Wrench },
+    { title: t('menu.users'), url: '/users', icon: Users, adminOnly: true },
+  ];
 
   const isActive = (url: string) => {
     if (url === '/') return location.pathname === '/';
@@ -65,15 +68,15 @@ export function AppSidebar() {
             />
           </div>
           <div className="flex flex-col">
-            <span className="font-semibold text-sidebar-foreground">ATIX MS</span>
-            <span className="text-xs text-muted-foreground">Management System</span>
+            <span className="font-semibold text-sidebar-foreground">{t('sidebar.appName')}</span>
+            <span className="text-xs text-muted-foreground">{t('sidebar.appSubtitle')}</span>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Main</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('sidebar.main')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainNavItems.map((item) => (
@@ -99,7 +102,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Management</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('sidebar.management')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {managementItems
@@ -129,7 +132,11 @@ export function AppSidebar() {
 
       <SidebarFooter className="p-4 space-y-2">
         <div className="flex items-center justify-between px-3">
-          <span className="text-xs text-muted-foreground">Theme</span>
+          <span className="text-xs text-muted-foreground">{t('sidebar.language')}</span>
+          <LanguageToggle />
+        </div>
+        <div className="flex items-center justify-between px-3">
+          <span className="text-xs text-muted-foreground">{t('sidebar.theme')}</span>
           <ThemeToggle />
         </div>
         {user && (
@@ -167,7 +174,7 @@ export function AppSidebar() {
                 }}
               >
                 <LogOut className="h-4 w-4" />
-                <span>Logout</span>
+                <span>{t('sidebar.logout')}</span>
               </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>

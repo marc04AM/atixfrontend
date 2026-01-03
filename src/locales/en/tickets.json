@@ -1,0 +1,74 @@
+{
+  "title": "Tickets",
+  "subtitle": "Manage system tickets",
+  "createButton": "Create Ticket",
+  "searchPlaceholder": "Search tickets...",
+  "tabs": {
+    "open": "Open",
+    "closed": "Closed"
+  },
+  "filters": {
+    "all": "All",
+    "status": "Status",
+    "allStatuses": "All Statuses",
+    "senderEmail": "Sender Email",
+    "searchEmail": "Search email...",
+    "name": "Name",
+    "searchName": "Search name...",
+    "description": "Description",
+    "searchDescription": "Search description...",
+    "createdFrom": "Created From",
+    "createdTo": "Created To",
+    "clearFilters": "Clear filters"
+  },
+  "statuses": {
+    "OPEN": "Open",
+    "IN_PROGRESS": "In Progress",
+    "RESOLVED": "Resolved",
+    "CLOSED": "Closed"
+  },
+  "form": {
+    "createTitle": "Create New Ticket",
+    "createDescription": "Create a new support ticket. Fill in the details below.",
+    "nameLabel": "Ticket Name",
+    "namePlaceholder": "Enter ticket name",
+    "senderEmailLabel": "Sender Email",
+    "senderEmailPlaceholder": "sender@example.com",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Describe the issue or request...",
+    "createButton": "Create Ticket"
+  },
+  "pagination": {
+    "showing": "Showing {{start}}-{{end}} of {{total}} tickets"
+  },
+  "columns": {
+    "name": "Name",
+    "sender": "Sender",
+    "status": "Status",
+    "createdAt": "Created At",
+    "actions": "Actions"
+  },
+  "details": {
+    "title": "Ticket Details",
+    "information": "Information",
+    "description": "Description",
+    "senderName": "Sender Name",
+    "senderEmail": "Sender Email",
+    "status": "Status",
+    "createdAt": "Created at",
+    "updatedAt": "Updated at"
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "changeStatus": "Change Status"
+  },
+  "messages": {
+    "loading": "Loading tickets...",
+    "noTickets": "No tickets found",
+    "noTicketsFilters": "No tickets match your current filters.",
+    "error": "Error loading tickets",
+    "createSuccess": "Ticket Created",
+    "created": "has been created successfully"
+  }
+}

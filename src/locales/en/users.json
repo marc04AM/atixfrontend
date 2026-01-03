@@ -1,0 +1,53 @@
+{
+  "title": "Users",
+  "subtitle": "Manage system users",
+  "createButton": "Create User",
+  "searchPlaceholder": "Search users...",
+  "columns": {
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "type": "Type",
+    "actions": "Actions"
+  },
+  "roles": {
+    "ADMIN": "Admin",
+    "OWNER": "Owner",
+    "USER": "User"
+  },
+  "types": {
+    "TECHNICIAN": "Technician",
+    "ADMINISTRATION": "Administration",
+    "SELLER": "Seller"
+  },
+  "details": {
+    "title": "User Details",
+    "information": "Information",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "role": "Role",
+    "type": "Type",
+    "createdAt": "Created at",
+    "updatedAt": "Updated at"
+  },
+  "form": {
+    "createTitle": "Create New User",
+    "editTitle": "Edit User",
+    "firstNameLabel": "First Name",
+    "firstNamePlaceholder": "Enter first name",
+    "lastNameLabel": "Last Name",
+    "lastNamePlaceholder": "Enter last name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter password",
+    "roleLabel": "Role",
+    "typeLabel": "User Type"
+  },
+  "messages": {
+    "loading": "Loading users...",
+    "noUsers": "No users found",
+    "error": "Error loading users"
+  }
+}

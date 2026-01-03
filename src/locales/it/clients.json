@@ -1,0 +1,65 @@
+{
+  "title": "Clienti",
+  "subtitle": "Gestisci i clienti e le relazioni",
+  "createButton": "Crea Cliente",
+  "searchPlaceholder": "Cerca clienti...",
+  "tabs": {
+    "all": "Tutti",
+    "atixClients": "Clienti ATIX",
+    "finalClients": "Clienti Finali"
+  },
+  "columns": {
+    "name": "Nome",
+    "email": "Email",
+    "phone": "Telefono",
+    "type": "Tipo",
+    "actions": "Azioni"
+  },
+  "types": {
+    "ATIX_CLIENT": "Cliente ATIX",
+    "FINAL_CLIENT": "Cliente Finale"
+  },
+  "details": {
+    "title": "Dettagli Cliente",
+    "information": "Informazioni",
+    "name": "Nome",
+    "email": "Email",
+    "phone": "Telefono",
+    "address": "Indirizzo",
+    "city": "Città",
+    "zipCode": "CAP",
+    "country": "Paese",
+    "type": "Tipo Cliente",
+    "notes": "Note",
+    "createdAt": "Creato il",
+    "updatedAt": "Aggiornato il",
+    "associatedWorks": "Lavori Associati",
+    "associatedPlants": "Impianti Associati"
+  },
+  "form": {
+    "createTitle": "Crea Nuovo Cliente",
+    "editTitle": "Modifica Cliente",
+    "nameLabel": "Nome Cliente",
+    "namePlaceholder": "Inserisci il nome del cliente",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Inserisci l'email",
+    "phoneLabel": "Telefono",
+    "phonePlaceholder": "Inserisci il telefono",
+    "addressLabel": "Indirizzo",
+    "addressPlaceholder": "Inserisci l'indirizzo",
+    "cityLabel": "Città",
+    "cityPlaceholder": "Inserisci la città",
+    "zipCodeLabel": "CAP",
+    "zipCodePlaceholder": "Inserisci il CAP",
+    "countryLabel": "Paese",
+    "countryPlaceholder": "Inserisci il paese",
+    "typeLabel": "Tipo Cliente",
+    "notesLabel": "Note",
+    "notesPlaceholder": "Aggiungi note (opzionale)"
+  },
+  "messages": {
+    "loading": "Caricamento clienti...",
+    "noClients": "Nessun cliente trovato",
+    "error": "Errore nel caricamento dei clienti"
+  }
+}

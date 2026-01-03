@@ -1,0 +1,54 @@
+{
+  "title": "Riferimenti Cantiere",
+  "subtitle": "Gestisci i riferimenti per i cantieri",
+  "createButton": "Crea Riferimento",
+  "searchPlaceholder": "Cerca riferimenti...",
+  "columns": {
+    "name": "Nome",
+    "company": "Azienda",
+    "role": "Ruolo",
+    "phone": "Telefono",
+    "actions": "Azioni"
+  },
+  "roles": {
+    "PLUMBER": "Idraulico",
+    "ELECTRICIAN": "Elettricista",
+    "CARPENTER": "Falegname",
+    "MASON": "Muratore",
+    "PAINTER": "Imbianchino",
+    "OTHER": "Altro"
+  },
+  "details": {
+    "title": "Dettagli Riferimento",
+    "information": "Informazioni",
+    "name": "Nome",
+    "company": "Azienda",
+    "role": "Ruolo",
+    "phone": "Telefono",
+    "email": "Email",
+    "notes": "Note",
+    "createdAt": "Creato il",
+    "updatedAt": "Aggiornato il"
+  },
+  "form": {
+    "createTitle": "Crea Nuovo Riferimento",
+    "editTitle": "Modifica Riferimento",
+    "nameLabel": "Nome",
+    "namePlaceholder": "Inserisci il nome",
+    "companyLabel": "Azienda",
+    "companyPlaceholder": "Inserisci l'azienda",
+    "roleLabel": "Ruolo",
+    "rolePlaceholder": "Seleziona un ruolo",
+    "phoneLabel": "Telefono",
+    "phonePlaceholder": "Inserisci il telefono",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Inserisci l'email (opzionale)",
+    "notesLabel": "Note",
+    "notesPlaceholder": "Aggiungi note (opzionale)"
+  },
+  "messages": {
+    "loading": "Caricamento riferimenti...",
+    "noReferences": "Nessun riferimento trovato",
+    "error": "Errore nel caricamento dei riferimenti"
+  }
+}

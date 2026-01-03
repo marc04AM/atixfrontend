@@ -45,6 +45,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useTickets, useCreateTicket } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
+import { useTranslation } from 'react-i18next';
 
 const PAGE_SIZE = 10;
 
@@ -76,6 +77,7 @@ export default function TicketsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
+  const { t } = useTranslation('tickets');
 
   const initialTab = searchParams.get('status') === 'CLOSED' ? 'closed' : 'open';
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -233,12 +235,12 @@ export default function TicketsPage() {
         : 0
     : (closedTicketsData?.totalElements || 0) + (resolvedTicketsData?.totalElements || 0);
 
-  if (isLoading) return <LoadingSpinner message="Loading tickets..." />;
+  if (isLoading) return <LoadingSpinner message={t('messages.loading')} />;
   if (error) return (
     <div className="flex items-center justify-center py-12">
       <Card className="border-destructive">
         <CardContent className="pt-6">
-          <p className="text-destructive">Error loading tickets: {(error as Error).message}</p>
+          <p className="text-destructive">{t('messages.error')}: {(error as Error).message}</p>
         </CardContent>
       </Card>
     </div>
@@ -251,8 +253,8 @@ export default function TicketsPage() {
     }, {
       onSuccess: () => {
         toast({
-          title: 'Ticket Created',
-          description: `Ticket "${newTicket.name}" has been created successfully.`,
+          title: t('messages.createSuccess'),
+          description: `${t('title')} "${newTicket.name}" ${t('messages.created')}.`,
         });
         setIsCreateOpen(false);
         setNewTicket({ name: '', senderEmail: '', description: '' });
@@ -278,50 +280,50 @@ export default function TicketsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tickets</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
           <p className="text-muted-foreground mt-1">
-            Manage support tickets and requests
+            {t('subtitle')}
           </p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              New Ticket
+              {t('createButton')}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Create New Ticket</DialogTitle>
+              <DialogTitle>{t('form.createTitle')}</DialogTitle>
               <DialogDescription>
-                Create a new support ticket. Fill in the details below.
+                {t('form.createDescription')}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="ticket-name">Ticket Name</Label>
+                <Label htmlFor="ticket-name">{t('form.nameLabel')}</Label>
                 <Input
                   id="ticket-name"
-                  placeholder="Enter ticket name"
+                  placeholder={t('form.namePlaceholder')}
                   value={newTicket.name}
                   onChange={(e) => setNewTicket({ ...newTicket, name: e.target.value })}
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="sender-email">Sender Email</Label>
+                <Label htmlFor="sender-email">{t('form.senderEmailLabel')}</Label>
                 <Input
                   id="sender-email"
                   type="email"
-                  placeholder="sender@example.com"
+                  placeholder={t('form.senderEmailPlaceholder')}
                   value={newTicket.senderEmail}
                   onChange={(e) => setNewTicket({ ...newTicket, senderEmail: e.target.value })}
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">{t('form.descriptionLabel')}</Label>
                 <Textarea
                   id="description"
-                  placeholder="Describe the issue or request..."
+                  placeholder={t('form.descriptionPlaceholder')}
                   rows={4}
                   value={newTicket.description}
                   onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
@@ -330,10 +332,10 @@ export default function TicketsPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
-                Cancel
+                {t('form.cancel', { ns: 'common' })}
               </Button>
               <Button onClick={handleCreateTicket} disabled={!newTicket.name || !newTicket.description}>
-                Create Ticket
+                {t('form.createButton')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -345,10 +347,10 @@ export default function TicketsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <TabsList>
             <TabsTrigger value="open">
-              Open ({openTicketsCount})
+              {t('tabs.open')} ({openTicketsCount})
             </TabsTrigger>
             <TabsTrigger value="closed">
-              Closed ({closedTicketsCount})
+              {t('tabs.closed')} ({closedTicketsCount})
             </TabsTrigger>
           </TabsList>
 
@@ -357,7 +359,7 @@ export default function TicketsPage() {
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search tickets..."
+                placeholder={t('searchPlaceholder')}
                 className="pl-9"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -381,26 +383,26 @@ export default function TicketsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {/* Status */}
                 <div>
-                  <Label className="mb-2 block text-sm">Status</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.status')}</Label>
                   <Select value={filters.status} onValueChange={(v) => setFilters({...filters, status: v})}>
                     <SelectTrigger>
-                      <SelectValue placeholder="All statuses" />
+                      <SelectValue placeholder={t('filters.allStatuses')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Statuses</SelectItem>
-                      <SelectItem value="OPEN">Open</SelectItem>
-                      <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-                      <SelectItem value="RESOLVED">Resolved</SelectItem>
-                      <SelectItem value="CLOSED">Closed</SelectItem>
+                      <SelectItem value="all">{t('filters.allStatuses')}</SelectItem>
+                      <SelectItem value="OPEN">{t('statuses.OPEN')}</SelectItem>
+                      <SelectItem value="IN_PROGRESS">{t('statuses.IN_PROGRESS')}</SelectItem>
+                      <SelectItem value="RESOLVED">{t('statuses.RESOLVED')}</SelectItem>
+                      <SelectItem value="CLOSED">{t('statuses.CLOSED')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 {/* Sender Email */}
                 <div>
-                  <Label className="mb-2 block text-sm">Sender Email</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.senderEmail')}</Label>
                   <Input
-                    placeholder="Search email..."
+                    placeholder={t('filters.searchEmail')}
                     value={filters.senderEmail}
                     onChange={(e) => setFilters({...filters, senderEmail: e.target.value})}
                   />
@@ -408,9 +410,9 @@ export default function TicketsPage() {
 
                 {/* Name */}
                 <div>
-                  <Label className="mb-2 block text-sm">Name</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.name')}</Label>
                   <Input
-                    placeholder="Search name..."
+                    placeholder={t('filters.searchName')}
                     value={filters.name}
                     onChange={(e) => setFilters({...filters, name: e.target.value})}
                   />
@@ -418,9 +420,9 @@ export default function TicketsPage() {
 
                 {/* Description */}
                 <div>
-                  <Label className="mb-2 block text-sm">Description</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.description')}</Label>
                   <Input
-                    placeholder="Search description..."
+                    placeholder={t('filters.searchDescription')}
                     value={filters.description}
                     onChange={(e) => setFilters({...filters, description: e.target.value})}
                   />
@@ -428,7 +430,7 @@ export default function TicketsPage() {
 
                 {/* Created At From */}
                 <div>
-                  <Label className="mb-2 block text-sm">Created From</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.createdFrom')}</Label>
                   <Input
                     type="date"
                     value={filters.createdAtFrom}
@@ -438,7 +440,7 @@ export default function TicketsPage() {
 
                 {/* Created At To */}
                 <div>
-                  <Label className="mb-2 block text-sm">Created To</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.createdTo')}</Label>
                   <Input
                     type="date"
                     value={filters.createdAtTo}
@@ -450,7 +452,7 @@ export default function TicketsPage() {
                 <div className="flex items-end">
                   <Button variant="ghost" size="sm" onClick={clearFilters} disabled={!hasActiveFilters}>
                     <X className="h-4 w-4 mr-1" />
-                    Clear filters
+                    {t('filters.clearFilters')}
                   </Button>
                 </div>
               </div>
@@ -526,7 +528,7 @@ function TicketsPagination({
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
       <p className="text-sm text-muted-foreground">
-        Showing {startItem}-{endItem} of {totalElements} tickets
+        {t('pagination.showing', { ns: 'tickets', start: startItem, end: endItem, total: totalElements })}
       </p>
       <Pagination>
         <PaginationContent>
@@ -559,21 +561,23 @@ function TicketsPagination({
   );
 }
 
-function TicketsList({ 
-  tickets, 
-  navigate 
-}: { 
-  tickets: Ticket[]; 
+function TicketsList({
+  tickets,
+  navigate
+}: {
+  tickets: Ticket[];
   navigate: (path: string) => void;
 }) {
+  const { t } = useTranslation('tickets');
+
   if (tickets.length === 0) {
     return (
       <Card>
         <CardContent className="py-12 text-center">
           <TicketIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium">No tickets found</h3>
+          <h3 className="text-lg font-medium">{t('messages.noTickets')}</h3>
           <p className="text-muted-foreground mt-1">
-            No tickets match your current filters.
+            {t('messages.noTicketsFilters')}
           </p>
         </CardContent>
       </Card>
@@ -609,7 +613,7 @@ function TicketsList({
                   )}
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    <span>{formatDate(ticket.createdAt, 'Not set')}</span>
+                    <span>{formatDate(ticket.createdAt, t('messages.notSet', { ns: 'common' }))}</span>
                   </div>
                 </div>
               </div>

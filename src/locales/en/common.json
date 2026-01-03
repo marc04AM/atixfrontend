@@ -1,0 +1,73 @@
+{
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "add": "Add",
+    "remove": "Remove",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "refresh": "Refresh",
+    "viewAll": "View all",
+    "viewDetails": "View details"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "cancelled": "Cancelled",
+    "draft": "Draft"
+  },
+  "messages": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "deleting": "Deleting...",
+    "success": "Operation completed successfully",
+    "error": "An error occurred",
+    "noData": "No data available",
+    "notSet": "Not set",
+    "confirmDelete": "Are you sure you want to delete this item?",
+    "unsavedChanges": "You have unsaved changes. Do you want to continue?"
+  },
+  "fields": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "city": "City",
+    "country": "Country",
+    "zipCode": "ZIP Code",
+    "description": "Description",
+    "notes": "Notes",
+    "date": "Date",
+    "time": "Time",
+    "status": "Status",
+    "type": "Type",
+    "role": "Role",
+    "createdAt": "Created at",
+    "updatedAt": "Updated at"
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email",
+    "invalidPhone": "Invalid phone number",
+    "minLength": "Minimum length: {{min}} characters",
+    "maxLength": "Maximum length: {{max}} characters",
+    "networkError": "Network error. Please try again later.",
+    "unauthorized": "Unauthorized",
+    "forbidden": "Access denied",
+    "notFound": "Resource not found",
+    "serverError": "Server error"
+  }
+}

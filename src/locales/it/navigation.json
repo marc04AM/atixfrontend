@@ -1,0 +1,30 @@
+{
+  "sidebar": {
+    "appName": "ATIX MS",
+    "appSubtitle": "Sistema di Gestione",
+    "main": "Principale",
+    "management": "Gestione",
+    "theme": "Tema",
+    "language": "Lingua",
+    "logout": "Esci"
+  },
+  "menu": {
+    "dashboard": "Dashboard",
+    "tickets": "Ticket",
+    "works": "Lavori",
+    "clients": "Clienti",
+    "plants": "Impianti",
+    "worksiteReferences": "Riferimenti Cantiere",
+    "users": "Utenti",
+    "profile": "Profilo"
+  },
+  "theme": {
+    "light": "Chiaro",
+    "dark": "Scuro",
+    "system": "Sistema"
+  },
+  "language": {
+    "it": "Italiano",
+    "en": "English"
+  }
+}

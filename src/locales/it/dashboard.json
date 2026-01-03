@@ -1,0 +1,31 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Panoramica del sistema di gestione ATIX",
+  "charts": {
+    "worksByStatus": "Lavori per Stato",
+    "ticketsByStatus": "Ticket per Stato",
+    "pending": "In Attesa",
+    "completed": "Completati",
+    "works": "lavori",
+    "tickets": "ticket"
+  },
+  "alerts": {
+    "ticketsNeedAttention": "Hai <strong>{{open}} aperti</strong> e <strong>{{inProgress}} in corso</strong> ticket che richiedono attenzione."
+  },
+  "recentWorks": {
+    "title": "Lavori Recenti",
+    "viewAll": "Vedi tutti",
+    "notSet": "Non impostato",
+    "badges": {
+      "invoiced": "Fatturato",
+      "completed": "Completato",
+      "inProgress": "In Corso"
+    }
+  },
+  "recentTickets": {
+    "title": "Ticket Recenti",
+    "viewAll": "Vedi tutti"
+  },
+  "loading": "Caricamento dashboard...",
+  "error": "Errore nel caricamento della dashboard: {{message}}"
+}

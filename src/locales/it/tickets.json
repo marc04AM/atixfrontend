@@ -1,0 +1,74 @@
+{
+  "title": "Ticket",
+  "subtitle": "Gestisci i ticket del sistema",
+  "createButton": "Crea Ticket",
+  "searchPlaceholder": "Cerca ticket...",
+  "tabs": {
+    "open": "Aperti",
+    "closed": "Chiusi"
+  },
+  "filters": {
+    "all": "Tutti",
+    "status": "Stato",
+    "allStatuses": "Tutti gli stati",
+    "senderEmail": "Email Mittente",
+    "searchEmail": "Cerca email...",
+    "name": "Nome",
+    "searchName": "Cerca nome...",
+    "description": "Descrizione",
+    "searchDescription": "Cerca descrizione...",
+    "createdFrom": "Creato Da",
+    "createdTo": "Creato Fino",
+    "clearFilters": "Cancella filtri"
+  },
+  "statuses": {
+    "OPEN": "Aperto",
+    "IN_PROGRESS": "In Corso",
+    "RESOLVED": "Risolto",
+    "CLOSED": "Chiuso"
+  },
+  "form": {
+    "createTitle": "Crea Nuovo Ticket",
+    "createDescription": "Crea un nuovo ticket di supporto. Compila i dettagli qui sotto.",
+    "nameLabel": "Nome Ticket",
+    "namePlaceholder": "Inserisci il nome del ticket",
+    "senderEmailLabel": "Email Mittente",
+    "senderEmailPlaceholder": "mittente@esempio.com",
+    "descriptionLabel": "Descrizione",
+    "descriptionPlaceholder": "Descrivi il problema o la richiesta...",
+    "createButton": "Crea Ticket"
+  },
+  "pagination": {
+    "showing": "Mostrando {{start}}-{{end}} di {{total}} ticket"
+  },
+  "columns": {
+    "name": "Nome",
+    "sender": "Mittente",
+    "status": "Stato",
+    "createdAt": "Data Creazione",
+    "actions": "Azioni"
+  },
+  "details": {
+    "title": "Dettagli Ticket",
+    "information": "Informazioni",
+    "description": "Descrizione",
+    "senderName": "Nome Mittente",
+    "senderEmail": "Email Mittente",
+    "status": "Stato",
+    "createdAt": "Creato il",
+    "updatedAt": "Aggiornato il"
+  },
+  "actions": {
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "changeStatus": "Cambia Stato"
+  },
+  "messages": {
+    "loading": "Caricamento ticket...",
+    "noTickets": "Nessun ticket trovato",
+    "noTicketsFilters": "Nessun ticket corrisponde ai filtri selezionati.",
+    "error": "Errore nel caricamento dei ticket",
+    "createSuccess": "Ticket Creato",
+    "created": "è stato creato con successo"
+  }
+}

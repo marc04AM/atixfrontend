@@ -1,0 +1,38 @@
+{
+  "title": "Profilo",
+  "subtitle": "Gestisci il tuo profilo personale",
+  "tabs": {
+    "general": "Generale",
+    "security": "Sicurezza"
+  },
+  "general": {
+    "title": "Informazioni Generali",
+    "firstName": "Nome",
+    "lastName": "Cognome",
+    "email": "Email",
+    "role": "Ruolo",
+    "type": "Tipo",
+    "profileImage": "Immagine Profilo",
+    "uploadImage": "Carica Immagine",
+    "removeImage": "Rimuovi Immagine"
+  },
+  "security": {
+    "title": "Sicurezza",
+    "changePassword": "Cambia Password",
+    "currentPassword": "Password Corrente",
+    "newPassword": "Nuova Password",
+    "confirmPassword": "Conferma Password",
+    "updatePassword": "Aggiorna Password"
+  },
+  "actions": {
+    "save": "Salva Modifiche",
+    "cancel": "Annulla"
+  },
+  "messages": {
+    "loading": "Caricamento profilo...",
+    "updateSuccess": "Profilo aggiornato con successo",
+    "updateError": "Errore nell'aggiornamento del profilo",
+    "passwordUpdateSuccess": "Password aggiornata con successo",
+    "passwordMismatch": "Le password non coincidono"
+  }
+}

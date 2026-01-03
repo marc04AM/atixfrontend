@@ -1,0 +1,52 @@
+{
+  "title": "Plants",
+  "subtitle": "Manage plants and facilities",
+  "createButton": "Create Plant",
+  "searchPlaceholder": "Search plants...",
+  "columns": {
+    "name": "Name",
+    "client": "Client",
+    "location": "Location",
+    "actions": "Actions"
+  },
+  "details": {
+    "title": "Plant Details",
+    "information": "Information",
+    "name": "Plant Name",
+    "client": "Client",
+    "address": "Address",
+    "city": "City",
+    "zipCode": "ZIP Code",
+    "country": "Country",
+    "description": "Description",
+    "notes": "Notes",
+    "createdAt": "Created at",
+    "updatedAt": "Updated at",
+    "associatedWorks": "Associated Works"
+  },
+  "form": {
+    "createTitle": "Create New Plant",
+    "editTitle": "Edit Plant",
+    "nameLabel": "Plant Name",
+    "namePlaceholder": "Enter plant name",
+    "clientLabel": "Client",
+    "clientPlaceholder": "Select a client",
+    "addressLabel": "Address",
+    "addressPlaceholder": "Enter address",
+    "cityLabel": "City",
+    "cityPlaceholder": "Enter city",
+    "zipCodeLabel": "ZIP Code",
+    "zipCodePlaceholder": "Enter ZIP code",
+    "countryLabel": "Country",
+    "countryPlaceholder": "Enter country",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Enter description (optional)",
+    "notesLabel": "Notes",
+    "notesPlaceholder": "Add notes (optional)"
+  },
+  "messages": {
+    "loading": "Loading plants...",
+    "noPlants": "No plants found",
+    "error": "Error loading plants"
+  }
+}

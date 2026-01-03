@@ -1,0 +1,53 @@
+{
+  "title": "Utenti",
+  "subtitle": "Gestisci gli utenti del sistema",
+  "createButton": "Crea Utente",
+  "searchPlaceholder": "Cerca utenti...",
+  "columns": {
+    "name": "Nome",
+    "email": "Email",
+    "role": "Ruolo",
+    "type": "Tipo",
+    "actions": "Azioni"
+  },
+  "roles": {
+    "ADMIN": "Admin",
+    "OWNER": "Proprietario",
+    "USER": "Utente"
+  },
+  "types": {
+    "TECHNICIAN": "Tecnico",
+    "ADMINISTRATION": "Amministrazione",
+    "SELLER": "Venditore"
+  },
+  "details": {
+    "title": "Dettagli Utente",
+    "information": "Informazioni",
+    "firstName": "Nome",
+    "lastName": "Cognome",
+    "email": "Email",
+    "role": "Ruolo",
+    "type": "Tipo",
+    "createdAt": "Creato il",
+    "updatedAt": "Aggiornato il"
+  },
+  "form": {
+    "createTitle": "Crea Nuovo Utente",
+    "editTitle": "Modifica Utente",
+    "firstNameLabel": "Nome",
+    "firstNamePlaceholder": "Inserisci il nome",
+    "lastNameLabel": "Cognome",
+    "lastNamePlaceholder": "Inserisci il cognome",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Inserisci l'email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Inserisci la password",
+    "roleLabel": "Ruolo",
+    "typeLabel": "Tipo Utente"
+  },
+  "messages": {
+    "loading": "Caricamento utenti...",
+    "noUsers": "Nessun utente trovato",
+    "error": "Errore nel caricamento degli utenti"
+  }
+}

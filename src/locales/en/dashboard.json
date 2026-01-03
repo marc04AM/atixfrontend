@@ -1,0 +1,31 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Overview of the ATIX management system",
+  "charts": {
+    "worksByStatus": "Works by Status",
+    "ticketsByStatus": "Tickets by Status",
+    "pending": "Pending",
+    "completed": "Completed",
+    "works": "works",
+    "tickets": "tickets"
+  },
+  "alerts": {
+    "ticketsNeedAttention": "You have <strong>{{open}} open</strong> and <strong>{{inProgress}} in-progress</strong> tickets that need attention."
+  },
+  "recentWorks": {
+    "title": "Recent Works",
+    "viewAll": "View all",
+    "notSet": "Not set",
+    "badges": {
+      "invoiced": "Invoiced",
+      "completed": "Completed",
+      "inProgress": "In Progress"
+    }
+  },
+  "recentTickets": {
+    "title": "Recent Tickets",
+    "viewAll": "View all"
+  },
+  "loading": "Loading dashboard...",
+  "error": "Error loading dashboard: {{message}}"
+}

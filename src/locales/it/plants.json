@@ -1,0 +1,52 @@
+{
+  "title": "Impianti",
+  "subtitle": "Gestisci gli impianti e le strutture",
+  "createButton": "Crea Impianto",
+  "searchPlaceholder": "Cerca impianti...",
+  "columns": {
+    "name": "Nome",
+    "client": "Cliente",
+    "location": "Posizione",
+    "actions": "Azioni"
+  },
+  "details": {
+    "title": "Dettagli Impianto",
+    "information": "Informazioni",
+    "name": "Nome Impianto",
+    "client": "Cliente",
+    "address": "Indirizzo",
+    "city": "Città",
+    "zipCode": "CAP",
+    "country": "Paese",
+    "description": "Descrizione",
+    "notes": "Note",
+    "createdAt": "Creato il",
+    "updatedAt": "Aggiornato il",
+    "associatedWorks": "Lavori Associati"
+  },
+  "form": {
+    "createTitle": "Crea Nuovo Impianto",
+    "editTitle": "Modifica Impianto",
+    "nameLabel": "Nome Impianto",
+    "namePlaceholder": "Inserisci il nome dell'impianto",
+    "clientLabel": "Cliente",
+    "clientPlaceholder": "Seleziona un cliente",
+    "addressLabel": "Indirizzo",
+    "addressPlaceholder": "Inserisci l'indirizzo",
+    "cityLabel": "Città",
+    "cityPlaceholder": "Inserisci la città",
+    "zipCodeLabel": "CAP",
+    "zipCodePlaceholder": "Inserisci il CAP",
+    "countryLabel": "Paese",
+    "countryPlaceholder": "Inserisci il paese",
+    "descriptionLabel": "Descrizione",
+    "descriptionPlaceholder": "Inserisci una descrizione (opzionale)",
+    "notesLabel": "Note",
+    "notesPlaceholder": "Aggiungi note (opzionale)"
+  },
+  "messages": {
+    "loading": "Caricamento impianti...",
+    "noPlants": "Nessun impianto trovato",
+    "error": "Errore nel caricamento degli impianti"
+  }
+}

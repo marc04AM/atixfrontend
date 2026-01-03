@@ -1,0 +1,38 @@
+{
+  "title": "Profile",
+  "subtitle": "Manage your personal profile",
+  "tabs": {
+    "general": "General",
+    "security": "Security"
+  },
+  "general": {
+    "title": "General Information",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "role": "Role",
+    "type": "Type",
+    "profileImage": "Profile Image",
+    "uploadImage": "Upload Image",
+    "removeImage": "Remove Image"
+  },
+  "security": {
+    "title": "Security",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "updatePassword": "Update Password"
+  },
+  "actions": {
+    "save": "Save Changes",
+    "cancel": "Cancel"
+  },
+  "messages": {
+    "loading": "Loading profile...",
+    "updateSuccess": "Profile updated successfully",
+    "updateError": "Error updating profile",
+    "passwordUpdateSuccess": "Password updated successfully",
+    "passwordMismatch": "Passwords do not match"
+  }
+}

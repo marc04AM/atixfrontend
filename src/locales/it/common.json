@@ -1,0 +1,73 @@
+{
+  "actions": {
+    "save": "Salva",
+    "cancel": "Annulla",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "create": "Crea",
+    "add": "Aggiungi",
+    "remove": "Rimuovi",
+    "confirm": "Conferma",
+    "back": "Indietro",
+    "next": "Avanti",
+    "close": "Chiudi",
+    "submit": "Invia",
+    "search": "Cerca",
+    "filter": "Filtra",
+    "export": "Esporta",
+    "import": "Importa",
+    "refresh": "Aggiorna",
+    "viewAll": "Vedi tutti",
+    "viewDetails": "Vedi dettagli"
+  },
+  "status": {
+    "active": "Attivo",
+    "inactive": "Inattivo",
+    "pending": "In attesa",
+    "completed": "Completato",
+    "inProgress": "In corso",
+    "cancelled": "Annullato",
+    "draft": "Bozza"
+  },
+  "messages": {
+    "loading": "Caricamento...",
+    "saving": "Salvataggio...",
+    "deleting": "Eliminazione...",
+    "success": "Operazione completata con successo",
+    "error": "Si è verificato un errore",
+    "noData": "Nessun dato disponibile",
+    "notSet": "Non impostato",
+    "confirmDelete": "Sei sicuro di voler eliminare questo elemento?",
+    "unsavedChanges": "Hai modifiche non salvate. Vuoi continuare?"
+  },
+  "fields": {
+    "name": "Nome",
+    "email": "Email",
+    "phone": "Telefono",
+    "address": "Indirizzo",
+    "city": "Città",
+    "country": "Paese",
+    "zipCode": "CAP",
+    "description": "Descrizione",
+    "notes": "Note",
+    "date": "Data",
+    "time": "Ora",
+    "status": "Stato",
+    "type": "Tipo",
+    "role": "Ruolo",
+    "createdAt": "Creato il",
+    "updatedAt": "Aggiornato il"
+  },
+  "errors": {
+    "required": "Questo campo è obbligatorio",
+    "invalidEmail": "Email non valida",
+    "invalidPhone": "Numero di telefono non valido",
+    "minLength": "Lunghezza minima: {{min}} caratteri",
+    "maxLength": "Lunghezza massima: {{max}} caratteri",
+    "networkError": "Errore di rete. Riprova più tardi.",
+    "unauthorized": "Non autorizzato",
+    "forbidden": "Accesso negato",
+    "notFound": "Risorsa non trovata",
+    "serverError": "Errore del server"
+  }
+}
