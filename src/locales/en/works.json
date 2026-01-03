@@ -135,9 +135,12 @@
     "addEntryDescription": "Add a new work report entry with description and hours.",
     "descriptionLabel": "Description",
     "descriptionPlaceholder": "Describe the work done...",
+    "technicianLabel": "Technician",
+    "technicianPlaceholder": "Select technician",
     "hoursLabel": "Hours",
     "empty": "No report entries yet. Add your first entry to start tracking.",
     "tableDescription": "Description",
+    "tableTechnician": "Technician",
     "tableHours": "Hours"
   },
   "assignments": {
@@ -162,6 +165,8 @@
     "referenceNamePlaceholder": "Mario Rossi",
     "referencePhoneLabel": "Phone",
     "referencePhonePlaceholder": "Enter phone",
+    "referenceNotesLabel": "Notes",
+    "referenceNotesPlaceholder": "Add notes (optional)",
     "referenceLabel": "Reference",
     "referencePlaceholder": "Select reference",
     "roleLabel": "Role",

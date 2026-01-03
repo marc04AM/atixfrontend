@@ -273,11 +273,15 @@ const createDemoStore = () => {
         id: 'entry-1',
         description: 'Electrical schema review and updates.',
         hours: 4,
+        technicianId: techOne?.id,
+        technician: techOne,
       },
       {
         id: 'entry-2',
         description: 'PLC IO list alignment.',
         hours: 3.5,
+        technicianId: techTwo?.id,
+        technician: techTwo,
       },
     ],
     'work-2': [
@@ -285,11 +289,15 @@ const createDemoStore = () => {
         id: 'entry-3',
         description: 'Robot cell safety checks.',
         hours: 5,
+        technicianId: techTwo?.id,
+        technician: techTwo,
       },
       {
         id: 'entry-4',
         description: 'Program backup and validation.',
         hours: 2,
+        technicianId: techOne?.id,
+        technician: techOne,
       },
     ],
   };
@@ -299,16 +307,19 @@ const createDemoStore = () => {
       id: 'worksite-ref-1',
       name: 'Mario Rossi',
       telephone: '+39 02 1234567',
+      notes: 'Prefers morning visits.',
     },
     {
       id: 'worksite-ref-2',
       name: 'Luca Bianchi',
       telephone: '+39 02 7654321',
+      notes: 'Gate access required.',
     },
     {
       id: 'worksite-ref-3',
       name: 'Giulia Verdi',
       telephone: '+39 051 445566',
+      notes: '',
     },
   ];
 
@@ -837,10 +848,15 @@ const buildDemoMutationResponse = (endpoint: string, method: string, options: Re
   }
 
   if (path === '/work-reports/entries' && method === 'POST') {
+    const fallbackTechnician = demoStore.users.find((user) => user.type === 'TECHNICIAN');
+    const technician = demoStore.users.find((user) => user.id === body?.technicianId) || fallbackTechnician;
+    const technicianId = body?.technicianId || technician?.id;
     const entry = {
       id: createDemoId('entry'),
       description: body?.description || '',
       hours: Number(body?.hours ?? 0),
+      technicianId,
+      technician,
       report: { work: { id: body?.workId } },
     };
     const workId = body?.workId;
@@ -1169,7 +1185,7 @@ export const ticketsApi = {
 export const workReportsApi = {
   getByWorkId: (workId: string) =>
     apiRequest<any>(`/work-reports/work/${workId}`),
-  createEntry: (data: { workId: string; description: string; hours: number }) =>
+  createEntry: (data: { workId: string; description: string; hours: number; technicianId?: string }) =>
     apiRequest<any>('/work-reports/entries', {
       method: 'POST',
       body: JSON.stringify(data),

@@ -111,11 +111,17 @@ export default function WorkDetailPage() {
     }
   }, [work]);
 
+  useEffect(() => {
+    if (!currentUser?.id || currentUser.type !== 'TECHNICIAN') return;
+    setNewEntry((prev) => (prev.technicianId ? prev : { ...prev, technicianId: currentUser.id! }));
+  }, [currentUser?.id, currentUser?.type]);
+
   // New entry dialog
   const [isAddEntryOpen, setIsAddEntryOpen] = useState(false);
   const [newEntry, setNewEntry] = useState({
     description: '',
-    hours: 0
+    hours: 0,
+    technicianId: ''
   });
 
   // Assign technician dialog
@@ -129,6 +135,7 @@ export default function WorkDetailPage() {
   const [isCreatingNewReference, setIsCreatingNewReference] = useState(false);
   const [newReferenceName, setNewReferenceName] = useState('');
   const [newReferencePhone, setNewReferencePhone] = useState('');
+  const [newReferenceNotes, setNewReferenceNotes] = useState('');
 
   // Loading and error states
   if (isLoading) return <LoadingSpinner message={t('messages.loadingDetails')} />;
@@ -237,13 +244,18 @@ export default function WorkDetailPage() {
     createReportEntry.mutate({
       workId: work.id,
       description: newEntry.description,
-      hours: newEntry.hours
+      hours: newEntry.hours,
+      ...(newEntry.technicianId ? { technicianId: newEntry.technicianId } : {})
     }, {
       onSuccess: () => {
         setIsAddEntryOpen(false);
+        const defaultTechnicianId = currentUser?.type === 'TECHNICIAN'
+          ? currentUser.id ?? ''
+          : '';
         setNewEntry({
           description: '',
-          hours: 0
+          hours: 0,
+          technicianId: defaultTechnicianId
         });
         toast({
           title: t('messages.entryAddedTitle'),
@@ -427,6 +439,9 @@ export default function WorkDetailPage() {
         ...(newReferencePhone.trim()
           ? { telephone: newReferencePhone.trim() }
           : {}),
+        ...(newReferenceNotes.trim()
+          ? { notes: newReferenceNotes.trim() }
+          : {}),
       };
 
       createWorksiteReference.mutate(payload, {
@@ -446,6 +461,7 @@ export default function WorkDetailPage() {
               setIsCreatingNewReference(false);
               setNewReferenceName('');
               setNewReferencePhone('');
+              setNewReferenceNotes('');
               toast({
                 title: t('messages.referenceCreatedAndAddedTitle'),
                 description: t('messages.referenceCreatedAndAddedDescription', {
@@ -536,6 +552,28 @@ export default function WorkDetailPage() {
 
     const match = allWorksiteReferences.find((ref: any) => String(ref.id) === String(referenceId));
     return match?.telephone || '';
+  };
+  const resolveReportEntryTechnician = (entry: any) => {
+    const directFirstName = entry?.technician?.firstName
+      || entry?.technicianFirstName
+      || entry?.user?.firstName;
+    const directLastName = entry?.technician?.lastName
+      || entry?.technicianLastName
+      || entry?.user?.lastName;
+    const directName = [directFirstName, directLastName].filter(Boolean).join(' ').trim();
+    if (directName) return directName;
+
+    if (entry?.technicianName) return entry.technicianName;
+    if (entry?.userName) return entry.userName;
+
+    const technicianId = entry?.technicianId
+      ?? entry?.technician?.id
+      ?? entry?.user?.id
+      ?? entry?.userId;
+    if (!technicianId) return t('common:messages.notSet');
+
+    const match = technicians.find((tech) => String(tech.id) === String(technicianId));
+    return match ? `${match.firstName} ${match.lastName}`.trim() : t('common:messages.notSet');
   };
   const totalHours = reportEntries.reduce((sum: number, e: any) => sum + e.hours, 0);
   return <div className="space-y-6">
@@ -817,6 +855,7 @@ export default function WorkDetailPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>{t('report.tableDescription')}</TableHead>
+                      <TableHead>{t('report.tableTechnician')}</TableHead>
                       <TableHead className="w-24 text-right">{t('report.tableHours')}</TableHead>
                       <TableHead className="w-16"></TableHead>
                     </TableRow>
@@ -824,6 +863,7 @@ export default function WorkDetailPage() {
                   <TableBody>
                     {reportEntries.map(entry => <TableRow key={entry.id}>
                         <TableCell>{entry.description}</TableCell>
+                        <TableCell>{resolveReportEntryTechnician(entry)}</TableCell>
                         <TableCell className="text-right font-medium">{entry.hours}</TableCell>
                         <TableCell>
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDeleteEntry(entry.id)}>
@@ -1058,6 +1098,7 @@ export default function WorkDetailPage() {
                     setIsCreatingNewReference(false);
                     setNewReferenceName('');
                     setNewReferencePhone('');
+                    setNewReferenceNotes('');
                     setSelectedReference('');
                   }
                 }}>
@@ -1108,6 +1149,13 @@ export default function WorkDetailPage() {
                             value={newReferencePhone}
                             onChange={(e) => setNewReferencePhone(e.target.value)}
                             placeholder={t('references.referencePhonePlaceholder')}
+                          />
+                          <Label htmlFor="newReferenceNotes">{t('references.referenceNotesLabel')}</Label>
+                          <Textarea
+                            id="newReferenceNotes"
+                            value={newReferenceNotes}
+                            onChange={(e) => setNewReferenceNotes(e.target.value)}
+                            placeholder={t('references.referenceNotesPlaceholder')}
                           />
                         </div>
                       ) : (

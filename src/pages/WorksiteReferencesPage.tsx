@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Trash2, Edit2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -13,6 +15,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useWorksiteReferences, useCreateWorksiteReference, useUpdateWorksiteReference, useDeleteWorksiteReference } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 export default function WorksiteReferencesPage() {
+  const navigate = useNavigate();
   const {
     toast
   } = useToast();
@@ -39,7 +42,8 @@ export default function WorksiteReferencesPage() {
   const [editingReference, setEditingReference] = useState<any>(null);
   const [newReference, setNewReference] = useState({
     name: '',
-    telephone: ''
+    telephone: '',
+    notes: ''
   });
 
   // Filter references based on search
@@ -48,7 +52,8 @@ export default function WorksiteReferencesPage() {
     if (!normalizedQuery) return true;
     const nameMatch = ref.name?.toLowerCase().includes(normalizedQuery);
     const phoneMatch = ref.telephone?.toLowerCase().includes(normalizedQuery);
-    return nameMatch || phoneMatch;
+    const notesMatch = ref.notes?.toLowerCase().includes(normalizedQuery);
+    return nameMatch || phoneMatch || notesMatch;
   });
   if (isLoading) return <LoadingSpinner message={t('messages.loading')} />;
   if (error) return <div className="flex items-center justify-center py-12">
@@ -73,6 +78,9 @@ export default function WorksiteReferencesPage() {
       name: newReference.name,
       ...(newReference.telephone?.trim() ? {
         telephone: newReference.telephone.trim()
+      } : {}),
+      ...(newReference.notes?.trim() ? {
+        notes: newReference.notes.trim()
       } : {})
     };
     createReference.mutate(payload, {
@@ -85,7 +93,8 @@ export default function WorksiteReferencesPage() {
         });
         setNewReference({
           name: '',
-          telephone: ''
+          telephone: '',
+          notes: ''
         });
         setIsCreateDialogOpen(false);
       },
@@ -104,6 +113,9 @@ export default function WorksiteReferencesPage() {
       name: editingReference.name,
       ...(editingReference.telephone?.trim() ? {
         telephone: editingReference.telephone.trim()
+      } : {}),
+      ...(editingReference.notes?.trim() ? {
+        notes: editingReference.notes.trim()
       } : {})
     };
     updateReference.mutate({
@@ -190,6 +202,13 @@ export default function WorksiteReferencesPage() {
                 telephone: e.target.value
               })} placeholder={t('form.phonePlaceholder')} />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">{t('form.notesLabel')}</Label>
+                    <Textarea id="notes" value={newReference.notes} onChange={e => setNewReference({
+                ...newReference,
+                notes: e.target.value
+              })} placeholder={t('form.notesPlaceholder')} />
+                  </div>
                 </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
@@ -235,7 +254,11 @@ export default function WorksiteReferencesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredReferences.map((reference: any) => <TableRow key={reference.id}>
+                {filteredReferences.map((reference: any) => <TableRow
+                    key={reference.id}
+                    className="cursor-pointer transition-colors hover:bg-muted/40"
+                    onClick={() => navigate(`/worksite-references/${reference.id}`)}
+                  >
                     <TableCell>
                       <div className="font-medium">{reference.name}</div>
                     </TableCell>
@@ -244,14 +267,27 @@ export default function WorksiteReferencesPage() {
                           {t('common:messages.notSet')}
                         </div>}
                     </TableCell>
-                    {isAdmin && <TableCell className="text-right">
+                    {isAdmin && <TableCell className="text-right" onClick={(event) => event.stopPropagation()}>
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(reference)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              openEditDialog(reference);
+                            }}
+                          >
                             <Edit2 className="h-4 w-4" />
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive hover:text-destructive"
+                                onClick={(event) => event.stopPropagation()}
+                              >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </AlertDialogTrigger>
@@ -307,6 +343,13 @@ export default function WorksiteReferencesPage() {
               ...editingReference,
               telephone: e.target.value
             })} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editNotes">{t('form.notesLabel')}</Label>
+                <Textarea id="editNotes" value={editingReference.notes || ''} onChange={e => setEditingReference({
+              ...editingReference,
+              notes: e.target.value
+            })} placeholder={t('form.notesPlaceholder')} />
               </div>
             </div>}
           <DialogFooter>

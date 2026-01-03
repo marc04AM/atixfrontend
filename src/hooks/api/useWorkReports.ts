@@ -45,7 +45,7 @@ export function useCreateReportEntry() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { workId: string; description: string; hours: number }) =>
+    mutationFn: (data: { workId: string; description: string; hours: number; technicianId?: string }) =>
       workReportsApi.createEntry(data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: workReportsKeys.byWork(variables.workId) });

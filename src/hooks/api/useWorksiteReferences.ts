@@ -32,7 +32,8 @@ export function useCreateWorksiteReference() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { name: string; telephone?: string }) => worksiteReferencesApi.create(data),
+    mutationFn: (data: { name: string; telephone?: string; notes?: string }) =>
+      worksiteReferencesApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: worksiteReferencesKeys.lists() });
     },
@@ -44,7 +45,7 @@ export function useUpdateWorksiteReference() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: { name: string; telephone?: string } }) =>
+    mutationFn: ({ id, data }: { id: string; data: { name: string; telephone?: string; notes?: string } }) =>
       worksiteReferencesApi.update(id, data),
     onSuccess: (data, variables) => {
       queryClient.setQueryData(worksiteReferencesKeys.detail(variables.id), data);

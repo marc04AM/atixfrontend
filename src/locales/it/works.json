@@ -135,9 +135,12 @@
     "addEntryDescription": "Aggiungi una voce al report con descrizione e ore.",
     "descriptionLabel": "Descrizione",
     "descriptionPlaceholder": "Descrivi il lavoro svolto...",
+    "technicianLabel": "Tecnico",
+    "technicianPlaceholder": "Seleziona tecnico",
     "hoursLabel": "Ore",
     "empty": "Nessuna voce di report. Aggiungi la prima voce per iniziare.",
     "tableDescription": "Descrizione",
+    "tableTechnician": "Tecnico",
     "tableHours": "Ore"
   },
   "assignments": {
@@ -162,6 +165,8 @@
     "referenceNamePlaceholder": "Mario Rossi",
     "referencePhoneLabel": "Telefono",
     "referencePhonePlaceholder": "Inserisci telefono",
+    "referenceNotesLabel": "Note",
+    "referenceNotesPlaceholder": "Aggiungi note (opzionale)",
     "referenceLabel": "Riferimento",
     "referencePlaceholder": "Seleziona riferimento",
     "roleLabel": "Ruolo",

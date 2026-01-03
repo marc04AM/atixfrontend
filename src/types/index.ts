@@ -111,6 +111,8 @@ export interface WorkReportEntry {
   id: string;
   description: string;
   hours: number;
+  technicianId?: string;
+  technician?: User;
   report?: WorkReport;
 }
 
@@ -130,6 +132,7 @@ export interface WorksiteReference {
   id: string;
   name: string;
   telephone?: string;
+  notes?: string;
 }
 
 export interface WorksiteReferenceAssignment {

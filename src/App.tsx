@@ -19,6 +19,7 @@ import ClientDetailPage from "./pages/ClientDetailPage";
 import PlantsPage from "./pages/PlantsPage";
 import PlantDetailPage from "./pages/PlantDetailPage";
 import WorksiteReferencesPage from "./pages/WorksiteReferencesPage";
+import WorksiteReferenceDetailPage from "./pages/WorksiteReferenceDetailPage";
 import ProfilePage from "./pages/ProfilePage";
 import LoginPage from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";
@@ -64,6 +65,7 @@ const App = () => (
                         <Route path="/plants" element={<PlantsPage />} />
                         <Route path="/plants/:id" element={<PlantDetailPage />} />
                         <Route path="/worksite-references" element={<WorksiteReferencesPage />} />
+                        <Route path="/worksite-references/:id" element={<WorksiteReferenceDetailPage />} />
                         <Route path="/profile" element={<ProfilePage />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
