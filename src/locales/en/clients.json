@@ -17,11 +17,24 @@
   },
   "types": {
     "ATIX_CLIENT": "ATIX Client",
-    "FINAL_CLIENT": "Final Client"
+    "FINAL_CLIENT": "Final Client",
+    "ATIX": "ATIX",
+    "FINAL": "Final"
+  },
+  "stats": {
+    "total": "Total Clients",
+    "atix": "ATIX",
+    "final": "Final"
+  },
+  "list": {
+    "title": "All Clients",
+    "description": "A list of all clients in the system"
   },
   "details": {
     "title": "Client Details",
+    "subtitle": "Client details and linked works",
     "information": "Information",
+    "informationTitle": "Client Information",
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
@@ -34,10 +47,13 @@
     "createdAt": "Created at",
     "updatedAt": "Updated at",
     "associatedWorks": "Associated Works",
+    "associatedWorksDescription": "Works associated with this client",
+    "noAssociatedWorks": "No linked works",
     "associatedPlants": "Associated Plants"
   },
   "form": {
     "createTitle": "Create New Client",
+    "createDescription": "Add a new client to the system",
     "editTitle": "Edit Client",
     "nameLabel": "Client Name",
     "namePlaceholder": "Enter client name",
@@ -57,9 +73,19 @@
     "notesLabel": "Notes",
     "notesPlaceholder": "Add notes (optional)"
   },
+  "dialogs": {
+    "deleteTitle": "Delete Client?",
+    "deleteDescription": "This action cannot be undone. This will permanently delete the client and remove all associated data."
+  },
   "messages": {
     "loading": "Loading clients...",
+    "loadingDetail": "Loading client...",
     "noClients": "No clients found",
-    "error": "Error loading clients"
+    "error": "Error loading clients",
+    "errorDetail": "Error loading client",
+    "nameRequired": "Client name is required",
+    "createSuccessDescription": "Client created successfully",
+    "updateSuccessDescription": "Client updated successfully",
+    "deleteSuccessDescription": "Client has been deleted"
   }
 }

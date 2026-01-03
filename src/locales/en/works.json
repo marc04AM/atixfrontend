@@ -3,12 +3,37 @@
   "subtitle": "Manage works and projects",
   "createButton": "Create Work",
   "searchPlaceholder": "Search works...",
+  "tabs": {
+    "open": "Open",
+    "closed": "Closed"
+  },
   "filters": {
     "all": "All",
     "status": "Status",
     "completed": "Completed",
     "pending": "Pending",
-    "invoiced": "Invoiced"
+    "invoiced": "Invoiced",
+    "atixClient": "ATIX Client",
+    "finalClient": "Final Client",
+    "plant": "Plant",
+    "seller": "Seller",
+    "technician": "Technician",
+    "ticket": "Ticket",
+    "invoicedYes": "Invoiced",
+    "invoicedNo": "Not invoiced",
+    "orderDateFrom": "Order Date From",
+    "orderDateTo": "Order Date To",
+    "expectedStartFrom": "Expected Start From",
+    "expectedStartTo": "Expected Start To",
+    "name": "Name",
+    "bidNumber": "Bid Number",
+    "orderNumber": "Order Number",
+    "clear": "Clear filters"
+  },
+  "placeholders": {
+    "searchName": "Search name...",
+    "searchBid": "Search bid...",
+    "searchOrder": "Search order..."
   },
   "columns": {
     "name": "Name",
@@ -22,6 +47,19 @@
     "completed": "Completed",
     "invoiced": "Invoiced",
     "inProgress": "In Progress"
+  },
+  "progress": {
+    "electrical": "Electrical",
+    "programming": "Programming"
+  },
+  "pagination": {
+    "showing": "Showing {{start}}-{{end}} of {{total}} works"
+  },
+  "sections": {
+    "basicInfo": "Basic Information",
+    "associations": "Associations",
+    "projectInfo": "Project Info",
+    "workReport": "Work Report"
   },
   "details": {
     "title": "Work Details",
@@ -38,7 +76,19 @@
     "programming": "Programming",
     "notes": "Notes",
     "createdAt": "Created at",
-    "updatedAt": "Updated at"
+    "updatedAt": "Updated at",
+    "bidNumber": "Bid Number",
+    "orderNumber": "Order Number",
+    "expectedStart": "Expected Start",
+    "description": "Description",
+    "electricalProgress": "Electrical Progression (%)",
+    "programmingProgress": "Programming Progression (%)",
+    "expectedOfficeHours": "Expected Office Hours",
+    "expectedPlantHours": "Expected Plant Hours",
+    "atixClient": "ATIX Client",
+    "finalClient": "Final Client",
+    "directory": "Directory",
+    "seller": "Seller"
   },
   "form": {
     "createTitle": "Create New Work",
@@ -57,20 +107,137 @@
     "electricalSchematicLabel": "Electrical Schematic Progress (%)",
     "programmingLabel": "Programming Progress (%)",
     "notesLabel": "Notes",
-    "notesPlaceholder": "Add notes (optional)"
+    "notesPlaceholder": "Add notes (optional)",
+    "bidNumberLabel": "Bid Number",
+    "bidNumberPlaceholder": "BID-2024-001",
+    "orderNumberLabel": "Order Number",
+    "orderNumberPlaceholder": "ORD-2024-001",
+    "expectedStartDateLabel": "Expected Start Date",
+    "nasSubDirectoryLabel": "NAS Sub Directory",
+    "nasSubDirectoryPlaceholder": "/projects/work-name",
+    "expectedOfficeHoursLabel": "Expected Office Hours",
+    "expectedPlantHoursLabel": "Expected Plant Hours",
+    "sellerLabel": "Seller",
+    "sellerPlaceholder": "Select seller (optional)",
+    "atixClientLabel": "ATIX Client",
+    "finalClientLabel": "Final Client",
+    "clientOptionalPlaceholder": "Select client (optional)",
+    "plantSelectPlaceholder": "Select plant"
+  },
+  "create": {
+    "subtitleFromTicket": "Creating from ticket: {{ticket}}",
+    "subtitleDefault": "Fill in the work order details"
+  },
+  "report": {
+    "totalHours": "Total Hours",
+    "addEntry": "Add Entry",
+    "addEntryTitle": "Add Report Entry",
+    "addEntryDescription": "Add a new work report entry with description and hours.",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Describe the work done...",
+    "hoursLabel": "Hours",
+    "empty": "No report entries yet. Add your first entry to start tracking.",
+    "tableDescription": "Description",
+    "tableHours": "Hours"
+  },
+  "assignments": {
+    "title": "Assigned Technicians",
+    "empty": "No technicians assigned yet.",
+    "assignMyself": "Assign Myself",
+    "assignTechnician": "Assign Technician",
+    "dialogTitle": "Assign Technician",
+    "dialogDescription": "Select a technician to assign to this work.",
+    "selectPlaceholder": "Select technician",
+    "emailUnavailable": "Email not available"
+  },
+  "references": {
+    "title": "Worksite References",
+    "empty": "No worksite references assigned yet.",
+    "addReference": "Add Reference",
+    "dialogTitle": "Add Worksite Reference",
+    "dialogDescription": "Select an existing reference or create a new one.",
+    "selectExisting": "Select Existing",
+    "createNew": "Create New",
+    "referenceNameLabel": "Reference Name",
+    "referenceNamePlaceholder": "Mario Rossi - Plumber",
+    "referenceLabel": "Reference",
+    "referencePlaceholder": "Select reference",
+    "roleLabel": "Role",
+    "createAndAdd": "Create & Add",
+    "addButton": "Add Reference"
+  },
+  "dialogs": {
+    "addClient": {
+      "title": "Add New Client",
+      "description": "Create a new client that will be available for selection.",
+      "nameLabel": "Client Name",
+      "namePlaceholder": "Enter client name",
+      "typeLabel": "Client Type",
+      "typeAtix": "ATIX",
+      "typeFinal": "Final",
+      "addButton": "Add Client"
+    },
+    "addPlant": {
+      "title": "Add New Plant",
+      "description": "Create a new plant that will be available for selection.",
+      "nameLabel": "Plant Name",
+      "namePlaceholder": "Enter plant name",
+      "notesLabel": "Notes",
+      "notesPlaceholder": "Additional notes",
+      "nasDirectoryLabel": "NAS Directory",
+      "nasDirectoryPlaceholder": "/nas/plant-name",
+      "pswPhraseLabel": "Password Phrase",
+      "pswPlatformLabel": "Platform PWD",
+      "pswStationLabel": "Station PWD",
+      "addButton": "Add Plant"
+    }
   },
   "actions": {
     "edit": "Edit",
     "delete": "Delete",
-    "markCompleted": "Mark as Completed",
-    "markInvoiced": "Mark as Invoiced"
+    "markCompleted": "Mark Complete",
+    "markInvoiced": "Mark Invoiced",
+    "saveChanges": "Save Changes",
+    "addNew": "Add New"
   },
   "messages": {
     "loading": "Loading works...",
+    "loadingDetails": "Loading work details...",
+    "loadingForm": "Loading form data...",
     "noWorks": "No works found",
+    "noWorksFilters": "No works match your current filters.",
     "error": "Error loading works",
-    "createSuccess": "Work created successfully",
-    "updateSuccess": "Work updated successfully",
-    "deleteSuccess": "Work deleted successfully"
+    "errorDetails": "Error loading work",
+    "createSuccessTitle": "Work Created",
+    "createSuccessDescription": "Work \"{{name}}\" has been created successfully.",
+    "updateSuccessTitle": "Work Updated",
+    "updateSuccessDescription": "The work has been updated successfully.",
+    "completedTitle": "Work Completed",
+    "completedDescription": "The work has been marked as complete.",
+    "invoicedTitle": "Work Invoiced",
+    "invoicedDescription": "The work has been marked as invoiced.",
+    "entryAddedTitle": "Entry Added",
+    "entryAddedDescription": "Work report entry has been added.",
+    "entryDeletedTitle": "Entry Deleted",
+    "entryDeletedDescription": "Work report entry has been deleted.",
+    "assignedTitle": "Assigned",
+    "assignedDescription": "You have been assigned to this work.",
+    "technicianAssignedTitle": "Technician Assigned",
+    "technicianAssignedDescription": "{{name}} has been assigned.",
+    "referenceAddedTitle": "Reference Added",
+    "referenceAddedDescription": "{{name}} has been added as {{role}}.",
+    "referenceCreatedAndAddedTitle": "Reference Created and Added",
+    "referenceCreatedAndAddedDescription": "{{name}} has been created and added as {{role}}.",
+    "referenceCreateErrorTitle": "Error Creating Reference",
+    "validationErrorTitle": "Validation Error",
+    "validationErrorDescription": "Please fill in all required fields (name, bid number, order number, ATIX client, NAS directory).",
+    "validationReferenceName": "Please enter a name for the new reference.",
+    "clientNameRequired": "Client name is required",
+    "plantNameRequired": "Plant name is required",
+    "clientAdded": "{{name}} has been added successfully.",
+    "plantAdded": "{{name}} has been added successfully."
+  },
+  "units": {
+    "hours": "hours"
   }
 }

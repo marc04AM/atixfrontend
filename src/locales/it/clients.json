@@ -6,7 +6,7 @@
   "tabs": {
     "all": "Tutti",
     "atixClients": "Clienti ATIX",
-    "finalClients": "Clienti Finali"
+    "finalClients": "Clienti finali"
   },
   "columns": {
     "name": "Nome",
@@ -17,11 +17,24 @@
   },
   "types": {
     "ATIX_CLIENT": "Cliente ATIX",
-    "FINAL_CLIENT": "Cliente Finale"
+    "FINAL_CLIENT": "Cliente finale",
+    "ATIX": "ATIX",
+    "FINAL": "Finale"
+  },
+  "stats": {
+    "total": "Totale clienti",
+    "atix": "ATIX",
+    "final": "Finali"
+  },
+  "list": {
+    "title": "Tutti i clienti",
+    "description": "Elenco di tutti i clienti nel sistema"
   },
   "details": {
-    "title": "Dettagli Cliente",
+    "title": "Dettagli cliente",
+    "subtitle": "Dettagli cliente e lavori collegati",
     "information": "Informazioni",
+    "informationTitle": "Informazioni cliente",
     "name": "Nome",
     "email": "Email",
     "phone": "Telefono",
@@ -29,37 +42,50 @@
     "city": "Città",
     "zipCode": "CAP",
     "country": "Paese",
-    "type": "Tipo Cliente",
+    "type": "Tipo cliente",
     "notes": "Note",
     "createdAt": "Creato il",
     "updatedAt": "Aggiornato il",
-    "associatedWorks": "Lavori Associati",
-    "associatedPlants": "Impianti Associati"
+    "associatedWorks": "Lavori associati",
+    "associatedWorksDescription": "Lavori associati a questo cliente",
+    "noAssociatedWorks": "Nessun lavoro collegato",
+    "associatedPlants": "Impianti associati"
   },
   "form": {
-    "createTitle": "Crea Nuovo Cliente",
-    "editTitle": "Modifica Cliente",
-    "nameLabel": "Nome Cliente",
-    "namePlaceholder": "Inserisci il nome del cliente",
+    "createTitle": "Crea nuovo cliente",
+    "createDescription": "Aggiungi un nuovo cliente al sistema",
+    "editTitle": "Modifica cliente",
+    "nameLabel": "Nome cliente",
+    "namePlaceholder": "Inserisci nome cliente",
     "emailLabel": "Email",
-    "emailPlaceholder": "Inserisci l'email",
+    "emailPlaceholder": "Inserisci email",
     "phoneLabel": "Telefono",
-    "phonePlaceholder": "Inserisci il telefono",
+    "phonePlaceholder": "Inserisci telefono",
     "addressLabel": "Indirizzo",
-    "addressPlaceholder": "Inserisci l'indirizzo",
+    "addressPlaceholder": "Inserisci indirizzo",
     "cityLabel": "Città",
     "cityPlaceholder": "Inserisci la città",
     "zipCodeLabel": "CAP",
-    "zipCodePlaceholder": "Inserisci il CAP",
+    "zipCodePlaceholder": "Inserisci CAP",
     "countryLabel": "Paese",
-    "countryPlaceholder": "Inserisci il paese",
-    "typeLabel": "Tipo Cliente",
+    "countryPlaceholder": "Inserisci paese",
+    "typeLabel": "Tipo cliente",
     "notesLabel": "Note",
     "notesPlaceholder": "Aggiungi note (opzionale)"
   },
+  "dialogs": {
+    "deleteTitle": "Eliminare cliente?",
+    "deleteDescription": "Questa azione non può essere annullata. Eliminerà definitivamente il cliente e tutti i dati associati."
+  },
   "messages": {
     "loading": "Caricamento clienti...",
+    "loadingDetail": "Caricamento cliente...",
     "noClients": "Nessun cliente trovato",
-    "error": "Errore nel caricamento dei clienti"
+    "error": "Errore nel caricamento dei clienti",
+    "errorDetail": "Errore nel caricamento del cliente",
+    "nameRequired": "Il nome cliente è obbligatorio",
+    "createSuccessDescription": "Cliente creato con successo",
+    "updateSuccessDescription": "Cliente aggiornato con successo",
+    "deleteSuccessDescription": "Il cliente è stato eliminato"
   }
 }

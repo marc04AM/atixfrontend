@@ -4,6 +4,7 @@
   "createButton": "Create User",
   "searchPlaceholder": "Search users...",
   "columns": {
+    "user": "User",
     "name": "Name",
     "email": "Email",
     "role": "Role",
@@ -20,6 +21,16 @@
     "ADMINISTRATION": "Administration",
     "SELLER": "Seller"
   },
+  "stats": {
+    "total": "Total Users",
+    "sellers": "Sellers",
+    "technicians": "Technicians",
+    "administration": "Administration"
+  },
+  "accessDenied": {
+    "title": "Access Denied",
+    "description": "You don't have permission to access this page. Only administrators and owners can manage users."
+  },
   "details": {
     "title": "User Details",
     "information": "Information",
@@ -33,7 +44,9 @@
   },
   "form": {
     "createTitle": "Create New User",
+    "createDescription": "Add a new user to the system. They will receive an email notification.",
     "editTitle": "Edit User",
+    "editDescription": "Update user information.",
     "firstNameLabel": "First Name",
     "firstNamePlaceholder": "Enter first name",
     "lastNameLabel": "Last Name",
@@ -45,9 +58,20 @@
     "roleLabel": "Role",
     "typeLabel": "User Type"
   },
+  "actions": {
+    "saveChanges": "Save Changes"
+  },
+  "dialogs": {
+    "deleteTitle": "Delete User",
+    "deleteDescription": "Are you sure you want to delete {{name}}? This action cannot be undone."
+  },
   "messages": {
     "loading": "Loading users...",
     "noUsers": "No users found",
-    "error": "Error loading users"
+    "error": "Error loading users",
+    "validationRequired": "Please fill in all required fields.",
+    "createSuccessDescription": "{{name}} has been created successfully.",
+    "updateSuccessDescription": "{{name}} has been updated.",
+    "deleteSuccessDescription": "{{name}} has been deleted."
   }
 }

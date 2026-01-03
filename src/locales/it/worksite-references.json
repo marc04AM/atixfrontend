@@ -1,7 +1,7 @@
 {
-  "title": "Riferimenti Cantiere",
-  "subtitle": "Gestisci i riferimenti per i cantieri",
-  "createButton": "Crea Riferimento",
+  "title": "Riferimenti cantiere",
+  "subtitle": "Gestisci contatti e riferimenti di cantiere",
+  "createButton": "Crea riferimento",
   "searchPlaceholder": "Cerca riferimenti...",
   "columns": {
     "name": "Nome",
@@ -15,11 +15,14 @@
     "ELECTRICIAN": "Elettricista",
     "CARPENTER": "Falegname",
     "MASON": "Muratore",
-    "PAINTER": "Imbianchino",
+    "PAINTER": "Pittore",
     "OTHER": "Altro"
   },
+  "stats": {
+    "total": "Totale riferimenti"
+  },
   "details": {
-    "title": "Dettagli Riferimento",
+    "title": "Dettagli riferimento",
     "information": "Informazioni",
     "name": "Nome",
     "company": "Azienda",
@@ -31,24 +34,34 @@
     "updatedAt": "Aggiornato il"
   },
   "form": {
-    "createTitle": "Crea Nuovo Riferimento",
-    "editTitle": "Modifica Riferimento",
+    "createTitle": "Crea nuovo riferimento",
+    "createDescription": "Aggiungi un nuovo contatto di riferimento.",
+    "editTitle": "Modifica riferimento",
+    "editDescription": "Aggiorna le informazioni del riferimento.",
     "nameLabel": "Nome",
-    "namePlaceholder": "Inserisci il nome",
+    "namePlaceholder": "Mario Rossi - Idraulico",
     "companyLabel": "Azienda",
-    "companyPlaceholder": "Inserisci l'azienda",
+    "companyPlaceholder": "Inserisci azienda",
     "roleLabel": "Ruolo",
     "rolePlaceholder": "Seleziona un ruolo",
     "phoneLabel": "Telefono",
-    "phonePlaceholder": "Inserisci il telefono",
+    "phonePlaceholder": "Inserisci telefono",
     "emailLabel": "Email",
-    "emailPlaceholder": "Inserisci l'email (opzionale)",
+    "emailPlaceholder": "Inserisci email (opzionale)",
     "notesLabel": "Note",
     "notesPlaceholder": "Aggiungi note (opzionale)"
+  },
+  "dialogs": {
+    "deleteTitle": "Elimina riferimento",
+    "deleteDescription": "Sei sicuro di voler eliminare {{name}}? Questa azione non può essere annullata."
   },
   "messages": {
     "loading": "Caricamento riferimenti...",
     "noReferences": "Nessun riferimento trovato",
-    "error": "Errore nel caricamento dei riferimenti"
+    "error": "Errore nel caricamento dei riferimenti",
+    "validationRequired": "Compila il campo nome.",
+    "createdDescription": "{{name}} è stato creato con successo.",
+    "updatedDescription": "{{name}} è stato aggiornato.",
+    "deletedDescription": "{{name}} è stato eliminato."
   }
 }

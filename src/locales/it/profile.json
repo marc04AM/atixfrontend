@@ -1,38 +1,46 @@
 {
   "title": "Profilo",
-  "subtitle": "Gestisci il tuo profilo personale",
+  "subtitle": "Gestisci le impostazioni del tuo account",
   "tabs": {
     "general": "Generale",
     "security": "Sicurezza"
   },
   "general": {
-    "title": "Informazioni Generali",
+    "title": "Informazioni personali",
+    "description": "Aggiorna le informazioni del profilo",
     "firstName": "Nome",
     "lastName": "Cognome",
     "email": "Email",
     "role": "Ruolo",
     "type": "Tipo",
-    "profileImage": "Immagine Profilo",
-    "uploadImage": "Carica Immagine",
-    "removeImage": "Rimuovi Immagine"
+    "profileImage": "Immagine profilo",
+    "uploadImage": "Carica immagine",
+    "removeImage": "Rimuovi immagine"
   },
   "security": {
-    "title": "Sicurezza",
-    "changePassword": "Cambia Password",
-    "currentPassword": "Password Corrente",
-    "newPassword": "Nuova Password",
-    "confirmPassword": "Conferma Password",
-    "updatePassword": "Aggiorna Password"
+    "title": "Cambia password",
+    "description": "Aggiorna la password per la sicurezza",
+    "changePassword": "Cambia password",
+    "currentPassword": "Password attuale",
+    "newPassword": "Nuova password",
+    "confirmPassword": "Conferma password",
+    "updatePassword": "Aggiorna password",
+    "updatingPassword": "Aggiornamento..."
   },
   "actions": {
-    "save": "Salva Modifiche",
+    "save": "Salva modifiche",
     "cancel": "Annulla"
   },
   "messages": {
     "loading": "Caricamento profilo...",
+    "userIdMissing": "ID utente non disponibile",
+    "avatarUpdated": "Avatar aggiornato con successo",
     "updateSuccess": "Profilo aggiornato con successo",
     "updateError": "Errore nell'aggiornamento del profilo",
     "passwordUpdateSuccess": "Password aggiornata con successo",
-    "passwordMismatch": "Le password non coincidono"
+    "passwordMismatch": "Le nuove password non coincidono",
+    "fieldsRequired": "Tutti i campi sono obbligatori",
+    "passwordFieldsRequired": "Tutti i campi password sono obbligatori",
+    "passwordMinLength": "La password deve essere lunga almeno {{min}} caratteri"
   }
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Edit, Trash2, Save, X, Factory, FolderOpen, Key, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +21,7 @@ export default function PlantDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation(['plants', 'works']);
 
   const { data: plant, isLoading, error } = usePlant(id!);
   const updatePlant = useUpdatePlant();
@@ -45,7 +47,11 @@ export default function PlantDetailPage() {
   const handleSave = () => {
     if (!plant || !editedPlant) return;
     if (!editedPlant.name.trim()) {
-      toast({ title: 'Error', description: 'Name is required', variant: 'destructive' });
+      toast({
+        title: t('common:titles.validationError'),
+        description: t('messages.nameRequired'),
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -54,10 +60,17 @@ export default function PlantDetailPage() {
       {
         onSuccess: () => {
           setIsEditing(false);
-          toast({ title: 'Success', description: 'Plant updated successfully' });
+          toast({
+            title: t('common:titles.updated'),
+            description: t('messages.updateSuccessDescription'),
+          });
         },
         onError: (error: any) => {
-          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+          toast({
+            title: t('common:titles.error'),
+            description: error.message,
+            variant: 'destructive',
+          });
         }
       }
     );
@@ -75,21 +88,30 @@ export default function PlantDetailPage() {
 
     deletePlant.mutate(plant.id, {
       onSuccess: () => {
-        toast({ title: 'Deleted', description: 'Plant has been deleted' });
+        toast({
+          title: t('common:titles.deleted'),
+          description: t('messages.deleteSuccessDescription'),
+        });
         navigate('/plants');
       },
       onError: (error: any) => {
-        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        toast({
+          title: t('common:titles.error'),
+          description: error.message,
+          variant: 'destructive',
+        });
       }
     });
   };
 
-  if (isLoading) return <LoadingSpinner message="Loading plant..." />;
+  if (isLoading) return <LoadingSpinner message={t('messages.loadingDetail')} />;
   if (error) return (
     <div className="flex items-center justify-center py-12">
       <Card className="border-destructive">
         <CardContent className="pt-6">
-          <p className="text-destructive">Error loading plant: {(error as Error).message}</p>
+          <p className="text-destructive">
+            {t('messages.errorDetail')}: {(error as Error).message}
+          </p>
         </CardContent>
       </Card>
     </div>
@@ -106,7 +128,7 @@ export default function PlantDetailPage() {
           </Button>
           <div className="min-w-0">
             <h1 className="text-xl sm:text-3xl font-bold tracking-tight truncate">{plant.name}</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">Plant details and linked works</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">{t('details.subtitle')}</p>
           </div>
         </div>
         <div className="flex gap-2 shrink-0">
@@ -116,13 +138,13 @@ export default function PlantDetailPage() {
                 <X className="h-4 w-4" />
               </Button>
               <Button variant="outline" size="sm" className="hidden sm:flex" onClick={handleCancel}>
-                <X className="mr-2 h-4 w-4" /> Cancel
+                <X className="mr-2 h-4 w-4" /> {t('common:actions.cancel')}
               </Button>
               <Button size="icon" className="sm:hidden" onClick={handleSave}>
                 <Save className="h-4 w-4" />
               </Button>
               <Button size="sm" className="hidden sm:flex" onClick={handleSave}>
-                <Save className="mr-2 h-4 w-4" /> Save
+                <Save className="mr-2 h-4 w-4" /> {t('common:actions.save')}
               </Button>
             </>
           ) : (
@@ -131,7 +153,7 @@ export default function PlantDetailPage() {
                 <Edit className="h-4 w-4" />
               </Button>
               <Button variant="outline" size="sm" className="hidden sm:flex" onClick={() => setIsEditing(true)}>
-                <Edit className="mr-2 h-4 w-4" /> Edit
+                <Edit className="mr-2 h-4 w-4" /> {t('common:actions.edit')}
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -141,20 +163,17 @@ export default function PlantDetailPage() {
                 </AlertDialogTrigger>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive" size="sm" className="hidden sm:flex">
-                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                    <Trash2 className="mr-2 h-4 w-4" /> {t('common:actions.delete')}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Plant?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete the plant
-                      and all associated data.
-                    </AlertDialogDescription>
+                    <AlertDialogTitle>{t('dialogs.deleteTitle')}</AlertDialogTitle>
+                    <AlertDialogDescription>{t('dialogs.deleteDescription')}</AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                    <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete}>{t('common:actions.delete')}</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
@@ -168,14 +187,14 @@ export default function PlantDetailPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Factory className="h-5 w-5" />
-            Plant Information
+            {t('details.informationTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {isEditing ? (
             <>
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">{t('form.nameLabel')}</Label>
                 <Input
                   id="name"
                   value={editedPlant.name}
@@ -183,7 +202,7 @@ export default function PlantDetailPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="notes">Notes</Label>
+                <Label htmlFor="notes">{t('form.notesLabel')}</Label>
                 <Textarea
                   id="notes"
                   value={editedPlant.notes}
@@ -191,7 +210,7 @@ export default function PlantDetailPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="nasDirectory">NAS Directory</Label>
+                <Label htmlFor="nasDirectory">{t('form.nasDirectoryLabel')}</Label>
                 <Input
                   id="nasDirectory"
                   value={editedPlant.nasDirectory}
@@ -202,17 +221,17 @@ export default function PlantDetailPage() {
           ) : (
             <div className="grid gap-4">
               <div>
-                <p className="text-sm text-muted-foreground">Name</p>
+                <p className="text-sm text-muted-foreground">{t('details.name')}</p>
                 <p className="font-medium">{plant.name}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Notes</p>
+                <p className="text-sm text-muted-foreground">{t('details.notes')}</p>
                 <p className="font-medium">{plant.notes || '-'}</p>
               </div>
               <div className="flex items-center gap-2">
                 <FolderOpen className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm text-muted-foreground">NAS Directory</p>
+                  <p className="text-sm text-muted-foreground">{t('details.nasDirectory')}</p>
                   <p className="font-mono text-sm">{plant.nasDirectory || '-'}</p>
                 </div>
               </div>
@@ -227,14 +246,14 @@ export default function PlantDetailPage() {
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Key className="h-5 w-5" />
-              Credentials
+              {t('details.credentialsTitle')}
             </CardTitle>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowPasswords(!showPasswords)}
             >
-              {showPasswords ? 'Hide' : 'Show'}
+              {showPasswords ? t('credentials.hide') : t('credentials.show')}
             </Button>
           </div>
         </CardHeader>
@@ -242,7 +261,7 @@ export default function PlantDetailPage() {
           {isEditing ? (
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
               <div className="space-y-2">
-                <Label htmlFor="pswPhrase">PSW Phrase</Label>
+                <Label htmlFor="pswPhrase">{t('form.pswPhraseLabel')}</Label>
                 <Input
                   id="pswPhrase"
                   type={showPasswords ? 'text' : 'password'}
@@ -251,7 +270,7 @@ export default function PlantDetailPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="pswPlatform">PSW Platform</Label>
+                <Label htmlFor="pswPlatform">{t('form.pswPlatformLabel')}</Label>
                 <Input
                   id="pswPlatform"
                   type={showPasswords ? 'text' : 'password'}
@@ -260,7 +279,7 @@ export default function PlantDetailPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="pswStation">PSW Station</Label>
+                <Label htmlFor="pswStation">{t('form.pswStationLabel')}</Label>
                 <Input
                   id="pswStation"
                   type={showPasswords ? 'text' : 'password'}
@@ -272,15 +291,15 @@ export default function PlantDetailPage() {
           ) : (
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
               <div>
-                <p className="text-sm text-muted-foreground">PSW Phrase</p>
+                <p className="text-sm text-muted-foreground">{t('details.pswPhrase')}</p>
                 <p className="font-mono text-sm break-all">{showPasswords ? plant.pswPhrase : '••••••••'}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">PSW Platform</p>
+                <p className="text-sm text-muted-foreground">{t('details.pswPlatform')}</p>
                 <p className="font-mono text-sm break-all">{showPasswords ? plant.pswPlatform : '••••••••'}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">PSW Station</p>
+                <p className="text-sm text-muted-foreground">{t('details.pswStation')}</p>
                 <p className="font-mono text-sm break-all">{showPasswords ? plant.pswStation : '••••••••'}</p>
               </div>
             </div>
@@ -293,22 +312,22 @@ export default function PlantDetailPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Briefcase className="h-5 w-5" />
-            Linked Works
+            {t('details.associatedWorks')}
           </CardTitle>
-          <CardDescription>Works associated with this plant</CardDescription>
+          <CardDescription>{t('details.associatedWorksDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           {linkedWorks.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">No linked works</p>
+            <p className="text-sm text-muted-foreground text-center py-4">{t('details.noAssociatedWorks')}</p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead className="hidden sm:table-cell">Order Number</TableHead>
-                    <TableHead className="hidden sm:table-cell">Order Date</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>{t('common:fields.name')}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{t('works:details.orderNumber')}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{t('works:details.orderDate')}</TableHead>
+                    <TableHead>{t('common:fields.status')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -320,14 +339,14 @@ export default function PlantDetailPage() {
                     >
                       <TableCell className="font-medium">{work.name}</TableCell>
                       <TableCell className="hidden sm:table-cell">{work.orderNumber}</TableCell>
-                      <TableCell className="hidden sm:table-cell">{formatDate(work.orderDate, 'Not set')}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{formatDate(work.orderDate, t('common:messages.notSet'))}</TableCell>
                       <TableCell>
                         {work.invoiced ? (
-                          <Badge variant="secondary">Invoiced</Badge>
+                          <Badge variant="secondary">{t('works:badges.invoiced')}</Badge>
                         ) : work.completed ? (
-                          <Badge className="bg-chart-3 text-chart-3-foreground">Completed</Badge>
+                          <Badge className="bg-chart-3 text-chart-3-foreground">{t('works:badges.completed')}</Badge>
                         ) : (
-                          <Badge variant="outline">In Progress</Badge>
+                          <Badge variant="outline">{t('works:badges.inProgress')}</Badge>
                         )}
                       </TableCell>
                     </TableRow>

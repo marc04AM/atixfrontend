@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus, Search, UserPlus, Mail, Shield, Briefcase, Trash2, Edit2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -59,6 +60,7 @@ interface UserData {
 export default function UsersPage() {
   const { toast } = useToast();
   const { canManageUsers } = useAuth();
+  const { t } = useTranslation('users');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch users
@@ -89,12 +91,14 @@ export default function UsersPage() {
     );
   });
 
-  if (isLoading) return <LoadingSpinner message="Loading users..." />;
+  if (isLoading) return <LoadingSpinner message={t('messages.loading')} />;
   if (error) return (
     <div className="flex items-center justify-center py-12">
       <Card className="border-destructive">
         <CardContent className="pt-6">
-          <p className="text-destructive">Error loading users: {(error as Error).message}</p>
+          <p className="text-destructive">
+            {t('messages.error')}: {(error as Error).message}
+          </p>
         </CardContent>
       </Card>
     </div>
@@ -103,8 +107,8 @@ export default function UsersPage() {
   const handleCreateUser = () => {
     if (!newUser.firstName || !newUser.lastName || !newUser.email || !newUser.password) {
       toast({
-        title: 'Validation Error',
-        description: 'Please fill in all required fields.',
+        title: t('common:titles.validationError'),
+        description: t('messages.validationRequired'),
         variant: 'destructive',
       });
       return;
@@ -113,8 +117,10 @@ export default function UsersPage() {
     createUser.mutate(newUser, {
       onSuccess: () => {
         toast({
-          title: 'User Created',
-          description: `${newUser.firstName} ${newUser.lastName} has been created successfully.`,
+          title: t('common:titles.success'),
+          description: t('messages.createSuccessDescription', {
+            name: `${newUser.firstName} ${newUser.lastName}`,
+          }),
         });
         setNewUser({
           firstName: '',
@@ -128,7 +134,7 @@ export default function UsersPage() {
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: t('common:titles.error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -144,15 +150,17 @@ export default function UsersPage() {
       {
         onSuccess: () => {
           toast({
-            title: 'User Updated',
-            description: `${editingUser.firstName} ${editingUser.lastName} has been updated.`,
+            title: t('common:titles.updated'),
+            description: t('messages.updateSuccessDescription', {
+              name: `${editingUser.firstName} ${editingUser.lastName}`,
+            }),
           });
           setIsEditDialogOpen(false);
           setEditingUser(null);
         },
         onError: (error: any) => {
           toast({
-            title: 'Error',
+            title: t('common:titles.error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -166,14 +174,16 @@ export default function UsersPage() {
     deleteUser.mutate(userId, {
       onSuccess: () => {
         toast({
-          title: 'User Deleted',
-          description: `${user?.firstName} ${user?.lastName} has been deleted.`,
+          title: t('common:titles.deleted'),
+          description: t('messages.deleteSuccessDescription', {
+            name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+          }),
           variant: 'destructive',
         });
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: t('common:titles.error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -212,9 +222,9 @@ export default function UsersPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-4">
         <Shield className="h-16 w-16 text-muted-foreground mb-4" />
-        <h2 className="text-2xl font-semibold mb-2">Access Denied</h2>
+        <h2 className="text-2xl font-semibold mb-2">{t('accessDenied.title')}</h2>
         <p className="text-muted-foreground max-w-md">
-          You don't have permission to access this page. Only administrators and owners can manage users.
+          {t('accessDenied.description')}
         </p>
       </div>
     );
@@ -225,67 +235,65 @@ export default function UsersPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Users</h1>
-          <p className="text-muted-foreground">Manage system users and their permissions</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
+          <p className="text-muted-foreground">{t('subtitle')}</p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <UserPlus className="mr-2 h-4 w-4" />
-              New User
+              {t('createButton')}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Create New User</DialogTitle>
-              <DialogDescription>
-                Add a new user to the system. They will receive an email notification.
-              </DialogDescription>
+              <DialogTitle>{t('form.createTitle')}</DialogTitle>
+              <DialogDescription>{t('form.createDescription')}</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name *</Label>
+                  <Label htmlFor="firstName">{t('form.firstNameLabel')} *</Label>
                   <Input
                     id="firstName"
                     value={newUser.firstName}
                     onChange={(e) => setNewUser({ ...newUser, firstName: e.target.value })}
-                    placeholder="Mario"
+                    placeholder={t('form.firstNamePlaceholder')}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Label htmlFor="lastName">{t('form.lastNameLabel')} *</Label>
                   <Input
                     id="lastName"
                     value={newUser.lastName}
                     onChange={(e) => setNewUser({ ...newUser, lastName: e.target.value })}
-                    placeholder="Rossi"
+                    placeholder={t('form.lastNamePlaceholder')}
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
+                <Label htmlFor="email">{t('form.emailLabel')} *</Label>
                 <Input
                   id="email"
                   type="email"
                   value={newUser.email}
                   onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                  placeholder="mario.rossi@example.com"
+                  placeholder={t('form.emailPlaceholder')}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password *</Label>
+                <Label htmlFor="password">{t('form.passwordLabel')} *</Label>
                 <Input
                   id="password"
                   type="password"
                   value={newUser.password}
                   onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                  placeholder="••••••••"
+                  placeholder={t('form.passwordPlaceholder')}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="role">Role *</Label>
+                  <Label htmlFor="role">{t('form.roleLabel')} *</Label>
                   <Select
                     value={newUser.role}
                     onValueChange={(value: UserRole) => setNewUser({ ...newUser, role: value })}
@@ -294,14 +302,14 @@ export default function UsersPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="USER">User</SelectItem>
-                      <SelectItem value="ADMIN">Admin</SelectItem>
-                      <SelectItem value="OWNER">Owner</SelectItem>
+                      <SelectItem value="USER">{t('roles.USER')}</SelectItem>
+                      <SelectItem value="ADMIN">{t('roles.ADMIN')}</SelectItem>
+                      <SelectItem value="OWNER">{t('roles.OWNER')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="type">User Type *</Label>
+                  <Label htmlFor="type">{t('form.typeLabel')} *</Label>
                   <Select
                     value={newUser.type}
                     onValueChange={(value: UserType) => setNewUser({ ...newUser, type: value })}
@@ -310,9 +318,9 @@ export default function UsersPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="TECHNICIAN">Technician</SelectItem>
-                      <SelectItem value="ADMINISTRATION">Administration</SelectItem>
-                      <SelectItem value="SELLER">Seller</SelectItem>
+                      <SelectItem value="TECHNICIAN">{t('types.TECHNICIAN')}</SelectItem>
+                      <SelectItem value="ADMINISTRATION">{t('types.ADMINISTRATION')}</SelectItem>
+                      <SelectItem value="SELLER">{t('types.SELLER')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -320,9 +328,9 @@ export default function UsersPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                Cancel
+                {t('common:actions.cancel')}
               </Button>
-              <Button onClick={handleCreateUser}>Create User</Button>
+              <Button onClick={handleCreateUser}>{t('createButton')}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -332,7 +340,7 @@ export default function UsersPage() {
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stats.total')}</CardTitle>
             <UserPlus className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -341,7 +349,7 @@ export default function UsersPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Sellers</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stats.sellers')}</CardTitle>
             <span className="text-lg">💼</span>
           </CardHeader>
           <CardContent>
@@ -352,7 +360,7 @@ export default function UsersPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Technicians</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stats.technicians')}</CardTitle>
             <span className="text-lg">🔧</span>
           </CardHeader>
           <CardContent>
@@ -363,7 +371,7 @@ export default function UsersPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Administration</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stats.administration')}</CardTitle>
             <span className="text-lg">📋</span>
           </CardHeader>
           <CardContent>
@@ -379,7 +387,7 @@ export default function UsersPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search users..."
+            placeholder={t('searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
@@ -394,9 +402,9 @@ export default function UsersPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead className="hidden sm:table-cell">Role</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t('columns.user')}</TableHead>
+                  <TableHead className="hidden sm:table-cell">{t('columns.role')}</TableHead>
+                  <TableHead className="text-right">{t('columns.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -419,17 +427,17 @@ export default function UsersPage() {
                             {user.email}
                           </div>
                           <div className="text-xs text-muted-foreground sm:hidden">
-                            {getUserTypeIcon(user.type)} {user.role}
+                            {getUserTypeIcon(user.type)} {t(`roles.${user.role}`)}
                           </div>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       <div className="space-y-1">
-                        <Badge variant={getRoleBadgeVariant(user.role)}>{user.role}</Badge>
+                        <Badge variant={getRoleBadgeVariant(user.role)}>{t(`roles.${user.role}`)}</Badge>
                         <div className="text-xs text-muted-foreground flex items-center gap-1">
                           {getUserTypeIcon(user.type)}
-                          {user.type.charAt(0) + user.type.slice(1).toLowerCase()}
+                          {t(`types.${user.type}`)}
                         </div>
                       </div>
                     </TableCell>
@@ -444,19 +452,21 @@ export default function UsersPage() {
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete User</AlertDialogTitle>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                              <AlertDialogTitle>{t('dialogs.deleteTitle')}</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to delete {user.firstName} {user.lastName}? This action cannot be undone.
+                                {t('dialogs.deleteDescription', { name: `${user.firstName} ${user.lastName}` })}
                               </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteUser(user.id)}>Delete</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                              <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteUser(user.id)}>
+                                {t('common:actions.delete')}
+                              </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -464,7 +474,7 @@ export default function UsersPage() {
                 {filteredUsers.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={3} className="h-24 text-center">
-                      No users found.
+                      {t('messages.noUsers')}
                     </TableCell>
                   </TableRow>
                 )}
@@ -478,16 +488,14 @@ export default function UsersPage() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
-            <DialogDescription>
-              Update user information.
-            </DialogDescription>
+            <DialogTitle>{t('form.editTitle')}</DialogTitle>
+            <DialogDescription>{t('form.editDescription')}</DialogDescription>
           </DialogHeader>
           {editingUser && (
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="editFirstName">First Name *</Label>
+                  <Label htmlFor="editFirstName">{t('form.firstNameLabel')} *</Label>
                   <Input
                     id="editFirstName"
                     value={editingUser.firstName}
@@ -495,7 +503,7 @@ export default function UsersPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="editLastName">Last Name *</Label>
+                  <Label htmlFor="editLastName">{t('form.lastNameLabel')} *</Label>
                   <Input
                     id="editLastName"
                     value={editingUser.lastName}
@@ -504,7 +512,7 @@ export default function UsersPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="editEmail">Email *</Label>
+                <Label htmlFor="editEmail">{t('form.emailLabel')} *</Label>
                 <Input
                   id="editEmail"
                   type="email"
@@ -513,7 +521,7 @@ export default function UsersPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="editRole">Role *</Label>
+                <Label htmlFor="editRole">{t('form.roleLabel')} *</Label>
                 <Select
                   value={editingUser.role}
                   onValueChange={(value: UserRole) => setEditingUser({ ...editingUser, role: value })}
@@ -522,9 +530,9 @@ export default function UsersPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="USER">User</SelectItem>
-                    <SelectItem value="ADMIN">Admin</SelectItem>
-                    <SelectItem value="OWNER">Owner</SelectItem>
+                    <SelectItem value="USER">{t('roles.USER')}</SelectItem>
+                    <SelectItem value="ADMIN">{t('roles.ADMIN')}</SelectItem>
+                    <SelectItem value="OWNER">{t('roles.OWNER')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -532,9 +540,9 @@ export default function UsersPage() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
-            <Button onClick={handleEditUser}>Save Changes</Button>
+            <Button onClick={handleEditUser}>{t('actions.saveChanges')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

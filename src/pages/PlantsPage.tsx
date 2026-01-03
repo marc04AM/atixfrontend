@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Plus, Search, Factory, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 export default function PlantsPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation('plants');
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newPlant, setNewPlant] = useState({
@@ -39,7 +41,11 @@ export default function PlantsPage() {
 
   const handleCreatePlant = () => {
     if (!newPlant.name.trim()) {
-      toast({ title: 'Error', description: 'Plant name is required', variant: 'destructive' });
+      toast({
+        title: t('common:titles.validationError'),
+        description: t('messages.nameRequired'),
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -47,20 +53,29 @@ export default function PlantsPage() {
       onSuccess: () => {
         setNewPlant({ name: '', notes: '', nasDirectory: '', pswPhrase: '', pswPlatform: '', pswStation: '' });
         setIsCreateOpen(false);
-        toast({ title: 'Success', description: 'Plant created successfully' });
+        toast({
+          title: t('common:titles.success'),
+          description: t('messages.createSuccessDescription'),
+        });
       },
       onError: (error: any) => {
-        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        toast({
+          title: t('common:titles.error'),
+          description: error.message,
+          variant: 'destructive',
+        });
       }
     });
   };
 
-  if (isLoading) return <LoadingSpinner message="Loading plants..." />;
+  if (isLoading) return <LoadingSpinner message={t('messages.loading')} />;
   if (error) return (
     <div className="flex items-center justify-center py-12">
       <Card className="border-destructive">
         <CardContent className="pt-6">
-          <p className="text-destructive">Error loading plants: {(error as Error).message}</p>
+          <p className="text-destructive">
+            {t('messages.error')}: {(error as Error).message}
+          </p>
         </CardContent>
       </Card>
     </div>
@@ -69,59 +84,62 @@ export default function PlantsPage() {
   const handleSaveComplete = () => {
     setNewPlant({ name: '', notes: '', nasDirectory: '', pswPhrase: '', pswPlatform: '', pswStation: '' });
     setIsCreateOpen(false);
-    toast({ title: 'Success', description: 'Plant created successfully' });
+    toast({
+      title: t('common:titles.success'),
+      description: t('messages.createSuccessDescription'),
+    });
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Plants</h1>
-          <p className="text-muted-foreground">Manage your plant facilities</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
+          <p className="text-muted-foreground">{t('subtitle')}</p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Add Plant
+              {t('createButton')}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Create New Plant</DialogTitle>
-              <DialogDescription>Add a new plant facility to the system</DialogDescription>
+              <DialogTitle>{t('form.createTitle')}</DialogTitle>
+              <DialogDescription>{t('form.createDescription')}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">{t('form.nameLabel')}</Label>
                 <Input
                   id="name"
                   value={newPlant.name}
                   onChange={(e) => setNewPlant({ ...newPlant, name: e.target.value })}
-                  placeholder="Plant name"
+                  placeholder={t('form.namePlaceholder')}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="notes">Notes</Label>
+                <Label htmlFor="notes">{t('form.notesLabel')}</Label>
                 <Textarea
                   id="notes"
                   value={newPlant.notes}
                   onChange={(e) => setNewPlant({ ...newPlant, notes: e.target.value })}
-                  placeholder="Additional notes"
+                  placeholder={t('form.notesPlaceholder')}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="nasDirectory">NAS Directory</Label>
+                <Label htmlFor="nasDirectory">{t('form.nasDirectoryLabel')}</Label>
                 <Input
                   id="nasDirectory"
                   value={newPlant.nasDirectory}
                   onChange={(e) => setNewPlant({ ...newPlant, nasDirectory: e.target.value })}
-                  placeholder="/nas/path"
+                  placeholder={t('form.nasDirectoryPlaceholder')}
                 />
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-2">
-                  <Label htmlFor="pswPhrase">PSW Phrase</Label>
+                  <Label htmlFor="pswPhrase">{t('form.pswPhraseLabel')}</Label>
                   <Input
                     id="pswPhrase"
                     type="password"
@@ -130,7 +148,7 @@ export default function PlantsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="pswPlatform">PSW Platform</Label>
+                  <Label htmlFor="pswPlatform">{t('form.pswPlatformLabel')}</Label>
                   <Input
                     id="pswPlatform"
                     type="password"
@@ -139,7 +157,7 @@ export default function PlantsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="pswStation">PSW Station</Label>
+                  <Label htmlFor="pswStation">{t('form.pswStationLabel')}</Label>
                   <Input
                     id="pswStation"
                     type="password"
@@ -150,8 +168,10 @@ export default function PlantsPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
-              <Button onClick={handleCreatePlant}>Create</Button>
+              <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
+                {t('common:actions.cancel')}
+              </Button>
+              <Button onClick={handleCreatePlant}>{t('common:actions.create')}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -160,7 +180,7 @@ export default function PlantsPage() {
       <div className="grid gap-4 md:grid-cols-1 max-w-xs">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Plants</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stats.total')}</CardTitle>
             <Factory className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -171,15 +191,15 @@ export default function PlantsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Plants</CardTitle>
-          <CardDescription>A list of all plant facilities</CardDescription>
+          <CardTitle>{t('list.title')}</CardTitle>
+          <CardDescription>{t('list.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search plants..."
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-8"
@@ -190,8 +210,8 @@ export default function PlantsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>NAS Directory</TableHead>
+                  <TableHead>{t('columns.name')}</TableHead>
+                  <TableHead>{t('columns.nasDirectory')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -208,7 +228,7 @@ export default function PlantsPage() {
                 {filteredPlants.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={2} className="text-center text-muted-foreground">
-                      No plants found
+                      {t('messages.noPlants')}
                     </TableCell>
                   </TableRow>
                 )}

@@ -30,6 +30,7 @@
   "form": {
     "createTitle": "Create New Ticket",
     "createDescription": "Create a new support ticket. Fill in the details below.",
+    "editTitle": "Edit Ticket",
     "nameLabel": "Ticket Name",
     "namePlaceholder": "Enter ticket name",
     "senderEmailLabel": "Sender Email",
@@ -61,14 +62,29 @@
   "actions": {
     "edit": "Edit",
     "delete": "Delete",
-    "changeStatus": "Change Status"
+    "changeStatus": "Change Status",
+    "createWork": "Create Work",
+    "createWorkFromTicket": "Create Work from Ticket"
+  },
+  "dialogs": {
+    "deleteTitle": "Delete Ticket",
+    "deleteDescription": "Are you sure you want to delete this ticket? This action cannot be undone."
   },
   "messages": {
     "loading": "Loading tickets...",
+    "loadingDetail": "Loading ticket...",
     "noTickets": "No tickets found",
     "noTicketsFilters": "No tickets match your current filters.",
     "error": "Error loading tickets",
+    "errorDetail": "Error loading ticket",
     "createSuccess": "Ticket Created",
-    "created": "has been created successfully"
+    "created": "has been created successfully",
+    "statusUpdatedTitle": "Status Updated",
+    "statusUpdatedDescription": "Ticket status changed to {{status}}.",
+    "updateSuccessTitle": "Ticket Updated",
+    "updateSuccessDescription": "The ticket has been updated successfully.",
+    "deleteSuccessTitle": "Ticket Deleted",
+    "deleteSuccessDescription": "The ticket has been deleted.",
+    "notProvided": "Not provided"
   }
 }

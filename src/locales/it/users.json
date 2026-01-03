@@ -4,6 +4,7 @@
   "createButton": "Crea Utente",
   "searchPlaceholder": "Cerca utenti...",
   "columns": {
+    "user": "Utente",
     "name": "Nome",
     "email": "Email",
     "role": "Ruolo",
@@ -20,6 +21,16 @@
     "ADMINISTRATION": "Amministrazione",
     "SELLER": "Venditore"
   },
+  "stats": {
+    "total": "Totale utenti",
+    "sellers": "Venditori",
+    "technicians": "Tecnici",
+    "administration": "Amministrazione"
+  },
+  "accessDenied": {
+    "title": "Accesso negato",
+    "description": "Non hai i permessi per accedere a questa pagina. Solo amministratori e proprietari possono gestire gli utenti."
+  },
   "details": {
     "title": "Dettagli Utente",
     "information": "Informazioni",
@@ -33,7 +44,9 @@
   },
   "form": {
     "createTitle": "Crea Nuovo Utente",
+    "createDescription": "Aggiungi un nuovo utente al sistema. Riceverà una notifica email.",
     "editTitle": "Modifica Utente",
+    "editDescription": "Aggiorna le informazioni dell'utente.",
     "firstNameLabel": "Nome",
     "firstNamePlaceholder": "Inserisci il nome",
     "lastNameLabel": "Cognome",
@@ -45,9 +58,20 @@
     "roleLabel": "Ruolo",
     "typeLabel": "Tipo Utente"
   },
+  "actions": {
+    "saveChanges": "Salva modifiche"
+  },
+  "dialogs": {
+    "deleteTitle": "Elimina utente",
+    "deleteDescription": "Sei sicuro di voler eliminare {{name}}? Questa azione non può essere annullata."
+  },
   "messages": {
     "loading": "Caricamento utenti...",
     "noUsers": "Nessun utente trovato",
-    "error": "Errore nel caricamento degli utenti"
+    "error": "Errore nel caricamento degli utenti",
+    "validationRequired": "Compila tutti i campi obbligatori.",
+    "createSuccessDescription": "{{name}} è stato creato con successo.",
+    "updateSuccessDescription": "{{name}} è stato aggiornato.",
+    "deleteSuccessDescription": "{{name}} è stato eliminato."
   }
 }

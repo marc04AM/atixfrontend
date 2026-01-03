@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -111,6 +112,7 @@ const getPlantDirectory = (work: Work, plantsById?: Map<string, Plant>): string 
 
 export default function WorksPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation('works');
 
   const [activeTab, setActiveTab] = useState('open');
   const [currentPage, setCurrentPage] = useState(0);
@@ -250,7 +252,7 @@ export default function WorksPage() {
   };
 
   if (worksLoading) {
-    return <LoadingSpinner message="Loading works..." />;
+    return <LoadingSpinner message={t('messages.loading')} />;
   }
 
   if (worksError) {
@@ -258,7 +260,9 @@ export default function WorksPage() {
       <div className="flex items-center justify-center py-12">
         <Card className="border-destructive">
           <CardContent className="pt-6">
-            <p className="text-destructive">Error loading works: {(worksError as Error).message}</p>
+            <p className="text-destructive">
+              {t('messages.error')}: {(worksError as Error).message}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -270,14 +274,12 @@ export default function WorksPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Works</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage work orders and projects
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('subtitle')}</p>
         </div>
         <Button onClick={() => navigate('/works/new')}>
           <Plus className="h-4 w-4 mr-2" />
-          New Work
+          {t('createButton')}
         </Button>
       </div>
 
@@ -286,10 +288,10 @@ export default function WorksPage() {
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <TabsList>
             <TabsTrigger value="open">
-              Open ({openWorksCount})
+              {t('tabs.open')} ({openWorksCount})
             </TabsTrigger>
             <TabsTrigger value="closed">
-              Closed ({closedWorksCount})
+              {t('tabs.closed')} ({closedWorksCount})
             </TabsTrigger>
           </TabsList>
 
@@ -298,7 +300,7 @@ export default function WorksPage() {
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search works..."
+                placeholder={t('searchPlaceholder')}
                 className="pl-9"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -322,13 +324,13 @@ export default function WorksPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {/* Atix Client */}
                 <div>
-                  <Label className="mb-2 block text-sm">Atix Client</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.atixClient')}</Label>
                   <Select value={filters.atixClientId || "__all__"} onValueChange={(v) => setFilters({...filters, atixClientId: v === "__all__" ? "" : v})}>
                     <SelectTrigger>
-                      <SelectValue placeholder="All" />
+                      <SelectValue placeholder={t('filters.all')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__all__">All</SelectItem>
+                      <SelectItem value="__all__">{t('filters.all')}</SelectItem>
                       {clients.filter((c: any) => c.type === 'ATIX').map((c: any) => (
                         <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}
@@ -338,13 +340,13 @@ export default function WorksPage() {
 
                 {/* Final Client */}
                 <div>
-                  <Label className="mb-2 block text-sm">Final Client</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.finalClient')}</Label>
                   <Select value={filters.finalClientId || "__all__"} onValueChange={(v) => setFilters({...filters, finalClientId: v === "__all__" ? "" : v})}>
                     <SelectTrigger>
-                      <SelectValue placeholder="All" />
+                      <SelectValue placeholder={t('filters.all')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__all__">All</SelectItem>
+                      <SelectItem value="__all__">{t('filters.all')}</SelectItem>
                       {clients.filter((c: any) => c.type === 'FINAL').map((c: any) => (
                         <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}
@@ -354,13 +356,13 @@ export default function WorksPage() {
 
                 {/* Plant */}
                 <div>
-                  <Label className="mb-2 block text-sm">Plant</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.plant')}</Label>
                   <Select value={filters.plantId || "__all__"} onValueChange={(v) => setFilters({...filters, plantId: v === "__all__" ? "" : v})}>
                     <SelectTrigger>
-                      <SelectValue placeholder="All" />
+                      <SelectValue placeholder={t('filters.all')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__all__">All</SelectItem>
+                      <SelectItem value="__all__">{t('filters.all')}</SelectItem>
                       {plants.map((p: any) => (
                         <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                       ))}
@@ -370,13 +372,13 @@ export default function WorksPage() {
 
                 {/* Seller */}
                 <div>
-                  <Label className="mb-2 block text-sm">Seller</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.seller')}</Label>
                   <Select value={filters.sellerId || "__all__"} onValueChange={(v) => setFilters({...filters, sellerId: v === "__all__" ? "" : v})}>
                     <SelectTrigger>
-                      <SelectValue placeholder="All" />
+                      <SelectValue placeholder={t('filters.all')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__all__">All</SelectItem>
+                      <SelectItem value="__all__">{t('filters.all')}</SelectItem>
                       {sellers.map((s: any) => (
                         <SelectItem key={s.id} value={s.id}>{s.firstName} {s.lastName}</SelectItem>
                       ))}
@@ -386,13 +388,13 @@ export default function WorksPage() {
 
                 {/* Technician */}
                 <div>
-                  <Label className="mb-2 block text-sm">Technician</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.technician')}</Label>
                   <Select value={filters.technicianId || "__all__"} onValueChange={(v) => setFilters({...filters, technicianId: v === "__all__" ? "" : v})}>
                     <SelectTrigger>
-                      <SelectValue placeholder="All" />
+                      <SelectValue placeholder={t('filters.all')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__all__">All</SelectItem>
+                      <SelectItem value="__all__">{t('filters.all')}</SelectItem>
                       {technicians.map((t: any) => (
                         <SelectItem key={t.id} value={t.id}>{t.firstName} {t.lastName}</SelectItem>
                       ))}
@@ -402,13 +404,13 @@ export default function WorksPage() {
 
                 {/* Ticket */}
                 <div>
-                  <Label className="mb-2 block text-sm">Ticket</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.ticket')}</Label>
                   <Select value={filters.ticketId || "__all__"} onValueChange={(v) => setFilters({...filters, ticketId: v === "__all__" ? "" : v})}>
                     <SelectTrigger>
-                      <SelectValue placeholder="All" />
+                      <SelectValue placeholder={t('filters.all')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__all__">All</SelectItem>
+                      <SelectItem value="__all__">{t('filters.all')}</SelectItem>
                       {tickets.map((t: any) => (
                         <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
                       ))}
@@ -418,22 +420,22 @@ export default function WorksPage() {
 
                 {/* Invoiced */}
                 <div>
-                  <Label className="mb-2 block text-sm">Invoiced</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.invoiced')}</Label>
                   <Select value={filters.invoiced || "__all__"} onValueChange={(v) => setFilters({...filters, invoiced: v === "__all__" ? "" : v})}>
                     <SelectTrigger>
-                      <SelectValue placeholder="All" />
+                      <SelectValue placeholder={t('filters.all')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__all__">All</SelectItem>
-                      <SelectItem value="true">Invoiced</SelectItem>
-                      <SelectItem value="false">Not Invoiced</SelectItem>
+                      <SelectItem value="__all__">{t('filters.all')}</SelectItem>
+                      <SelectItem value="true">{t('filters.invoicedYes')}</SelectItem>
+                      <SelectItem value="false">{t('filters.invoicedNo')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 {/* Order Date From */}
                 <div>
-                  <Label className="mb-2 block text-sm">Order Date From</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.orderDateFrom')}</Label>
                   <Input
                     type="date"
                     value={filters.orderDateFrom}
@@ -443,7 +445,7 @@ export default function WorksPage() {
 
                 {/* Order Date To */}
                 <div>
-                  <Label className="mb-2 block text-sm">Order Date To</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.orderDateTo')}</Label>
                   <Input
                     type="date"
                     value={filters.orderDateTo}
@@ -453,7 +455,7 @@ export default function WorksPage() {
 
                 {/* Expected Start From */}
                 <div>
-                  <Label className="mb-2 block text-sm">Expected Start From</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.expectedStartFrom')}</Label>
                   <Input
                     type="date"
                     value={filters.expectedStartDateFrom}
@@ -463,7 +465,7 @@ export default function WorksPage() {
 
                 {/* Expected Start To */}
                 <div>
-                  <Label className="mb-2 block text-sm">Expected Start To</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.expectedStartTo')}</Label>
                   <Input
                     type="date"
                     value={filters.expectedStartDateTo}
@@ -473,9 +475,9 @@ export default function WorksPage() {
 
                 {/* Name */}
                 <div>
-                  <Label className="mb-2 block text-sm">Name</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.name')}</Label>
                   <Input
-                    placeholder="Search name..."
+                    placeholder={t('placeholders.searchName')}
                     value={filters.name}
                     onChange={(e) => setFilters({...filters, name: e.target.value})}
                   />
@@ -483,9 +485,9 @@ export default function WorksPage() {
 
                 {/* Bid Number */}
                 <div>
-                  <Label className="mb-2 block text-sm">Bid Number</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.bidNumber')}</Label>
                   <Input
-                    placeholder="Search bid..."
+                    placeholder={t('placeholders.searchBid')}
                     value={filters.bidNumber}
                     onChange={(e) => setFilters({...filters, bidNumber: e.target.value})}
                   />
@@ -493,9 +495,9 @@ export default function WorksPage() {
 
                 {/* Order Number */}
                 <div>
-                  <Label className="mb-2 block text-sm">Order Number</Label>
+                  <Label className="mb-2 block text-sm">{t('filters.orderNumber')}</Label>
                   <Input
-                    placeholder="Search order..."
+                    placeholder={t('placeholders.searchOrder')}
                     value={filters.orderNumber}
                     onChange={(e) => setFilters({...filters, orderNumber: e.target.value})}
                   />
@@ -505,7 +507,7 @@ export default function WorksPage() {
                 <div className="flex items-end">
                   <Button variant="ghost" size="sm" onClick={clearFilters} disabled={!hasActiveFilters}>
                     <X className="h-4 w-4 mr-1" />
-                    Clear filters
+                    {t('filters.clear')}
                   </Button>
                 </div>
               </div>
@@ -566,6 +568,7 @@ function WorksPagination({
   pageSize: number;
   onPageChange: (page: number) => void;
 }) {
+  const { t } = useTranslation('works');
   const startItem = currentPage * pageSize + 1;
   const endItem = Math.min((currentPage + 1) * pageSize, totalElements);
 
@@ -591,7 +594,7 @@ function WorksPagination({
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
       <p className="text-sm text-muted-foreground">
-        Showing {startItem}-{endItem} of {totalElements} works
+        {t('pagination.showing', { start: startItem, end: endItem, total: totalElements })}
       </p>
       <Pagination>
         <PaginationContent>
@@ -635,6 +638,7 @@ function WorksList({
   clientsById: Map<string, Client>;
   plantsById: Map<string, Plant>;
 }) {
+  const { t } = useTranslation('works');
   // Generate work index (e.g., "nasplant1work1")
   const getWorkIndex = (work: Work): string => {
     const plantDir = getPlantDirectory(work, plantsById);
@@ -647,10 +651,8 @@ function WorksList({
       <Card>
         <CardContent className="py-12 text-center">
           <Briefcase className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium">No works found</h3>
-          <p className="text-muted-foreground mt-1">
-            No works match your current filters.
-          </p>
+          <h3 className="text-lg font-medium">{t('messages.noWorks')}</h3>
+          <p className="text-muted-foreground mt-1">{t('messages.noWorksFilters')}</p>
         </CardContent>
       </Card>
     );
@@ -679,25 +681,25 @@ function WorksList({
                     </Badge>
                     <h3 className="font-medium">{work.name}</h3>
                     {work.completed ? (
-                      <Badge
-                        variant="outline"
-                        className="border-emerald-600 bg-emerald-600/10 text-emerald-700 dark:border-emerald-400 dark:bg-emerald-400/10 dark:text-emerald-300"
-                      >
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                        Completed
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="border-primary text-primary">
-                        <Clock className="h-3 w-3 mr-1" />
-                        In Progress
-                      </Badge>
-                    )}
-                    {work.invoiced && (
-                      <Badge variant="secondary">
-                        <TrendingUp className="h-3 w-3 mr-1" />
-                        Invoiced
-                      </Badge>
-                    )}
+                    <Badge
+                      variant="outline"
+                      className="border-emerald-600 bg-emerald-600/10 text-emerald-700 dark:border-emerald-400 dark:bg-emerald-400/10 dark:text-emerald-300"
+                    >
+                      <CheckCircle2 className="h-3 w-3 mr-1" />
+                      {t('badges.completed')}
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="border-primary text-primary">
+                      <Clock className="h-3 w-3 mr-1" />
+                      {t('badges.inProgress')}
+                    </Badge>
+                  )}
+                  {work.invoiced && (
+                    <Badge variant="secondary">
+                      <TrendingUp className="h-3 w-3 mr-1" />
+                      {t('badges.invoiced')}
+                    </Badge>
+                  )}
                   </div>
                   <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
                     {expectedStartDateLabel && (
@@ -732,7 +734,7 @@ function WorksList({
                   <div className="text-center">
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
                       <BarChart3 className="h-3 w-3" />
-                      Electrical
+                      {t('progress.electrical')}
                     </div>
                     <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
                       <div
@@ -745,7 +747,7 @@ function WorksList({
                   <div className="text-center">
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
                       <BarChart3 className="h-3 w-3" />
-                      Programming
+                      {t('progress.programming')}
                     </div>
                     <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
                       <div

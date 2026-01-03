@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { User, Mail, Lock, Camera, Save } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +14,7 @@ import { useUpdateUser, useUpdatePassword, useUploadAvatar, useUsers } from '@/h
 export default function ProfilePage() {
   const { toast } = useToast();
   const { user, updateUser: updateAuthUser } = useAuth();
+  const { t } = useTranslation(['profile', 'users']);
 
   const updateUser = useUpdateUser();
   const updatePassword = useUpdatePassword();
@@ -66,7 +68,11 @@ export default function ProfilePage() {
     const file = event.target.files?.[0];
     if (!file) return;
     if (!currentUserId) {
-      toast({ title: 'Error', description: 'User ID not available', variant: 'destructive' });
+      toast({
+        title: t('common:titles.error'),
+        description: t('messages.userIdMissing'),
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -89,12 +95,19 @@ export default function ProfilePage() {
             updateAuthUser({ profileImageUrl: nextUrl });
             setProfileData((prev) => ({ ...prev, profileImageUrl: nextUrl }));
           }
-          toast({ title: 'Success', description: 'Avatar updated successfully' });
+          toast({
+            title: t('common:titles.success'),
+            description: t('messages.avatarUpdated'),
+          });
           setIsUploadingAvatar(false);
         },
         onError: (error: any) => {
           setProfileData((prev) => ({ ...prev, profileImageUrl: previousUrl }));
-          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+          toast({
+            title: t('common:titles.error'),
+            description: error.message,
+            variant: 'destructive',
+          });
           setIsUploadingAvatar(false);
         }
       }
@@ -103,11 +116,19 @@ export default function ProfilePage() {
 
   const handleProfileUpdate = () => {
     if (!currentUserId) {
-      toast({ title: 'Error', description: 'User ID not available', variant: 'destructive' });
+      toast({
+        title: t('common:titles.error'),
+        description: t('messages.userIdMissing'),
+        variant: 'destructive',
+      });
       return;
     }
     if (!profileData.firstName || !profileData.lastName || !profileData.email) {
-      toast({ title: 'Error', description: 'All fields are required', variant: 'destructive' });
+      toast({
+        title: t('common:titles.validationError'),
+        description: t('messages.fieldsRequired'),
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -137,11 +158,18 @@ export default function ProfilePage() {
             lastName: nextLastName,
             email: nextEmail,
           }));
-          toast({ title: 'Success', description: 'Profile updated successfully' });
+          toast({
+            title: t('common:titles.success'),
+            description: t('messages.updateSuccess'),
+          });
           setIsUpdatingProfile(false);
         },
         onError: (error: any) => {
-          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+          toast({
+            title: t('common:titles.error'),
+            description: error.message,
+            variant: 'destructive',
+          });
           setIsUpdatingProfile(false);
         }
       }
@@ -151,21 +179,37 @@ export default function ProfilePage() {
   const handlePasswordUpdate = () => {
     const userId = currentUserId ?? user?.id;
     if (!userId) {
-      toast({ title: 'Error', description: 'User ID not available', variant: 'destructive' });
+      toast({
+        title: t('common:titles.error'),
+        description: t('messages.userIdMissing'),
+        variant: 'destructive',
+      });
       return;
     }
     if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
-      toast({ title: 'Error', description: 'All password fields are required', variant: 'destructive' });
+      toast({
+        title: t('common:titles.validationError'),
+        description: t('messages.passwordFieldsRequired'),
+        variant: 'destructive',
+      });
       return;
     }
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast({ title: 'Error', description: 'New passwords do not match', variant: 'destructive' });
+      toast({
+        title: t('common:titles.validationError'),
+        description: t('messages.passwordMismatch'),
+        variant: 'destructive',
+      });
       return;
     }
 
     if (passwordData.newPassword.length < 8) {
-      toast({ title: 'Error', description: 'Password must be at least 8 characters', variant: 'destructive' });
+      toast({
+        title: t('common:titles.validationError'),
+        description: t('messages.passwordMinLength', { min: 8 }),
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -180,12 +224,19 @@ export default function ProfilePage() {
       },
       {
         onSuccess: () => {
-          toast({ title: 'Success', description: 'Password updated successfully' });
+          toast({
+            title: t('common:titles.success'),
+            description: t('messages.passwordUpdateSuccess'),
+          });
           setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
           setIsUpdatingPassword(false);
         },
         onError: (error: any) => {
-          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+          toast({
+            title: t('common:titles.error'),
+            description: error.message,
+            variant: 'destructive',
+          });
           setIsUpdatingPassword(false);
         }
       }
@@ -195,8 +246,8 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
-        <p className="text-muted-foreground">Manage your account settings</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
+        <p className="text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       {/* Profile Image & Basic Info */}
@@ -204,9 +255,9 @@ export default function ProfilePage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            Personal Information
+            {t('general.title')}
           </CardTitle>
-          <CardDescription>Update your profile information</CardDescription>
+          <CardDescription>{t('general.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Avatar Upload */}
@@ -233,7 +284,7 @@ export default function ProfilePage() {
               <p className="font-medium">{profileData.firstName} {profileData.lastName}</p>
               <p className="text-sm text-muted-foreground">{profileData.email}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Role: {user?.role} • Type: {user?.type || 'N/A'}
+                {t('general.role')}: {user?.role ? t(`users:roles.${user.role}`) : t('common:messages.notSet')} • {t('general.type')}: {user?.type ? t(`users:types.${user.type}`) : t('common:messages.notSet')}
               </p>
             </div>
           </div>
@@ -244,7 +295,7 @@ export default function ProfilePage() {
           <div className="grid gap-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
+                <Label htmlFor="firstName">{t('general.firstName')}</Label>
                 <Input
                   id="firstName"
                   value={profileData.firstName}
@@ -252,7 +303,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
+                <Label htmlFor="lastName">{t('general.lastName')}</Label>
                 <Input
                   id="lastName"
                   value={profileData.lastName}
@@ -261,7 +312,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('general.email')}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -277,7 +328,7 @@ export default function ProfilePage() {
 
           <Button onClick={handleProfileUpdate} disabled={isUpdatingProfile} className="w-full">
             <Save className="mr-2 h-4 w-4" />
-            {isUpdatingProfile ? 'Saving...' : 'Save Changes'}
+            {isUpdatingProfile ? t('common:messages.saving') : t('actions.save')}
           </Button>
         </CardContent>
       </Card>
@@ -287,13 +338,13 @@ export default function ProfilePage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lock className="h-5 w-5" />
-            Change Password
+            {t('security.title')}
           </CardTitle>
-          <CardDescription>Update your password for security</CardDescription>
+          <CardDescription>{t('security.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="currentPassword">Current Password</Label>
+            <Label htmlFor="currentPassword">{t('security.currentPassword')}</Label>
             <Input
               id="currentPassword"
               type="password"
@@ -303,7 +354,7 @@ export default function ProfilePage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
+              <Label htmlFor="newPassword">{t('security.newPassword')}</Label>
               <Input
                 id="newPassword"
                 type="password"
@@ -312,7 +363,7 @@ export default function ProfilePage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">{t('security.confirmPassword')}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -328,7 +379,7 @@ export default function ProfilePage() {
             className="w-full"
           >
             <Lock className="mr-2 h-4 w-4" />
-            {isUpdatingPassword ? 'Updating...' : 'Update Password'}
+            {isUpdatingPassword ? t('security.updatingPassword') : t('security.updatePassword')}
           </Button>
         </CardContent>
       </Card>

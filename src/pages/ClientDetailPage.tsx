@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Edit, Trash2, Save, X, Building2, User, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,7 @@ export default function ClientDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation(['clients', 'works']);
 
   const { data: client, isLoading, error } = useClient(id!);
   const updateClient = useUpdateClient();
@@ -42,7 +44,11 @@ export default function ClientDetailPage() {
   const handleSave = () => {
     if (!client || !editedClient) return;
     if (!editedClient.name.trim()) {
-      toast({ title: 'Error', description: 'Name is required', variant: 'destructive' });
+      toast({
+        title: t('common:titles.validationError'),
+        description: t('messages.nameRequired'),
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -51,10 +57,17 @@ export default function ClientDetailPage() {
       {
         onSuccess: () => {
           setIsEditing(false);
-          toast({ title: 'Success', description: 'Client updated successfully' });
+          toast({
+            title: t('common:titles.updated'),
+            description: t('messages.updateSuccessDescription'),
+          });
         },
         onError: (error: any) => {
-          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+          toast({
+            title: t('common:titles.error'),
+            description: error.message,
+            variant: 'destructive',
+          });
         }
       }
     );
@@ -72,21 +85,30 @@ export default function ClientDetailPage() {
 
     deleteClient.mutate(client.id, {
       onSuccess: () => {
-        toast({ title: 'Deleted', description: 'Client has been deleted' });
+        toast({
+          title: t('common:titles.deleted'),
+          description: t('messages.deleteSuccessDescription'),
+        });
         navigate('/clients');
       },
       onError: (error: any) => {
-        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        toast({
+          title: t('common:titles.error'),
+          description: error.message,
+          variant: 'destructive',
+        });
       }
     });
   };
 
-  if (isLoading) return <LoadingSpinner message="Loading client..." />;
+  if (isLoading) return <LoadingSpinner message={t('messages.loadingDetail')} />;
   if (error) return (
     <div className="flex items-center justify-center py-12">
       <Card className="border-destructive">
         <CardContent className="pt-6">
-          <p className="text-destructive">Error loading client: {(error as Error).message}</p>
+          <p className="text-destructive">
+            {t('messages.errorDetail')}: {(error as Error).message}
+          </p>
         </CardContent>
       </Card>
     </div>
@@ -103,7 +125,7 @@ export default function ClientDetailPage() {
           </Button>
           <div className="min-w-0">
             <h1 className="text-xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">Client details and linked works</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">{t('details.subtitle')}</p>
           </div>
         </div>
         <div className="flex gap-2 shrink-0">
@@ -113,13 +135,13 @@ export default function ClientDetailPage() {
                 <X className="h-4 w-4" />
               </Button>
               <Button variant="outline" size="sm" className="hidden sm:flex" onClick={handleCancel}>
-                <X className="mr-2 h-4 w-4" /> Cancel
+                <X className="mr-2 h-4 w-4" /> {t('common:actions.cancel')}
               </Button>
               <Button size="icon" className="sm:hidden" onClick={handleSave}>
                 <Save className="h-4 w-4" />
               </Button>
               <Button size="sm" className="hidden sm:flex" onClick={handleSave}>
-                <Save className="mr-2 h-4 w-4" /> Save
+                <Save className="mr-2 h-4 w-4" /> {t('common:actions.save')}
               </Button>
             </>
           ) : (
@@ -128,7 +150,7 @@ export default function ClientDetailPage() {
                 <Edit className="h-4 w-4" />
               </Button>
               <Button variant="outline" size="sm" className="hidden sm:flex" onClick={() => setIsEditing(true)}>
-                <Edit className="mr-2 h-4 w-4" /> Edit
+                <Edit className="mr-2 h-4 w-4" /> {t('common:actions.edit')}
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -138,20 +160,17 @@ export default function ClientDetailPage() {
                 </AlertDialogTrigger>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive" size="sm" className="hidden sm:flex">
-                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                    <Trash2 className="mr-2 h-4 w-4" /> {t('common:actions.delete')}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Client?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete the client
-                      and remove all associated data.
-                    </AlertDialogDescription>
+                    <AlertDialogTitle>{t('dialogs.deleteTitle')}</AlertDialogTitle>
+                    <AlertDialogDescription>{t('dialogs.deleteDescription')}</AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                    <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete}>{t('common:actions.delete')}</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
@@ -165,14 +184,14 @@ export default function ClientDetailPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             {client.type === 'ATIX' ? <Building2 className="h-5 w-5" /> : <User className="h-5 w-5" />}
-            Client Information
+            {t('details.informationTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {isEditing ? (
             <>
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">{t('details.name')}</Label>
                 <Input
                   id="name"
                   value={editedClient.name}
@@ -180,7 +199,7 @@ export default function ClientDetailPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="type">Type</Label>
+                <Label htmlFor="type">{t('details.type')}</Label>
                 <Select
                   value={editedClient.type}
                   onValueChange={(value: ClientType) => setEditedClient({ ...editedClient, type: value })}
@@ -189,8 +208,8 @@ export default function ClientDetailPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ATIX">ATIX</SelectItem>
-                    <SelectItem value="FINAL">Final</SelectItem>
+                    <SelectItem value="ATIX">{t('types.ATIX')}</SelectItem>
+                    <SelectItem value="FINAL">{t('types.FINAL')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -198,13 +217,13 @@ export default function ClientDetailPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <p className="text-sm text-muted-foreground">Name</p>
+                <p className="text-sm text-muted-foreground">{t('details.name')}</p>
                 <p className="font-medium">{client.name}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Type</p>
+                <p className="text-sm text-muted-foreground">{t('details.type')}</p>
                 <Badge variant={client.type === 'ATIX' ? 'default' : 'secondary'}>
-                  {client.type}
+                  {client.type === 'ATIX' ? t('types.ATIX') : t('types.FINAL')}
                 </Badge>
               </div>
             </div>
@@ -217,22 +236,22 @@ export default function ClientDetailPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Briefcase className="h-5 w-5" />
-            Linked Works
+            {t('details.associatedWorks')}
           </CardTitle>
-          <CardDescription>Works associated with this client</CardDescription>
+          <CardDescription>{t('details.associatedWorksDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           {linkedWorks.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">No linked works</p>
+            <p className="text-sm text-muted-foreground text-center py-4">{t('details.noAssociatedWorks')}</p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead className="hidden sm:table-cell">Order Number</TableHead>
-                    <TableHead className="hidden sm:table-cell">Order Date</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>{t('common:fields.name')}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{t('works:details.orderNumber')}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{t('works:details.orderDate')}</TableHead>
+                    <TableHead>{t('common:fields.status')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -244,14 +263,14 @@ export default function ClientDetailPage() {
                     >
                       <TableCell className="font-medium">{work.name}</TableCell>
                       <TableCell className="hidden sm:table-cell">{work.orderNumber}</TableCell>
-                      <TableCell className="hidden sm:table-cell">{formatDate(work.orderDate, 'Not set')}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{formatDate(work.orderDate, t('common:messages.notSet'))}</TableCell>
                       <TableCell>
                         {work.invoiced ? (
-                          <Badge variant="secondary">Invoiced</Badge>
+                          <Badge variant="secondary">{t('works:badges.invoiced')}</Badge>
                         ) : work.completed ? (
-                          <Badge className="bg-chart-3 text-chart-3-foreground">Completed</Badge>
+                          <Badge className="bg-chart-3 text-chart-3-foreground">{t('works:badges.completed')}</Badge>
                         ) : (
-                          <Badge variant="outline">In Progress</Badge>
+                          <Badge variant="outline">{t('works:badges.inProgress')}</Badge>
                         )}
                       </TableCell>
                     </TableRow>

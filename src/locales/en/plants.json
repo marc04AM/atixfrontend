@@ -7,12 +7,23 @@
     "name": "Name",
     "client": "Client",
     "location": "Location",
-    "actions": "Actions"
+    "actions": "Actions",
+    "nasDirectory": "NAS Directory"
+  },
+  "stats": {
+    "total": "Total Plants"
+  },
+  "list": {
+    "title": "All Plants",
+    "description": "A list of all plant facilities"
   },
   "details": {
     "title": "Plant Details",
+    "subtitle": "Plant details and linked works",
     "information": "Information",
-    "name": "Plant Name",
+    "informationTitle": "Plant Information",
+    "credentialsTitle": "Credentials",
+    "name": "Name",
     "client": "Client",
     "address": "Address",
     "city": "City",
@@ -20,15 +31,26 @@
     "country": "Country",
     "description": "Description",
     "notes": "Notes",
+    "nasDirectory": "NAS Directory",
+    "pswPhrase": "PSW Phrase",
+    "pswPlatform": "PSW Platform",
+    "pswStation": "PSW Station",
     "createdAt": "Created at",
     "updatedAt": "Updated at",
-    "associatedWorks": "Associated Works"
+    "associatedWorks": "Associated Works",
+    "associatedWorksDescription": "Works associated with this plant",
+    "noAssociatedWorks": "No linked works"
+  },
+  "credentials": {
+    "show": "Show",
+    "hide": "Hide"
   },
   "form": {
     "createTitle": "Create New Plant",
+    "createDescription": "Add a new plant facility to the system",
     "editTitle": "Edit Plant",
-    "nameLabel": "Plant Name",
-    "namePlaceholder": "Enter plant name",
+    "nameLabel": "Name",
+    "namePlaceholder": "Plant name",
     "clientLabel": "Client",
     "clientPlaceholder": "Select a client",
     "addressLabel": "Address",
@@ -42,11 +64,26 @@
     "descriptionLabel": "Description",
     "descriptionPlaceholder": "Enter description (optional)",
     "notesLabel": "Notes",
-    "notesPlaceholder": "Add notes (optional)"
+    "notesPlaceholder": "Additional notes",
+    "nasDirectoryLabel": "NAS Directory",
+    "nasDirectoryPlaceholder": "/nas/path",
+    "pswPhraseLabel": "PSW Phrase",
+    "pswPlatformLabel": "PSW Platform",
+    "pswStationLabel": "PSW Station"
+  },
+  "dialogs": {
+    "deleteTitle": "Delete Plant?",
+    "deleteDescription": "This action cannot be undone. This will permanently delete the plant and all associated data."
   },
   "messages": {
     "loading": "Loading plants...",
+    "loadingDetail": "Loading plant...",
     "noPlants": "No plants found",
-    "error": "Error loading plants"
+    "error": "Error loading plants",
+    "errorDetail": "Error loading plant",
+    "nameRequired": "Plant name is required",
+    "createSuccessDescription": "Plant created successfully",
+    "updateSuccessDescription": "Plant updated successfully",
+    "deleteSuccessDescription": "Plant has been deleted"
   }
 }

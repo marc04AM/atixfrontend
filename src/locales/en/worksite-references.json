@@ -1,6 +1,6 @@
 {
   "title": "Worksite References",
-  "subtitle": "Manage worksite references",
+  "subtitle": "Manage worksite contacts and references",
   "createButton": "Create Reference",
   "searchPlaceholder": "Search references...",
   "columns": {
@@ -18,6 +18,9 @@
     "PAINTER": "Painter",
     "OTHER": "Other"
   },
+  "stats": {
+    "total": "Total References"
+  },
   "details": {
     "title": "Reference Details",
     "information": "Information",
@@ -32,9 +35,11 @@
   },
   "form": {
     "createTitle": "Create New Reference",
+    "createDescription": "Add a new worksite reference contact.",
     "editTitle": "Edit Reference",
+    "editDescription": "Update worksite reference information.",
     "nameLabel": "Name",
-    "namePlaceholder": "Enter name",
+    "namePlaceholder": "Mario Rossi - Plumber",
     "companyLabel": "Company",
     "companyPlaceholder": "Enter company",
     "roleLabel": "Role",
@@ -46,9 +51,17 @@
     "notesLabel": "Notes",
     "notesPlaceholder": "Add notes (optional)"
   },
+  "dialogs": {
+    "deleteTitle": "Delete Reference",
+    "deleteDescription": "Are you sure you want to delete {{name}}? This action cannot be undone."
+  },
   "messages": {
     "loading": "Loading references...",
     "noReferences": "No references found",
-    "error": "Error loading references"
+    "error": "Error loading references",
+    "validationRequired": "Please fill in the name field.",
+    "createdDescription": "{{name}} has been created successfully.",
+    "updatedDescription": "{{name}} has been updated.",
+    "deletedDescription": "{{name}} has been deleted."
   }
 }

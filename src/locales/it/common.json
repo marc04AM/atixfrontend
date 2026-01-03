@@ -40,6 +40,13 @@
     "confirmDelete": "Sei sicuro di voler eliminare questo elemento?",
     "unsavedChanges": "Hai modifiche non salvate. Vuoi continuare?"
   },
+  "titles": {
+    "error": "Errore",
+    "success": "Successo",
+    "validationError": "Errore di validazione",
+    "deleted": "Eliminato",
+    "updated": "Aggiornato"
+  },
   "fields": {
     "name": "Nome",
     "email": "Email",

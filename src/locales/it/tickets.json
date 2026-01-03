@@ -11,29 +11,30 @@
     "all": "Tutti",
     "status": "Stato",
     "allStatuses": "Tutti gli stati",
-    "senderEmail": "Email Mittente",
+    "senderEmail": "Email mittente",
     "searchEmail": "Cerca email...",
     "name": "Nome",
     "searchName": "Cerca nome...",
     "description": "Descrizione",
     "searchDescription": "Cerca descrizione...",
-    "createdFrom": "Creato Da",
-    "createdTo": "Creato Fino",
-    "clearFilters": "Cancella filtri"
+    "createdFrom": "Creato da",
+    "createdTo": "Creato fino a",
+    "clearFilters": "Pulisci filtri"
   },
   "statuses": {
     "OPEN": "Aperto",
-    "IN_PROGRESS": "In Corso",
+    "IN_PROGRESS": "In corso",
     "RESOLVED": "Risolto",
     "CLOSED": "Chiuso"
   },
   "form": {
     "createTitle": "Crea Nuovo Ticket",
     "createDescription": "Crea un nuovo ticket di supporto. Compila i dettagli qui sotto.",
+    "editTitle": "Modifica Ticket",
     "nameLabel": "Nome Ticket",
-    "namePlaceholder": "Inserisci il nome del ticket",
-    "senderEmailLabel": "Email Mittente",
-    "senderEmailPlaceholder": "mittente@esempio.com",
+    "namePlaceholder": "Inserisci nome ticket",
+    "senderEmailLabel": "Email mittente",
+    "senderEmailPlaceholder": "mittente@example.com",
     "descriptionLabel": "Descrizione",
     "descriptionPlaceholder": "Descrivi il problema o la richiesta...",
     "createButton": "Crea Ticket"
@@ -45,15 +46,15 @@
     "name": "Nome",
     "sender": "Mittente",
     "status": "Stato",
-    "createdAt": "Data Creazione",
+    "createdAt": "Creato il",
     "actions": "Azioni"
   },
   "details": {
     "title": "Dettagli Ticket",
     "information": "Informazioni",
     "description": "Descrizione",
-    "senderName": "Nome Mittente",
-    "senderEmail": "Email Mittente",
+    "senderName": "Nome mittente",
+    "senderEmail": "Email mittente",
     "status": "Stato",
     "createdAt": "Creato il",
     "updatedAt": "Aggiornato il"
@@ -61,14 +62,29 @@
   "actions": {
     "edit": "Modifica",
     "delete": "Elimina",
-    "changeStatus": "Cambia Stato"
+    "changeStatus": "Cambia stato",
+    "createWork": "Crea lavoro",
+    "createWorkFromTicket": "Crea lavoro dal ticket"
+  },
+  "dialogs": {
+    "deleteTitle": "Elimina ticket",
+    "deleteDescription": "Sei sicuro di voler eliminare questo ticket? Questa azione non può essere annullata."
   },
   "messages": {
     "loading": "Caricamento ticket...",
+    "loadingDetail": "Caricamento ticket...",
     "noTickets": "Nessun ticket trovato",
-    "noTicketsFilters": "Nessun ticket corrisponde ai filtri selezionati.",
+    "noTicketsFilters": "Nessun ticket corrisponde ai filtri.",
     "error": "Errore nel caricamento dei ticket",
-    "createSuccess": "Ticket Creato",
-    "created": "è stato creato con successo"
+    "errorDetail": "Errore nel caricamento del ticket",
+    "createSuccess": "Ticket creato",
+    "created": "è stato creato con successo",
+    "statusUpdatedTitle": "Stato aggiornato",
+    "statusUpdatedDescription": "Lo stato del ticket è stato modificato in {{status}}.",
+    "updateSuccessTitle": "Ticket aggiornato",
+    "updateSuccessDescription": "Il ticket è stato aggiornato con successo.",
+    "deleteSuccessTitle": "Ticket eliminato",
+    "deleteSuccessDescription": "Il ticket è stato eliminato.",
+    "notProvided": "Non disponibile"
   }
 }

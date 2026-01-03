@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +31,7 @@ export default function CreateWorkPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation('works');
 
   // Pre-fill from ticket if coming from ticket detail
   const ticketState = location.state as { fromTicket?: string; ticketName?: string; ticketDescription?: string } | null;
@@ -79,7 +81,11 @@ export default function CreateWorkPage() {
 
   const handleAddClient = () => {
     if (!newClient.name.trim()) {
-      toast({ title: 'Error', description: 'Client name is required', variant: 'destructive' });
+      toast({
+        title: t('common:titles.validationError'),
+        description: t('messages.clientNameRequired'),
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -90,10 +96,17 @@ export default function CreateWorkPage() {
           setFormData({ ...formData, atixClientId: data.id });
           setIsAddClientOpen(false);
           setNewClient({ name: '', type: 'ATIX' });
-          toast({ title: 'Success', description: `${data.name} has been added successfully.` });
+          toast({
+            title: t('common:titles.success'),
+            description: t('messages.clientAdded', { name: data.name }),
+          });
         },
         onError: (error: any) => {
-          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+          toast({
+            title: t('common:titles.error'),
+            description: error.message,
+            variant: 'destructive',
+          });
         }
       }
     );
@@ -101,7 +114,11 @@ export default function CreateWorkPage() {
 
   const handleAddPlant = () => {
     if (!newPlant.name.trim()) {
-      toast({ title: 'Error', description: 'Plant name is required', variant: 'destructive' });
+      toast({
+        title: t('common:titles.validationError'),
+        description: t('messages.plantNameRequired'),
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -117,10 +134,17 @@ export default function CreateWorkPage() {
           pswPlatform: '',
           pswStation: '',
         });
-        toast({ title: 'Success', description: `${data.name} has been added successfully.` });
+        toast({
+          title: t('common:titles.success'),
+          description: t('messages.plantAdded', { name: data.name }),
+        });
       },
       onError: (error: any) => {
-        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        toast({
+          title: t('common:titles.error'),
+          description: error.message,
+          variant: 'destructive',
+        });
       }
     });
   };
@@ -131,8 +155,8 @@ export default function CreateWorkPage() {
     // Validate required fields
     if (!formData.name || !formData.bidNumber || !formData.orderNumber || !formData.atixClientId || !formData.nasSubDirectory) {
       toast({
-        title: 'Validation Error',
-        description: 'Please fill in all required fields (name, bid number, order number, atix client, NAS directory).',
+        title: t('messages.validationErrorTitle'),
+        description: t('messages.validationErrorDescription'),
         variant: 'destructive',
       });
       return;
@@ -160,14 +184,14 @@ export default function CreateWorkPage() {
     createWork.mutate(workData, {
       onSuccess: (data) => {
         toast({
-          title: 'Work Created',
-          description: `Work "${data.name}" has been created successfully.`,
+          title: t('messages.createSuccessTitle'),
+          description: t('messages.createSuccessDescription', { name: data.name }),
         });
         navigate('/works');
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: t('common:titles.error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -176,7 +200,7 @@ export default function CreateWorkPage() {
   };
 
   if (loadingClients || loadingPlants || loadingSellers) {
-    return <LoadingSpinner message="Loading form data..." />;
+    return <LoadingSpinner message={t('messages.loadingForm')} />;
   }
 
   return (
@@ -187,9 +211,11 @@ export default function CreateWorkPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Create New Work</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('form.createTitle')}</h1>
           <p className="text-muted-foreground mt-1">
-            {ticketState?.fromTicket ? `Creating from ticket: ${ticketState.ticketName}` : 'Fill in the work order details'}
+            {ticketState?.fromTicket
+              ? t('create.subtitleFromTicket', { ticket: ticketState.ticketName })
+              : t('create.subtitleDefault')}
           </p>
         </div>
       </div>
@@ -199,14 +225,14 @@ export default function CreateWorkPage() {
           {/* Basic Info */}
           <Card>
             <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
+              <CardTitle>{t('sections.basicInfo')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-2">
-                <Label htmlFor="name">Work Name *</Label>
+                <Label htmlFor="name">{t('form.nameLabel')} *</Label>
                 <Input
                   id="name"
-                  placeholder="Enter work name"
+                  placeholder={t('form.namePlaceholder')}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
@@ -215,20 +241,20 @@ export default function CreateWorkPage() {
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="bidNumber">Bid Number *</Label>
+                  <Label htmlFor="bidNumber">{t('form.bidNumberLabel')} *</Label>
                   <Input
                     id="bidNumber"
-                    placeholder="BID-2024-001"
+                    placeholder={t('form.bidNumberPlaceholder')}
                     value={formData.bidNumber}
                     onChange={(e) => setFormData({ ...formData, bidNumber: e.target.value })}
                     required
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="orderNumber">Order Number *</Label>
+                  <Label htmlFor="orderNumber">{t('form.orderNumberLabel')} *</Label>
                   <Input
                     id="orderNumber"
-                    placeholder="ORD-2024-001"
+                    placeholder={t('form.orderNumberPlaceholder')}
                     value={formData.orderNumber}
                     onChange={(e) => setFormData({ ...formData, orderNumber: e.target.value })}
                     required
@@ -238,7 +264,7 @@ export default function CreateWorkPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="orderDate">Order Date *</Label>
+                  <Label htmlFor="orderDate">{t('form.orderDateLabel')} *</Label>
                   <Input
                     id="orderDate"
                     type="date"
@@ -248,7 +274,7 @@ export default function CreateWorkPage() {
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="expectedStartDate">Expected Start Date</Label>
+                  <Label htmlFor="expectedStartDate">{t('form.expectedStartDateLabel')}</Label>
                   <Input
                     id="expectedStartDate"
                     type="date"
@@ -259,10 +285,10 @@ export default function CreateWorkPage() {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="nasSubDirectory">NAS Sub Directory</Label>
+                <Label htmlFor="nasSubDirectory">{t('form.nasSubDirectoryLabel')}</Label>
                 <Input
                   id="nasSubDirectory"
-                  placeholder="/projects/work-name"
+                  placeholder={t('form.nasSubDirectoryPlaceholder')}
                   value={formData.nasSubDirectory}
                   onChange={(e) => setFormData({ ...formData, nasSubDirectory: e.target.value })}
                 />
@@ -270,7 +296,7 @@ export default function CreateWorkPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="officeHours">Expected Office Hours</Label>
+                  <Label htmlFor="officeHours">{t('form.expectedOfficeHoursLabel')}</Label>
                   <Input
                     id="officeHours"
                     type="number"
@@ -280,7 +306,7 @@ export default function CreateWorkPage() {
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="plantHours">Expected Plant Hours</Label>
+                  <Label htmlFor="plantHours">{t('form.expectedPlantHoursLabel')}</Label>
                   <Input
                     id="plantHours"
                     type="number"
@@ -296,18 +322,18 @@ export default function CreateWorkPage() {
           {/* Associations */}
           <Card>
             <CardHeader>
-              <CardTitle>Associations</CardTitle>
+              <CardTitle>{t('sections.associations')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Seller */}
               <div className="grid gap-2">
-                <Label>Seller</Label>
+                <Label>{t('form.sellerLabel')}</Label>
                 <Select
                   value={formData.sellerId}
                   onValueChange={(v) => setFormData({ ...formData, sellerId: v })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select seller (optional)" />
+                    <SelectValue placeholder={t('form.sellerPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {sellers.map((seller) => (
@@ -322,33 +348,31 @@ export default function CreateWorkPage() {
               {/* Atix Client */}
               <div className="grid gap-2">
                 <div className="flex items-center justify-between">
-                  <Label>Atix Client</Label>
+                  <Label>{t('form.atixClientLabel')}</Label>
                   <Dialog open={isAddClientOpen} onOpenChange={setIsAddClientOpen}>
                     <DialogTrigger asChild>
                       <Button type="button" variant="ghost" size="sm">
                         <Plus className="h-4 w-4 mr-1" />
-                        Add New
+                        {t('actions.addNew')}
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Add New Client</DialogTitle>
-                        <DialogDescription>
-                          Create a new client that will be available for selection.
-                        </DialogDescription>
+                        <DialogTitle>{t('dialogs.addClient.title')}</DialogTitle>
+                        <DialogDescription>{t('dialogs.addClient.description')}</DialogDescription>
                       </DialogHeader>
                       <div className="grid gap-4 py-4">
                         <div className="grid gap-2">
-                          <Label htmlFor="client-name">Client Name</Label>
+                          <Label htmlFor="client-name">{t('dialogs.addClient.nameLabel')}</Label>
                           <Input
                             id="client-name"
-                            placeholder="Enter client name"
+                            placeholder={t('dialogs.addClient.namePlaceholder')}
                             value={newClient.name}
                             onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
                           />
                         </div>
                         <div className="grid gap-2">
-                          <Label htmlFor="client-type">Client Type</Label>
+                          <Label htmlFor="client-type">{t('dialogs.addClient.typeLabel')}</Label>
                           <Select
                             value={newClient.type}
                             onValueChange={(v) => setNewClient({ ...newClient, type: v })}
@@ -357,18 +381,18 @@ export default function CreateWorkPage() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="ATIX">ATIX</SelectItem>
-                              <SelectItem value="FINAL">Final</SelectItem>
+                              <SelectItem value="ATIX">{t('dialogs.addClient.typeAtix')}</SelectItem>
+                              <SelectItem value="FINAL">{t('dialogs.addClient.typeFinal')}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                       </div>
                       <DialogFooter>
                         <Button variant="outline" onClick={() => setIsAddClientOpen(false)}>
-                          Cancel
+                          {t('common:actions.cancel')}
                         </Button>
                         <Button onClick={handleAddClient} disabled={!newClient.name}>
-                          Add Client
+                          {t('dialogs.addClient.addButton')}
                         </Button>
                       </DialogFooter>
                     </DialogContent>
@@ -379,7 +403,7 @@ export default function CreateWorkPage() {
                   onValueChange={(v) => setFormData({ ...formData, atixClientId: v })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select client" />
+                    <SelectValue placeholder={t('form.clientPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {clients.map((client) => (
@@ -393,13 +417,13 @@ export default function CreateWorkPage() {
 
               {/* Final Client */}
               <div className="grid gap-2">
-                <Label>Final Client</Label>
+                <Label>{t('form.finalClientLabel')}</Label>
                 <Select
                   value={formData.finalClientId}
                   onValueChange={(v) => setFormData({ ...formData, finalClientId: v })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select client (optional)" />
+                    <SelectValue placeholder={t('form.clientOptionalPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {clients.map((client) => (
@@ -414,52 +438,50 @@ export default function CreateWorkPage() {
               {/* Plant */}
               <div className="grid gap-2">
                 <div className="flex items-center justify-between">
-                  <Label>Plant</Label>
+                  <Label>{t('form.plantLabel')}</Label>
                   <Dialog open={isAddPlantOpen} onOpenChange={setIsAddPlantOpen}>
                     <DialogTrigger asChild>
                       <Button type="button" variant="ghost" size="sm">
                         <Plus className="h-4 w-4 mr-1" />
-                        Add New
+                        {t('actions.addNew')}
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[500px]">
                       <DialogHeader>
-                        <DialogTitle>Add New Plant</DialogTitle>
-                        <DialogDescription>
-                          Create a new plant that will be available for selection.
-                        </DialogDescription>
+                        <DialogTitle>{t('dialogs.addPlant.title')}</DialogTitle>
+                        <DialogDescription>{t('dialogs.addPlant.description')}</DialogDescription>
                       </DialogHeader>
                       <div className="grid gap-4 py-4">
                         <div className="grid gap-2">
-                          <Label htmlFor="plant-name">Plant Name *</Label>
+                          <Label htmlFor="plant-name">{t('dialogs.addPlant.nameLabel')} *</Label>
                           <Input
                             id="plant-name"
-                            placeholder="Enter plant name"
+                            placeholder={t('dialogs.addPlant.namePlaceholder')}
                             value={newPlant.name}
                             onChange={(e) => setNewPlant({ ...newPlant, name: e.target.value })}
                           />
                         </div>
                         <div className="grid gap-2">
-                          <Label htmlFor="plant-notes">Notes</Label>
+                          <Label htmlFor="plant-notes">{t('dialogs.addPlant.notesLabel')}</Label>
                           <Input
                             id="plant-notes"
-                            placeholder="Additional notes"
+                            placeholder={t('dialogs.addPlant.notesPlaceholder')}
                             value={newPlant.notes}
                             onChange={(e) => setNewPlant({ ...newPlant, notes: e.target.value })}
                           />
                         </div>
                         <div className="grid gap-2">
-                          <Label htmlFor="plant-nas">NAS Directory</Label>
+                          <Label htmlFor="plant-nas">{t('dialogs.addPlant.nasDirectoryLabel')}</Label>
                           <Input
                             id="plant-nas"
-                            placeholder="/nas/plant-name"
+                            placeholder={t('dialogs.addPlant.nasDirectoryPlaceholder')}
                             value={newPlant.nasDirectory}
                             onChange={(e) => setNewPlant({ ...newPlant, nasDirectory: e.target.value })}
                           />
                         </div>
                         <div className="grid grid-cols-3 gap-2">
                           <div className="grid gap-2">
-                            <Label htmlFor="psw-phrase">Password Phrase</Label>
+                            <Label htmlFor="psw-phrase">{t('dialogs.addPlant.pswPhraseLabel')}</Label>
                             <Input
                               id="psw-phrase"
                               type="password"
@@ -468,7 +490,7 @@ export default function CreateWorkPage() {
                             />
                           </div>
                           <div className="grid gap-2">
-                            <Label htmlFor="psw-platform">Platform PWD</Label>
+                            <Label htmlFor="psw-platform">{t('dialogs.addPlant.pswPlatformLabel')}</Label>
                             <Input
                               id="psw-platform"
                               type="password"
@@ -477,7 +499,7 @@ export default function CreateWorkPage() {
                             />
                           </div>
                           <div className="grid gap-2">
-                            <Label htmlFor="psw-station">Station PWD</Label>
+                            <Label htmlFor="psw-station">{t('dialogs.addPlant.pswStationLabel')}</Label>
                             <Input
                               id="psw-station"
                               type="password"
@@ -489,10 +511,10 @@ export default function CreateWorkPage() {
                       </div>
                       <DialogFooter>
                         <Button variant="outline" onClick={() => setIsAddPlantOpen(false)}>
-                          Cancel
+                          {t('common:actions.cancel')}
                         </Button>
                         <Button onClick={handleAddPlant} disabled={!newPlant.name}>
-                          Add Plant
+                          {t('dialogs.addPlant.addButton')}
                         </Button>
                       </DialogFooter>
                     </DialogContent>
@@ -503,7 +525,7 @@ export default function CreateWorkPage() {
                   onValueChange={(v) => setFormData({ ...formData, plantId: v })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select plant" />
+                    <SelectValue placeholder={t('form.plantSelectPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {plants.map((plant) => (
@@ -521,11 +543,11 @@ export default function CreateWorkPage() {
         {/* Submit */}
         <div className="flex justify-end gap-4 mt-6">
           <Button type="button" variant="outline" onClick={() => navigate('/works')}>
-            Cancel
+            {t('common:actions.cancel')}
           </Button>
           <Button type="submit">
             <Save className="h-4 w-4 mr-2" />
-            Create Work
+            {t('createButton')}
           </Button>
         </div>
       </form>

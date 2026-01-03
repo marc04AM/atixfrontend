@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Plus, Search, Building2, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +18,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 export default function ClientsPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation('clients');
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newClient, setNewClient] = useState({ name: '', type: 'ATIX' as ClientType });
@@ -32,7 +34,11 @@ export default function ClientsPage() {
 
   const handleCreateClient = () => {
     if (!newClient.name.trim()) {
-      toast({ title: 'Error', description: 'Client name is required', variant: 'destructive' });
+      toast({
+        title: t('common:titles.validationError'),
+        description: t('messages.nameRequired'),
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -43,20 +49,29 @@ export default function ClientsPage() {
       onSuccess: () => {
         setNewClient({ name: '', type: 'ATIX' });
         setIsCreateOpen(false);
-        toast({ title: 'Success', description: 'Client created successfully' });
+        toast({
+          title: t('common:titles.success'),
+          description: t('messages.createSuccessDescription'),
+        });
       },
       onError: (error: any) => {
-        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        toast({
+          title: t('common:titles.error'),
+          description: error.message,
+          variant: 'destructive',
+        });
       }
     });
   };
 
-  if (isLoading) return <LoadingSpinner message="Loading clients..." />;
+  if (isLoading) return <LoadingSpinner message={t('messages.loading')} />;
   if (error) return (
     <div className="flex items-center justify-center py-12">
       <Card className="border-destructive">
         <CardContent className="pt-6">
-          <p className="text-destructive">Error loading clients: {(error as Error).message}</p>
+          <p className="text-destructive">
+            {t('messages.error')}: {(error as Error).message}
+          </p>
         </CardContent>
       </Card>
     </div>
@@ -69,33 +84,33 @@ export default function ClientsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Clients</h1>
-          <p className="text-muted-foreground">Manage your clients</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
+          <p className="text-muted-foreground">{t('subtitle')}</p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Add Client
+              {t('createButton')}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create New Client</DialogTitle>
-              <DialogDescription>Add a new client to the system</DialogDescription>
+              <DialogTitle>{t('form.createTitle')}</DialogTitle>
+              <DialogDescription>{t('form.createDescription')}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">{t('form.nameLabel')}</Label>
                 <Input
                   id="name"
                   value={newClient.name}
                   onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
-                  placeholder="Client name"
+                  placeholder={t('form.namePlaceholder')}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="type">Type</Label>
+                <Label htmlFor="type">{t('form.typeLabel')}</Label>
                 <Select
                   value={newClient.type}
                   onValueChange={(value: ClientType) => setNewClient({ ...newClient, type: value })}
@@ -104,15 +119,17 @@ export default function ClientsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ATIX">ATIX</SelectItem>
-                    <SelectItem value="FINAL">Final</SelectItem>
+                    <SelectItem value="ATIX">{t('types.ATIX')}</SelectItem>
+                    <SelectItem value="FINAL">{t('types.FINAL')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
-              <Button onClick={handleCreateClient}>Create</Button>
+              <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
+                {t('common:actions.cancel')}
+              </Button>
+              <Button onClick={handleCreateClient}>{t('common:actions.create')}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -121,7 +138,7 @@ export default function ClientsPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Clients</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stats.total')}</CardTitle>
             <User className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -130,7 +147,7 @@ export default function ClientsPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">ATIX</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stats.atix')}</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -139,7 +156,7 @@ export default function ClientsPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Final</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stats.final')}</CardTitle>
             <User className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -150,15 +167,15 @@ export default function ClientsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Clients</CardTitle>
-          <CardDescription>A list of all clients in the system</CardDescription>
+          <CardTitle>{t('list.title')}</CardTitle>
+          <CardDescription>{t('list.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search clients..."
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-8"
@@ -169,8 +186,8 @@ export default function ClientsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
+                  <TableHead>{t('columns.name')}</TableHead>
+                  <TableHead>{t('columns.type')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -184,9 +201,9 @@ export default function ClientsPage() {
                     <TableCell>
                       <Badge variant={client.type === 'ATIX' ? 'default' : 'secondary'}>
                         {client.type === 'ATIX' ? (
-                          <><Building2 className="mr-1 h-3 w-3" /> ATIX</>
+                          <><Building2 className="mr-1 h-3 w-3" /> {t('types.ATIX')}</>
                         ) : (
-                          <><User className="mr-1 h-3 w-3" /> Final</>
+                          <><User className="mr-1 h-3 w-3" /> {t('types.FINAL')}</>
                         )}
                       </Badge>
                     </TableCell>
@@ -195,7 +212,7 @@ export default function ClientsPage() {
                 {filteredClients.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={2} className="text-center text-muted-foreground">
-                      No clients found
+                      {t('messages.noClients')}
                     </TableCell>
                   </TableRow>
                 )}

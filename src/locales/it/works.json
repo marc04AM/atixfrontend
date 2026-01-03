@@ -3,12 +3,37 @@
   "subtitle": "Gestisci i lavori e i progetti",
   "createButton": "Crea Lavoro",
   "searchPlaceholder": "Cerca lavori...",
+  "tabs": {
+    "open": "Aperti",
+    "closed": "Chiusi"
+  },
   "filters": {
     "all": "Tutti",
     "status": "Stato",
     "completed": "Completati",
-    "pending": "In Attesa",
-    "invoiced": "Fatturati"
+    "pending": "In attesa",
+    "invoiced": "Fatturati",
+    "atixClient": "Cliente ATIX",
+    "finalClient": "Cliente finale",
+    "plant": "Impianto",
+    "seller": "Venditore",
+    "technician": "Tecnico",
+    "ticket": "Ticket",
+    "invoicedYes": "Fatturato",
+    "invoicedNo": "Non fatturato",
+    "orderDateFrom": "Data ordine da",
+    "orderDateTo": "Data ordine a",
+    "expectedStartFrom": "Inizio previsto da",
+    "expectedStartTo": "Inizio previsto a",
+    "name": "Nome",
+    "bidNumber": "Numero offerta",
+    "orderNumber": "Numero ordine",
+    "clear": "Pulisci filtri"
+  },
+  "placeholders": {
+    "searchName": "Cerca nome...",
+    "searchBid": "Cerca offerta...",
+    "searchOrder": "Cerca ordine..."
   },
   "columns": {
     "name": "Nome",
@@ -21,7 +46,20 @@
   "badges": {
     "completed": "Completato",
     "invoiced": "Fatturato",
-    "inProgress": "In Corso"
+    "inProgress": "In corso"
+  },
+  "progress": {
+    "electrical": "Elettrico",
+    "programming": "Programmazione"
+  },
+  "pagination": {
+    "showing": "Mostrando {{start}}-{{end}} di {{total}} lavori"
+  },
+  "sections": {
+    "basicInfo": "Informazioni di base",
+    "associations": "Associazioni",
+    "projectInfo": "Info progetto",
+    "workReport": "Report lavoro"
   },
   "details": {
     "title": "Dettagli Lavoro",
@@ -38,7 +76,19 @@
     "programming": "Programmazione",
     "notes": "Note",
     "createdAt": "Creato il",
-    "updatedAt": "Aggiornato il"
+    "updatedAt": "Aggiornato il",
+    "bidNumber": "Numero offerta",
+    "orderNumber": "Numero ordine",
+    "expectedStart": "Inizio previsto",
+    "description": "Descrizione",
+    "electricalProgress": "Avanzamento elettrico (%)",
+    "programmingProgress": "Avanzamento programmazione (%)",
+    "expectedOfficeHours": "Ore ufficio previste",
+    "expectedPlantHours": "Ore impianto previste",
+    "atixClient": "Cliente ATIX",
+    "finalClient": "Cliente finale",
+    "directory": "Directory",
+    "seller": "Venditore"
   },
   "form": {
     "createTitle": "Crea Nuovo Lavoro",
@@ -57,20 +107,137 @@
     "electricalSchematicLabel": "Progresso Schema Elettrico (%)",
     "programmingLabel": "Progresso Programmazione (%)",
     "notesLabel": "Note",
-    "notesPlaceholder": "Aggiungi note (opzionale)"
+    "notesPlaceholder": "Aggiungi note (opzionale)",
+    "bidNumberLabel": "Numero offerta",
+    "bidNumberPlaceholder": "OFF-2024-001",
+    "orderNumberLabel": "Numero ordine",
+    "orderNumberPlaceholder": "ORD-2024-001",
+    "expectedStartDateLabel": "Data inizio prevista",
+    "nasSubDirectoryLabel": "Sottodirectory NAS",
+    "nasSubDirectoryPlaceholder": "/progetti/nome-lavoro",
+    "expectedOfficeHoursLabel": "Ore ufficio previste",
+    "expectedPlantHoursLabel": "Ore impianto previste",
+    "sellerLabel": "Venditore",
+    "sellerPlaceholder": "Seleziona venditore (opzionale)",
+    "atixClientLabel": "Cliente ATIX",
+    "finalClientLabel": "Cliente finale",
+    "clientOptionalPlaceholder": "Seleziona cliente (opzionale)",
+    "plantSelectPlaceholder": "Seleziona impianto"
+  },
+  "create": {
+    "subtitleFromTicket": "Creazione da ticket: {{ticket}}",
+    "subtitleDefault": "Compila i dettagli dell'ordine di lavoro"
+  },
+  "report": {
+    "totalHours": "Ore totali",
+    "addEntry": "Aggiungi voce",
+    "addEntryTitle": "Aggiungi voce report",
+    "addEntryDescription": "Aggiungi una voce al report con descrizione e ore.",
+    "descriptionLabel": "Descrizione",
+    "descriptionPlaceholder": "Descrivi il lavoro svolto...",
+    "hoursLabel": "Ore",
+    "empty": "Nessuna voce di report. Aggiungi la prima voce per iniziare.",
+    "tableDescription": "Descrizione",
+    "tableHours": "Ore"
+  },
+  "assignments": {
+    "title": "Tecnici assegnati",
+    "empty": "Nessun tecnico assegnato.",
+    "assignMyself": "Assegnami",
+    "assignTechnician": "Assegna tecnico",
+    "dialogTitle": "Assegna tecnico",
+    "dialogDescription": "Seleziona un tecnico da assegnare al lavoro.",
+    "selectPlaceholder": "Seleziona tecnico",
+    "emailUnavailable": "Email non disponibile"
+  },
+  "references": {
+    "title": "Riferimenti cantiere",
+    "empty": "Nessun riferimento cantiere assegnato.",
+    "addReference": "Aggiungi riferimento",
+    "dialogTitle": "Aggiungi riferimento cantiere",
+    "dialogDescription": "Seleziona un riferimento esistente o creane uno nuovo.",
+    "selectExisting": "Seleziona esistente",
+    "createNew": "Crea nuovo",
+    "referenceNameLabel": "Nome riferimento",
+    "referenceNamePlaceholder": "Mario Rossi - Idraulico",
+    "referenceLabel": "Riferimento",
+    "referencePlaceholder": "Seleziona riferimento",
+    "roleLabel": "Ruolo",
+    "createAndAdd": "Crea e aggiungi",
+    "addButton": "Aggiungi riferimento"
+  },
+  "dialogs": {
+    "addClient": {
+      "title": "Aggiungi nuovo cliente",
+      "description": "Crea un nuovo cliente disponibile per la selezione.",
+      "nameLabel": "Nome cliente",
+      "namePlaceholder": "Inserisci nome cliente",
+      "typeLabel": "Tipo cliente",
+      "typeAtix": "ATIX",
+      "typeFinal": "Finale",
+      "addButton": "Aggiungi cliente"
+    },
+    "addPlant": {
+      "title": "Aggiungi nuovo impianto",
+      "description": "Crea un nuovo impianto disponibile per la selezione.",
+      "nameLabel": "Nome impianto",
+      "namePlaceholder": "Inserisci nome impianto",
+      "notesLabel": "Note",
+      "notesPlaceholder": "Note aggiuntive",
+      "nasDirectoryLabel": "Directory NAS",
+      "nasDirectoryPlaceholder": "/nas/nome-impianto",
+      "pswPhraseLabel": "Frase password",
+      "pswPlatformLabel": "Password piattaforma",
+      "pswStationLabel": "Password stazione",
+      "addButton": "Aggiungi impianto"
+    }
   },
   "actions": {
     "edit": "Modifica",
     "delete": "Elimina",
-    "markCompleted": "Segna come Completato",
-    "markInvoiced": "Segna come Fatturato"
+    "markCompleted": "Segna completato",
+    "markInvoiced": "Segna fatturato",
+    "saveChanges": "Salva modifiche",
+    "addNew": "Aggiungi nuovo"
   },
   "messages": {
     "loading": "Caricamento lavori...",
+    "loadingDetails": "Caricamento dettagli lavoro...",
+    "loadingForm": "Caricamento dati modulo...",
     "noWorks": "Nessun lavoro trovato",
+    "noWorksFilters": "Nessun lavoro corrisponde ai filtri.",
     "error": "Errore nel caricamento dei lavori",
-    "createSuccess": "Lavoro creato con successo",
-    "updateSuccess": "Lavoro aggiornato con successo",
-    "deleteSuccess": "Lavoro eliminato con successo"
+    "errorDetails": "Errore nel caricamento del lavoro",
+    "createSuccessTitle": "Lavoro creato",
+    "createSuccessDescription": "Il lavoro \"{{name}}\" è stato creato con successo.",
+    "updateSuccessTitle": "Lavoro aggiornato",
+    "updateSuccessDescription": "Il lavoro è stato aggiornato con successo.",
+    "completedTitle": "Lavoro completato",
+    "completedDescription": "Il lavoro è stato segnato come completato.",
+    "invoicedTitle": "Lavoro fatturato",
+    "invoicedDescription": "Il lavoro è stato segnato come fatturato.",
+    "entryAddedTitle": "Voce aggiunta",
+    "entryAddedDescription": "La voce di report è stata aggiunta.",
+    "entryDeletedTitle": "Voce eliminata",
+    "entryDeletedDescription": "La voce di report è stata eliminata.",
+    "assignedTitle": "Assegnato",
+    "assignedDescription": "Sei stato assegnato a questo lavoro.",
+    "technicianAssignedTitle": "Tecnico assegnato",
+    "technicianAssignedDescription": "{{name}} è stato assegnato.",
+    "referenceAddedTitle": "Riferimento aggiunto",
+    "referenceAddedDescription": "{{name}} è stato aggiunto come {{role}}.",
+    "referenceCreatedAndAddedTitle": "Riferimento creato e aggiunto",
+    "referenceCreatedAndAddedDescription": "{{name}} è stato creato e aggiunto come {{role}}.",
+    "referenceCreateErrorTitle": "Errore creazione riferimento",
+    "validationErrorTitle": "Errore di validazione",
+    "validationErrorDescription": "Compila tutti i campi obbligatori (nome, numero offerta, numero ordine, cliente ATIX, directory NAS).",
+    "validationReferenceName": "Inserisci un nome per il nuovo riferimento.",
+    "clientNameRequired": "Il nome cliente è obbligatorio",
+    "plantNameRequired": "Il nome impianto è obbligatorio",
+    "clientAdded": "{{name}} è stato aggiunto con successo.",
+    "plantAdded": "{{name}} è stato aggiunto con successo."
+  },
+  "units": {
+    "hours": "ore"
   }
 }

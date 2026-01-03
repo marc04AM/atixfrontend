@@ -1,12 +1,13 @@
 {
   "title": "Profile",
-  "subtitle": "Manage your personal profile",
+  "subtitle": "Manage your account settings",
   "tabs": {
     "general": "General",
     "security": "Security"
   },
   "general": {
-    "title": "General Information",
+    "title": "Personal Information",
+    "description": "Update your profile information",
     "firstName": "First Name",
     "lastName": "Last Name",
     "email": "Email",
@@ -17,12 +18,14 @@
     "removeImage": "Remove Image"
   },
   "security": {
-    "title": "Security",
+    "title": "Change Password",
+    "description": "Update your password for security",
     "changePassword": "Change Password",
     "currentPassword": "Current Password",
     "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
-    "updatePassword": "Update Password"
+    "updatePassword": "Update Password",
+    "updatingPassword": "Updating..."
   },
   "actions": {
     "save": "Save Changes",
@@ -30,9 +33,14 @@
   },
   "messages": {
     "loading": "Loading profile...",
+    "userIdMissing": "User ID not available",
+    "avatarUpdated": "Avatar updated successfully",
     "updateSuccess": "Profile updated successfully",
     "updateError": "Error updating profile",
     "passwordUpdateSuccess": "Password updated successfully",
-    "passwordMismatch": "Passwords do not match"
+    "passwordMismatch": "New passwords do not match",
+    "fieldsRequired": "All fields are required",
+    "passwordFieldsRequired": "All password fields are required",
+    "passwordMinLength": "Password must be at least {{min}} characters"
   }
 }

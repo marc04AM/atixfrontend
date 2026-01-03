@@ -1,18 +1,29 @@
 {
   "title": "Impianti",
-  "subtitle": "Gestisci gli impianti e le strutture",
+  "subtitle": "Gestisci impianti e stabilimenti",
   "createButton": "Crea Impianto",
   "searchPlaceholder": "Cerca impianti...",
   "columns": {
     "name": "Nome",
     "client": "Cliente",
     "location": "Posizione",
-    "actions": "Azioni"
+    "actions": "Azioni",
+    "nasDirectory": "Directory NAS"
+  },
+  "stats": {
+    "total": "Totale impianti"
+  },
+  "list": {
+    "title": "Tutti gli impianti",
+    "description": "Elenco di tutti gli impianti"
   },
   "details": {
-    "title": "Dettagli Impianto",
+    "title": "Dettagli impianto",
+    "subtitle": "Dettagli impianto e lavori collegati",
     "information": "Informazioni",
-    "name": "Nome Impianto",
+    "informationTitle": "Informazioni impianto",
+    "credentialsTitle": "Credenziali",
+    "name": "Nome",
     "client": "Cliente",
     "address": "Indirizzo",
     "city": "Città",
@@ -20,33 +31,59 @@
     "country": "Paese",
     "description": "Descrizione",
     "notes": "Note",
+    "nasDirectory": "Directory NAS",
+    "pswPhrase": "Frase PSW",
+    "pswPlatform": "PSW Piattaforma",
+    "pswStation": "PSW Stazione",
     "createdAt": "Creato il",
     "updatedAt": "Aggiornato il",
-    "associatedWorks": "Lavori Associati"
+    "associatedWorks": "Lavori associati",
+    "associatedWorksDescription": "Lavori associati a questo impianto",
+    "noAssociatedWorks": "Nessun lavoro collegato"
+  },
+  "credentials": {
+    "show": "Mostra",
+    "hide": "Nascondi"
   },
   "form": {
-    "createTitle": "Crea Nuovo Impianto",
-    "editTitle": "Modifica Impianto",
-    "nameLabel": "Nome Impianto",
-    "namePlaceholder": "Inserisci il nome dell'impianto",
+    "createTitle": "Crea nuovo impianto",
+    "createDescription": "Aggiungi un nuovo impianto al sistema",
+    "editTitle": "Modifica impianto",
+    "nameLabel": "Nome",
+    "namePlaceholder": "Nome impianto",
     "clientLabel": "Cliente",
     "clientPlaceholder": "Seleziona un cliente",
     "addressLabel": "Indirizzo",
-    "addressPlaceholder": "Inserisci l'indirizzo",
+    "addressPlaceholder": "Inserisci indirizzo",
     "cityLabel": "Città",
     "cityPlaceholder": "Inserisci la città",
     "zipCodeLabel": "CAP",
-    "zipCodePlaceholder": "Inserisci il CAP",
+    "zipCodePlaceholder": "Inserisci CAP",
     "countryLabel": "Paese",
-    "countryPlaceholder": "Inserisci il paese",
+    "countryPlaceholder": "Inserisci paese",
     "descriptionLabel": "Descrizione",
-    "descriptionPlaceholder": "Inserisci una descrizione (opzionale)",
+    "descriptionPlaceholder": "Inserisci descrizione (opzionale)",
     "notesLabel": "Note",
-    "notesPlaceholder": "Aggiungi note (opzionale)"
+    "notesPlaceholder": "Note aggiuntive",
+    "nasDirectoryLabel": "Directory NAS",
+    "nasDirectoryPlaceholder": "/nas/percorso",
+    "pswPhraseLabel": "Frase PSW",
+    "pswPlatformLabel": "PSW Piattaforma",
+    "pswStationLabel": "PSW Stazione"
+  },
+  "dialogs": {
+    "deleteTitle": "Eliminare impianto?",
+    "deleteDescription": "Questa azione non può essere annullata. Eliminerà definitivamente l'impianto e tutti i dati associati."
   },
   "messages": {
     "loading": "Caricamento impianti...",
+    "loadingDetail": "Caricamento impianto...",
     "noPlants": "Nessun impianto trovato",
-    "error": "Errore nel caricamento degli impianti"
+    "error": "Errore nel caricamento degli impianti",
+    "errorDetail": "Errore nel caricamento dell'impianto",
+    "nameRequired": "Il nome impianto è obbligatorio",
+    "createSuccessDescription": "Impianto creato con successo",
+    "updateSuccessDescription": "Impianto aggiornato con successo",
+    "deleteSuccessDescription": "L'impianto è stato eliminato"
   }
 }

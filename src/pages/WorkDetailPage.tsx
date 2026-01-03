@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -61,6 +62,7 @@ export default function WorkDetailPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user: currentUser, isAdmin } = useAuth();
+  const { t } = useTranslation(['works', 'worksite-references']);
 
   // Fetch data
   const { data: work, isLoading, error } = useWork(id!);
@@ -111,12 +113,14 @@ export default function WorkDetailPage() {
   const [newReferenceName, setNewReferenceName] = useState('');
 
   // Loading and error states
-  if (isLoading) return <LoadingSpinner message="Loading work details..." />;
+  if (isLoading) return <LoadingSpinner message={t('messages.loadingDetails')} />;
   if (error) return (
     <div className="flex items-center justify-center py-12">
       <Card className="border-destructive">
         <CardContent className="pt-6">
-          <p className="text-destructive">Error loading work: {(error as Error).message}</p>
+          <p className="text-destructive">
+            {t('messages.errorDetails')}: {(error as Error).message}
+          </p>
         </CardContent>
       </Card>
     </div>
@@ -157,13 +161,13 @@ export default function WorkDetailPage() {
       closeWork.mutate(work.id, {
         onSuccess: () => {
           toast({
-            title: 'Work Completed',
-            description: 'The work has been marked as complete.'
+            title: t('messages.completedTitle'),
+            description: t('messages.completedDescription')
           });
         },
         onError: (error: any) => {
           toast({
-            title: 'Error',
+            title: t('common:titles.error'),
             description: error.message,
             variant: 'destructive'
           });
@@ -173,13 +177,13 @@ export default function WorkDetailPage() {
       invoiceWork.mutate(work.id, {
         onSuccess: () => {
           toast({
-            title: 'Work Invoiced',
-            description: 'The work has been marked as invoiced.'
+            title: t('messages.invoicedTitle'),
+            description: t('messages.invoicedDescription')
           });
         },
         onError: (error: any) => {
           toast({
-            title: 'Error',
+            title: t('common:titles.error'),
             description: error.message,
             variant: 'destructive'
           });
@@ -192,13 +196,13 @@ export default function WorkDetailPage() {
       onSuccess: () => {
         setIsEditing(false);
         toast({
-          title: 'Work Updated',
-          description: 'The work has been updated successfully.'
+          title: t('messages.updateSuccessTitle'),
+          description: t('messages.updateSuccessDescription')
         });
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: t('common:titles.error'),
           description: error.message,
           variant: 'destructive'
         });
@@ -222,13 +226,13 @@ export default function WorkDetailPage() {
           hours: 0
         });
         toast({
-          title: 'Entry Added',
-          description: 'Work report entry has been added.'
+          title: t('messages.entryAddedTitle'),
+          description: t('messages.entryAddedDescription')
         });
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: t('common:titles.error'),
           description: error.message,
           variant: 'destructive'
         });
@@ -237,8 +241,8 @@ export default function WorkDetailPage() {
   };
   const handleDeleteEntry = (entryId: string) => {
     toast({
-      title: 'Entry Deleted',
-      description: 'Work report entry has been deleted.'
+      title: t('messages.entryDeletedTitle'),
+      description: t('messages.entryDeletedDescription')
     });
   };
   const handleAssignMyself = () => {
@@ -249,13 +253,13 @@ export default function WorkDetailPage() {
     }, {
       onSuccess: () => {
         toast({
-          title: 'Assigned',
-          description: 'You have been assigned to this work.'
+          title: t('messages.assignedTitle'),
+          description: t('messages.assignedDescription')
         });
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: t('common:titles.error'),
           description: error.message,
           variant: 'destructive'
         });
@@ -265,6 +269,7 @@ export default function WorkDetailPage() {
   const handleAssignTechnician = () => {
     if (!selectedTechnician) return;
     const technician = technicians.find((t: any) => t.id === selectedTechnician);
+    const technicianName = technician ? `${technician.firstName} ${technician.lastName}`.trim() : '';
     assignTechnician.mutate({
       workId: work.id,
       technicianId: selectedTechnician
@@ -273,13 +278,13 @@ export default function WorkDetailPage() {
         setIsAssignOpen(false);
         setSelectedTechnician('');
         toast({
-          title: 'Technician Assigned',
-          description: `${technician?.firstName} ${technician?.lastName} has been assigned.`
+          title: t('messages.technicianAssignedTitle'),
+          description: t('messages.technicianAssignedDescription', { name: technicianName })
         });
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: t('common:titles.error'),
           description: error.message,
           variant: 'destructive'
         });
@@ -290,13 +295,13 @@ export default function WorkDetailPage() {
     closeWork.mutate(work.id, {
       onSuccess: () => {
         toast({
-          title: 'Work Completed',
-          description: 'The work has been marked as complete.'
+          title: t('messages.completedTitle'),
+          description: t('messages.completedDescription')
         });
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: t('common:titles.error'),
           description: error.message,
           variant: 'destructive'
         });
@@ -307,13 +312,13 @@ export default function WorkDetailPage() {
     invoiceWork.mutate(work.id, {
       onSuccess: () => {
         toast({
-          title: 'Work Invoiced',
-          description: 'The work has been marked as invoiced.'
+          title: t('messages.invoicedTitle'),
+          description: t('messages.invoicedDescription')
         });
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: t('common:titles.error'),
           description: error.message,
           variant: 'destructive'
         });
@@ -321,12 +326,13 @@ export default function WorkDetailPage() {
     });
   };
   const handleAddReference = () => {
+    const roleLabel = t(`worksite-references:roles.${selectedRole}`);
     if (isCreatingNewReference) {
       // Create new reference first, then add it to the work
       if (!newReferenceName) {
         toast({
-          title: 'Validation Error',
-          description: 'Please enter a name for the new reference.',
+          title: t('messages.validationErrorTitle'),
+          description: t('messages.validationReferenceName'),
           variant: 'destructive',
         });
         return;
@@ -349,13 +355,16 @@ export default function WorkDetailPage() {
               setIsCreatingNewReference(false);
               setNewReferenceName('');
               toast({
-                title: 'Reference Created and Added',
-                description: `${newReferenceName} has been created and added as ${selectedRole}.`
+                title: t('messages.referenceCreatedAndAddedTitle'),
+                description: t('messages.referenceCreatedAndAddedDescription', {
+                  name: newReferenceName,
+                  role: roleLabel,
+                })
               });
             },
             onError: (error: any) => {
               toast({
-                title: 'Error',
+                title: t('common:titles.error'),
                 description: error.message,
                 variant: 'destructive'
               });
@@ -364,7 +373,7 @@ export default function WorkDetailPage() {
         },
         onError: (error: any) => {
           toast({
-            title: 'Error Creating Reference',
+            title: t('messages.referenceCreateErrorTitle'),
             description: error.message,
             variant: 'destructive'
           });
@@ -386,13 +395,16 @@ export default function WorkDetailPage() {
           setSelectedReference('');
           setSelectedRole('PLUMBER');
           toast({
-            title: 'Reference Added',
-            description: `${reference?.name} has been added as ${selectedRole}.`
+            title: t('messages.referenceAddedTitle'),
+            description: t('messages.referenceAddedDescription', {
+              name: reference?.name || '',
+              role: roleLabel,
+            })
           });
         },
         onError: (error: any) => {
           toast({
-            title: 'Error',
+            title: t('common:titles.error'),
             description: error.message,
             variant: 'destructive'
           });
@@ -410,7 +422,7 @@ export default function WorkDetailPage() {
         <div className="flex-1">
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold tracking-tight">
-              {isEditing ? 'Edit Work' : work.name}
+              {isEditing ? t('form.editTitle') : work.name}
             </h1>
             <Badge variant="outline" className="font-mono text-xs">
               {getWorkIndex()}
@@ -423,19 +435,19 @@ export default function WorkDetailPage() {
                 <SelectItem value="IN_PROGRESS">
                   <div className="flex items-center gap-2">
                     <Clock className="h-3 w-3" />
-                    In Progress
+                    {t('badges.inProgress')}
                   </div>
                 </SelectItem>
                 <SelectItem value="COMPLETED">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-3 w-3" />
-                    Completed
+                    {t('badges.completed')}
                   </div>
                 </SelectItem>
                 <SelectItem value="INVOICED">
                   <div className="flex items-center gap-2">
                     <TrendingUp className="h-3 w-3" />
-                    Invoiced
+                    {t('badges.invoiced')}
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -447,24 +459,24 @@ export default function WorkDetailPage() {
           {!isEditing ? <>
               <Button variant="outline" onClick={() => setIsEditing(true)}>
                 <Edit2 className="h-4 w-4 mr-2" />
-                Edit
+                {t('common:actions.edit')}
               </Button>
               {!work.completed && <Button onClick={handleMarkComplete}>
                   <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Mark Complete
+                  {t('actions.markCompleted')}
                 </Button>}
               {work.completed && !work.invoiced && <Button onClick={handleMarkInvoiced}>
                   <TrendingUp className="h-4 w-4 mr-2" />
-                  Mark Invoiced
+                  {t('actions.markInvoiced')}
                 </Button>}
             </> : <>
               <Button variant="outline" onClick={handleCancel}>
                 <X className="h-4 w-4 mr-2" />
-                Cancel
+                {t('common:actions.cancel')}
               </Button>
               <Button onClick={handleSave}>
                 <Save className="h-4 w-4 mr-2" />
-                Save Changes
+                {t('actions.saveChanges')}
               </Button>
             </>}
         </div>
@@ -476,68 +488,68 @@ export default function WorkDetailPage() {
           {/* Work Details */}
           <Card>
             <CardHeader>
-              <CardTitle>Work Details</CardTitle>
+              <CardTitle>{t('details.title')}</CardTitle>
             </CardHeader>
             <CardContent>
               {isEditing ? <div className="grid gap-4 md:grid-cols-2">
                   <div className="grid gap-2">
-                    <Label htmlFor="name">Work Name</Label>
+                    <Label htmlFor="name">{t('form.nameLabel')}</Label>
                     <Input id="name" value={editedWork.name} onChange={e => setEditedWork({
                   ...editedWork,
                   name: e.target.value
                 })} />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="bidNumber">Bid Number</Label>
+                    <Label htmlFor="bidNumber">{t('details.bidNumber')}</Label>
                     <Input id="bidNumber" value={editedWork.bidNumber} onChange={e => setEditedWork({
                   ...editedWork,
                   bidNumber: e.target.value
                 })} />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="orderNumber">Order Number</Label>
+                    <Label htmlFor="orderNumber">{t('details.orderNumber')}</Label>
                     <Input id="orderNumber" value={editedWork.orderNumber} onChange={e => setEditedWork({
                   ...editedWork,
                   orderNumber: e.target.value
                 })} />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="orderDate">Order Date</Label>
+                    <Label htmlFor="orderDate">{t('details.orderDate')}</Label>
                     <Input id="orderDate" type="date" value={editedWork.orderDate} onChange={e => setEditedWork({
                   ...editedWork,
                   orderDate: e.target.value
                 })} />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="electrical">Electrical Progression (%)</Label>
+                    <Label htmlFor="electrical">{t('details.electricalProgress')}</Label>
                     <Input id="electrical" type="number" min="0" max="100" value={editedWork.electricalSchemaProgression} onChange={e => setEditedWork({
                   ...editedWork,
                   electricalSchemaProgression: Number(e.target.value)
                 })} />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="programming">Programming Progression (%)</Label>
+                    <Label htmlFor="programming">{t('details.programmingProgress')}</Label>
                     <Input id="programming" type="number" min="0" max="100" value={editedWork.programmingProgression} onChange={e => setEditedWork({
                   ...editedWork,
                   programmingProgression: Number(e.target.value)
                 })} />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="officeHours">Expected Office Hours</Label>
+                    <Label htmlFor="officeHours">{t('details.expectedOfficeHours')}</Label>
                     <Input id="officeHours" type="number" value={editedWork.expectedOfficeHours} onChange={e => setEditedWork({
                   ...editedWork,
                   expectedOfficeHours: Number(e.target.value)
                 })} />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="plantHours">Expected Plant Hours</Label>
+                    <Label htmlFor="plantHours">{t('details.expectedPlantHours')}</Label>
                     <Input id="plantHours" type="number" value={editedWork.expectedPlantHours} onChange={e => setEditedWork({
                   ...editedWork,
                   expectedPlantHours: Number(e.target.value)
                 })} />
                   </div>
                   <div className="grid gap-2 md:col-span-2">
-                    <Label htmlFor="description">Description</Label>
+                    <Label htmlFor="description">{t('details.description')}</Label>
                     <Textarea id="description" rows={6} value={editedWork.description || ''} onChange={e => setEditedWork({
                   ...editedWork,
                   description: e.target.value
@@ -546,25 +558,25 @@ export default function WorkDetailPage() {
                 </div> : <div className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <Label className="text-muted-foreground text-xs">Bid Number</Label>
+                      <Label className="text-muted-foreground text-xs">{t('details.bidNumber')}</Label>
                       <p>{work.bidNumber}</p>
                     </div>
                     <div>
-                      <Label className="text-muted-foreground text-xs">Order Number</Label>
+                      <Label className="text-muted-foreground text-xs">{t('details.orderNumber')}</Label>
                       <p>{work.orderNumber}</p>
                     </div>
                     <div>
-                      <Label className="text-muted-foreground text-xs">Order Date</Label>
-                      <p>{formatDate(work.orderDate, 'Not set')}</p>
+                      <Label className="text-muted-foreground text-xs">{t('details.orderDate')}</Label>
+                      <p>{formatDate(work.orderDate, t('common:messages.notSet'))}</p>
                     </div>
                     <div>
-                      <Label className="text-muted-foreground text-xs">Expected Start</Label>
-                      <p>{formatDate(work.expectedStartDate, 'Not set')}</p>
+                      <Label className="text-muted-foreground text-xs">{t('details.expectedStart')}</Label>
+                      <p>{formatDate(work.expectedStartDate, t('common:messages.notSet'))}</p>
                     </div>
                   </div>
 
                   <div>
-                    <Label className="text-muted-foreground text-xs">Description</Label>
+                    <Label className="text-muted-foreground text-xs">{t('details.description')}</Label>
                     <p className="mt-1 whitespace-pre-wrap">{work.description || ''}</p>
                   </div>
                   
@@ -572,14 +584,14 @@ export default function WorkDetailPage() {
                   
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <Label className="text-muted-foreground text-xs mb-2 block">Electrical Schema</Label>
+                      <Label className="text-muted-foreground text-xs mb-2 block">{t('details.electricalSchematic')}</Label>
                       <div className="flex items-center gap-3">
                         <Progress value={work.electricalSchemaProgression} className="flex-1" />
                         <span className="text-sm font-medium w-12">{work.electricalSchemaProgression}%</span>
                       </div>
                     </div>
                     <div>
-                      <Label className="text-muted-foreground text-xs mb-2 block">Programming</Label>
+                      <Label className="text-muted-foreground text-xs mb-2 block">{t('details.programming')}</Label>
                       <div className="flex items-center gap-3">
                         <Progress value={work.programmingProgression} className="flex-1" />
                         <span className="text-sm font-medium w-12">{work.programmingProgression}%</span>
@@ -591,12 +603,12 @@ export default function WorkDetailPage() {
                   
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <Label className="text-muted-foreground text-xs">Expected Office Hours</Label>
-                      <p>{work.expectedOfficeHours} hours</p>
+                      <Label className="text-muted-foreground text-xs">{t('details.expectedOfficeHours')}</Label>
+                      <p>{work.expectedOfficeHours} {t('units.hours')}</p>
                     </div>
                     <div>
-                      <Label className="text-muted-foreground text-xs">Expected Plant Hours</Label>
-                      <p>{work.expectedPlantHours} hours</p>
+                      <Label className="text-muted-foreground text-xs">{t('details.expectedPlantHours')}</Label>
+                      <p>{work.expectedPlantHours} {t('units.hours')}</p>
                     </div>
                   </div>
                 </div>}
@@ -607,35 +619,33 @@ export default function WorkDetailPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Work Report</CardTitle>
+                <CardTitle>{t('sections.workReport')}</CardTitle>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Total Hours: <span className="font-medium">{totalHours}</span>
+                  {t('report.totalHours')}: <span className="font-medium">{totalHours}</span>
                 </p>
               </div>
               <Dialog open={isAddEntryOpen} onOpenChange={setIsAddEntryOpen}>
                 <DialogTrigger asChild>
                   <Button size="sm">
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Entry
+                    {t('report.addEntry')}
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Add Report Entry</DialogTitle>
-                    <DialogDescription>
-                      Add a new work report entry with description and hours.
-                    </DialogDescription>
+                    <DialogTitle>{t('report.addEntryTitle')}</DialogTitle>
+                    <DialogDescription>{t('report.addEntryDescription')}</DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="entry-description">Description</Label>
-                      <Textarea id="entry-description" placeholder="Describe the work done..." value={newEntry.description} onChange={e => setNewEntry({
+                      <Label htmlFor="entry-description">{t('report.descriptionLabel')}</Label>
+                      <Textarea id="entry-description" placeholder={t('report.descriptionPlaceholder')} value={newEntry.description} onChange={e => setNewEntry({
                       ...newEntry,
                       description: e.target.value
                     })} />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="entry-hours">Hours</Label>
+                      <Label htmlFor="entry-hours">{t('report.hoursLabel')}</Label>
                       <Input id="entry-hours" type="number" step="0.5" min="0" value={newEntry.hours} onChange={e => setNewEntry({
                       ...newEntry,
                       hours: Number(e.target.value)
@@ -644,10 +654,10 @@ export default function WorkDetailPage() {
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setIsAddEntryOpen(false)}>
-                      Cancel
+                      {t('common:actions.cancel')}
                     </Button>
                     <Button onClick={handleAddEntry} disabled={!newEntry.description || newEntry.hours <= 0}>
-                      Add Entry
+                      {t('report.addEntry')}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -655,12 +665,12 @@ export default function WorkDetailPage() {
             </CardHeader>
             <CardContent>
               {reportEntries.length === 0 ? <p className="text-muted-foreground text-center py-6">
-                  No report entries yet. Add your first entry to start tracking.
+                  {t('report.empty')}
                 </p> : <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Description</TableHead>
-                      <TableHead className="w-24 text-right">Hours</TableHead>
+                      <TableHead>{t('report.tableDescription')}</TableHead>
+                      <TableHead className="w-24 text-right">{t('report.tableHours')}</TableHead>
                       <TableHead className="w-16"></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -688,49 +698,49 @@ export default function WorkDetailPage() {
           {/* Client & Plant Info */}
           <Card>
             <CardHeader>
-              <CardTitle>Project Info</CardTitle>
+              <CardTitle>{t('sections.projectInfo')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {work.atixClient && <div className="flex items-center gap-3">
                   <Building2 className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <Label className="text-muted-foreground text-xs">Atix Client</Label>
+                    <Label className="text-muted-foreground text-xs">{t('details.atixClient')}</Label>
                     <p className="text-sm font-medium">{work.atixClient.name}</p>
                   </div>
                 </div>}
               {work.finalClient && <div className="flex items-center gap-3">
                   <Building2 className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <Label className="text-muted-foreground text-xs">Final Client</Label>
+                    <Label className="text-muted-foreground text-xs">{t('details.finalClient')}</Label>
                     <p className="text-sm font-medium">{work.finalClient.name}</p>
                   </div>
                 </div>}
               {work.plant && <div className="flex items-center gap-3">
                   <Factory className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <Label className="text-muted-foreground text-xs">Plant</Label>
+                    <Label className="text-muted-foreground text-xs">{t('details.plant')}</Label>
                     <p className="text-sm font-medium">{work.plant.name}</p>
                   </div>
                 </div>}
               {work.plant && work.nasSubDirectory && <div className="flex items-center gap-3">
                   <Factory className="h-4 w-4 text-muted-foreground" />
                   <div className="flex-1">
-                    <Label className="text-muted-foreground text-xs">Directory</Label>
+                    <Label className="text-muted-foreground text-xs">{t('details.directory')}</Label>
                     <p className="text-sm font-mono break-all">{getFullDirectory()}</p>
                   </div>
                 </div>}
               {work.seller && <div className="flex items-center gap-3">
                   <User className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <Label className="text-muted-foreground text-xs">Seller</Label>
+                    <Label className="text-muted-foreground text-xs">{t('details.seller')}</Label>
                     <p className="text-sm font-medium">{work.seller.firstName} {work.seller.lastName}</p>
                   </div>
                 </div>}
               <div className="flex items-center gap-3">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <Label className="text-muted-foreground text-xs">Created At</Label>
-                  <p className="text-sm">{formatDateTime(work.createdAt, 'Not set')}</p>
+                  <Label className="text-muted-foreground text-xs">{t('details.createdAt')}</Label>
+                  <p className="text-sm">{formatDateTime(work.createdAt, t('common:messages.notSet'))}</p>
                 </div>
               </div>
             </CardContent>
@@ -739,7 +749,7 @@ export default function WorkDetailPage() {
           {/* Assigned Technicians */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Assigned Technicians</CardTitle>
+              <CardTitle>{t('assignments.title')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {assignedTechnicians.length > 0 ? assignedTechnicians.map(assignment => <div key={assignment.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
@@ -754,37 +764,35 @@ export default function WorkDetailPage() {
                         {assignment.name}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
-                        {assignment.email || 'Email not available'}
+                        {assignment.email || t('assignments.emailUnavailable')}
                       </p>
                     </div>
-                  </div>) : <p className="text-sm text-muted-foreground">No technicians assigned yet.</p>}
+                  </div>) : <p className="text-sm text-muted-foreground">{t('assignments.empty')}</p>}
 
               <Separator />
 
               <div className="space-y-2">
                 {!isAssigned && <Button variant="outline" className="w-full" onClick={handleAssignMyself}>
                     <UserPlus className="h-4 w-4 mr-2" />
-                    Assign Myself
+                    {t('assignments.assignMyself')}
                   </Button>}
 
                 {isAdmin && availableTechnicians.length > 0 && <Dialog open={isAssignOpen} onOpenChange={setIsAssignOpen}>
                     <DialogTrigger asChild>
                       <Button variant="outline" className="w-full">
                         <UserPlus className="h-4 w-4 mr-2" />
-                        Assign Technician
+                        {t('assignments.assignTechnician')}
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Assign Technician</DialogTitle>
-                        <DialogDescription>
-                          Select a technician to assign to this work.
-                        </DialogDescription>
+                        <DialogTitle>{t('assignments.dialogTitle')}</DialogTitle>
+                        <DialogDescription>{t('assignments.dialogDescription')}</DialogDescription>
                       </DialogHeader>
                       <div className="py-4">
                         <Select value={selectedTechnician} onValueChange={setSelectedTechnician}>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select technician" />
+                            <SelectValue placeholder={t('assignments.selectPlaceholder')} />
                           </SelectTrigger>
                           <SelectContent>
                             {availableTechnicians.map(tech => <SelectItem key={tech.id} value={tech.id}>
@@ -795,10 +803,10 @@ export default function WorkDetailPage() {
                       </div>
                       <DialogFooter>
                         <Button variant="outline" onClick={() => setIsAssignOpen(false)}>
-                          Cancel
+                          {t('common:actions.cancel')}
                         </Button>
                         <Button onClick={handleAssignTechnician} disabled={!selectedTechnician}>
-                          Assign
+                          {t('assignments.assignTechnician')}
                         </Button>
                       </DialogFooter>
                     </DialogContent>
@@ -810,19 +818,19 @@ export default function WorkDetailPage() {
           {/* Worksite References */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Worksite References</CardTitle>
+              <CardTitle>{t('references.title')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {work.worksiteReferenceAssignments && work.worksiteReferenceAssignments.length > 0 ? work.worksiteReferenceAssignments.map((assignment: any) => <div key={assignment.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">
-                        {assignment.worksiteReference?.name || 'Unknown'}
+                        {assignment.worksiteReference?.name || t('common:messages.notSet')}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {assignment.role}
+                        {t(`worksite-references:roles.${assignment.role}`)}
                       </p>
                     </div>
-                  </div>) : <p className="text-sm text-muted-foreground">No worksite references assigned yet.</p>}
+                  </div>) : <p className="text-sm text-muted-foreground">{t('references.empty')}</p>}
 
               <Separator />
 
@@ -837,15 +845,13 @@ export default function WorkDetailPage() {
                   <DialogTrigger asChild>
                     <Button variant="outline" className="w-full">
                       <Plus className="h-4 w-4 mr-2" />
-                      Add Reference
+                      {t('references.addReference')}
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Add Worksite Reference</DialogTitle>
-                      <DialogDescription>
-                        Select an existing reference or create a new one.
-                      </DialogDescription>
+                      <DialogTitle>{t('references.dialogTitle')}</DialogTitle>
+                      <DialogDescription>{t('references.dialogDescription')}</DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                       <div className="flex items-center gap-2">
@@ -855,7 +861,7 @@ export default function WorkDetailPage() {
                           size="sm"
                           onClick={() => setIsCreatingNewReference(false)}
                         >
-                          Select Existing
+                          {t('references.selectExisting')}
                         </Button>
                         <Button
                           type="button"
@@ -863,26 +869,26 @@ export default function WorkDetailPage() {
                           size="sm"
                           onClick={() => setIsCreatingNewReference(true)}
                         >
-                          Create New
+                          {t('references.createNew')}
                         </Button>
                       </div>
 
                       {isCreatingNewReference ? (
                         <div className="grid gap-2">
-                          <Label htmlFor="newReferenceName">Reference Name</Label>
+                          <Label htmlFor="newReferenceName">{t('references.referenceNameLabel')}</Label>
                           <Input
                             id="newReferenceName"
                             value={newReferenceName}
                             onChange={(e) => setNewReferenceName(e.target.value)}
-                            placeholder="Mario Rossi - Idraulico"
+                            placeholder={t('references.referenceNamePlaceholder')}
                           />
                         </div>
                       ) : (
                         <div className="grid gap-2">
-                          <Label htmlFor="reference">Reference</Label>
+                          <Label htmlFor="reference">{t('references.referenceLabel')}</Label>
                           <Select value={selectedReference} onValueChange={setSelectedReference}>
                             <SelectTrigger id="reference">
-                              <SelectValue placeholder="Select reference" />
+                              <SelectValue placeholder={t('references.referencePlaceholder')} />
                             </SelectTrigger>
                             <SelectContent>
                               {allWorksiteReferences.map((ref: any) => <SelectItem key={ref.id} value={ref.id}>
@@ -894,27 +900,27 @@ export default function WorkDetailPage() {
                       )}
 
                       <div className="grid gap-2">
-                        <Label htmlFor="role">Role</Label>
+                        <Label htmlFor="role">{t('references.roleLabel')}</Label>
                         <Select value={selectedRole} onValueChange={(value: any) => setSelectedRole(value)}>
                           <SelectTrigger id="role">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="PLUMBER">Plumber</SelectItem>
-                            <SelectItem value="ELECTRICIAN">Electrician</SelectItem>
+                            <SelectItem value="PLUMBER">{t('worksite-references:roles.PLUMBER')}</SelectItem>
+                            <SelectItem value="ELECTRICIAN">{t('worksite-references:roles.ELECTRICIAN')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
                     <DialogFooter>
                       <Button variant="outline" onClick={() => setIsAddReferenceOpen(false)}>
-                        Cancel
+                        {t('common:actions.cancel')}
                       </Button>
                       <Button
                         onClick={handleAddReference}
                         disabled={isCreatingNewReference ? !newReferenceName : !selectedReference}
                       >
-                        {isCreatingNewReference ? 'Create & Add' : 'Add Reference'}
+                        {isCreatingNewReference ? t('references.createAndAdd') : t('references.addButton')}
                       </Button>
                     </DialogFooter>
                   </DialogContent>
