@@ -55,6 +55,7 @@ export interface AssignedTechnician {
   technicianFirstName: string;
   technicianLastName: string;
   technicianEmail?: string;
+  profileImageUrl?: string;
   assignedAt: string;
 }
 

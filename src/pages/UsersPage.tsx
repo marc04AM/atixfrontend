@@ -405,7 +405,7 @@ export default function UsersPage() {
                     <TableCell>
                       <div className="flex items-center gap-2 sm:gap-3">
                         <Avatar className="h-8 w-8 sm:h-9 sm:w-9 shrink-0">
-                          <AvatarImage src="" />
+                          <AvatarImage src={user.profileImageUrl || ""} />
                           <AvatarFallback className="text-xs sm:text-sm">
                             {user.firstName[0]}
                             {user.lastName[0]}

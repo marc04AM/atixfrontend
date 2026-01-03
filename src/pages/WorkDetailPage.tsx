@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus } from 'lucide-react';
 import { Work, WorkReportEntry, User as UserType, WorkStatus, Attachment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
@@ -25,6 +26,7 @@ type AssignedTechnicianSummary = {
   technicianId?: string;
   name: string;
   email?: string;
+  profileImageUrl?: string;
 };
 
 const getAssignedTechnicians = (work: Work): AssignedTechnicianSummary[] => {
@@ -35,6 +37,7 @@ const getAssignedTechnicians = (work: Work): AssignedTechnicianSummary[] => {
         technicianId: assignment.technicianId,
         name: `${assignment.technicianFirstName} ${assignment.technicianLastName}`.trim(),
         email: assignment.technicianEmail,
+        profileImageUrl: assignment.profileImageUrl,
       }))
       .filter((assignment) => assignment.name);
   }
@@ -45,6 +48,7 @@ const getAssignedTechnicians = (work: Work): AssignedTechnicianSummary[] => {
       technicianId: assignment.user?.id,
       name: `${assignment.user?.firstName || ''} ${assignment.user?.lastName || ''}`.trim(),
       email: assignment.user?.email,
+      profileImageUrl: assignment.user?.profileImageUrl,
     }))
     .filter((assignment) => assignment.name);
 };
@@ -648,9 +652,12 @@ export default function WorkDetailPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               {assignedTechnicians.length > 0 ? assignedTechnicians.map(assignment => <div key={assignment.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
-                    <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
-                      <User className="h-4 w-4 text-primary" />
-                    </div>
+                    <Avatar className="h-8 w-8 shrink-0">
+                      <AvatarImage src={assignment.profileImageUrl || ""} />
+                      <AvatarFallback className="text-xs">
+                        {assignment.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">
                         {assignment.name}
