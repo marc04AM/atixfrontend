@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus, Phone } from 'lucide-react';
+import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus, Phone, Mail } from 'lucide-react';
 import { Work, WorkReportEntry, User as UserType, WorkStatus, Attachment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
@@ -899,25 +899,34 @@ export default function WorkDetailPage() {
               <CardTitle>{t('assignments.title')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {assignedTechnicians.length > 0 ? assignedTechnicians.map(assignment => <div key={assignment.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
+              {assignedTechnicians.length > 0 ? assignedTechnicians.map(assignment => <div key={assignment.id} className="group flex items-start gap-3 rounded-lg border border-border/50 bg-muted/40 p-3">
                     <Avatar className="h-8 w-8 shrink-0">
                       <AvatarImage src={assignment.profileImageUrl || ""} />
                       <AvatarFallback className="text-xs">
                         {assignment.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">
-                        {assignment.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {assignment.email || t('assignments.emailUnavailable')}
-                      </p>
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <p className="text-sm font-medium truncate">{assignment.name}</p>
+                      {assignment.email ? (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Mail className="h-3.5 w-3.5" />
+                          <span className="truncate">{assignment.email}</span>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {t('assignments.emailUnavailable')}
+                        </p>
+                      )}
                     </div>
                     {canManageAssignments && assignment.technicianId && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>
