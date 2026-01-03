@@ -4,59 +4,42 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWorksiteReferences, useCreateWorksiteReference, useUpdateWorksiteReference, useDeleteWorksiteReference } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-
 export default function WorksiteReferencesPage() {
-  const { toast } = useToast();
-  const { isAdmin } = useAuth();
-  const { t } = useTranslation('worksite-references');
+  const {
+    toast
+  } = useToast();
+  const {
+    isAdmin
+  } = useAuth();
+  const {
+    t
+  } = useTranslation('worksite-references');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch worksite references
-  const { data: referencesData, isLoading, error } = useWorksiteReferences();
+  const {
+    data: referencesData,
+    isLoading,
+    error
+  } = useWorksiteReferences();
   const createReference = useCreateWorksiteReference();
   const updateReference = useUpdateWorksiteReference();
   const deleteReference = useDeleteWorksiteReference();
-
   const references = referencesData || [];
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingReference, setEditingReference] = useState<any>(null);
   const [newReference, setNewReference] = useState({
     name: '',
-    telephone: '',
+    telephone: ''
   });
 
   // Filter references based on search
@@ -67,10 +50,8 @@ export default function WorksiteReferencesPage() {
     const phoneMatch = ref.telephone?.toLowerCase().includes(normalizedQuery);
     return nameMatch || phoneMatch;
   });
-
   if (isLoading) return <LoadingSpinner message={t('messages.loading')} />;
-  if (error) return (
-    <div className="flex items-center justify-center py-12">
+  if (error) return <div className="flex items-center justify-center py-12">
       <Card className="border-destructive">
         <CardContent className="pt-6">
           <p className="text-destructive">
@@ -78,112 +59,111 @@ export default function WorksiteReferencesPage() {
           </p>
         </CardContent>
       </Card>
-    </div>
-  );
-
+    </div>;
   const handleCreateReference = () => {
     if (!newReference.name) {
       toast({
         title: t('common:titles.validationError'),
         description: t('messages.validationRequired'),
-        variant: 'destructive',
+        variant: 'destructive'
       });
       return;
     }
-
     const payload = {
       name: newReference.name,
-      ...(newReference.telephone?.trim()
-        ? { telephone: newReference.telephone.trim() }
-        : {}),
+      ...(newReference.telephone?.trim() ? {
+        telephone: newReference.telephone.trim()
+      } : {})
     };
-
     createReference.mutate(payload, {
       onSuccess: () => {
         toast({
           title: t('common:titles.success'),
-          description: t('messages.createdDescription', { name: newReference.name }),
+          description: t('messages.createdDescription', {
+            name: newReference.name
+          })
         });
-        setNewReference({ name: '', telephone: '' });
+        setNewReference({
+          name: '',
+          telephone: ''
+        });
         setIsCreateDialogOpen(false);
       },
       onError: (error: any) => {
         toast({
           title: t('common:titles.error'),
           description: error.message,
-          variant: 'destructive',
+          variant: 'destructive'
         });
       }
     });
   };
-
   const handleEditReference = () => {
     if (!editingReference) return;
-
     const payload = {
       name: editingReference.name,
-      ...(editingReference.telephone?.trim()
-        ? { telephone: editingReference.telephone.trim() }
-        : {}),
+      ...(editingReference.telephone?.trim() ? {
+        telephone: editingReference.telephone.trim()
+      } : {})
     };
-
-    updateReference.mutate(
-      { id: editingReference.id, data: payload },
-      {
-        onSuccess: () => {
-          toast({
-            title: t('common:titles.updated'),
-            description: t('messages.updatedDescription', { name: editingReference.name }),
-          });
-          setIsEditDialogOpen(false);
-          setEditingReference(null);
-        },
-        onError: (error: any) => {
-          toast({
-            title: t('common:titles.error'),
-            description: error.message,
-            variant: 'destructive',
-          });
-        }
+    updateReference.mutate({
+      id: editingReference.id,
+      data: payload
+    }, {
+      onSuccess: () => {
+        toast({
+          title: t('common:titles.updated'),
+          description: t('messages.updatedDescription', {
+            name: editingReference.name
+          })
+        });
+        setIsEditDialogOpen(false);
+        setEditingReference(null);
+      },
+      onError: (error: any) => {
+        toast({
+          title: t('common:titles.error'),
+          description: error.message,
+          variant: 'destructive'
+        });
       }
-    );
+    });
   };
-
   const handleDeleteReference = (referenceId: string) => {
     const reference = references.find((r: any) => r.id === referenceId);
     deleteReference.mutate(referenceId, {
       onSuccess: () => {
         toast({
           title: t('common:titles.deleted'),
-          description: t('messages.deletedDescription', { name: reference?.name || '' }),
-          variant: 'destructive',
+          description: t('messages.deletedDescription', {
+            name: reference?.name || ''
+          }),
+          variant: 'destructive'
         });
       },
       onError: (error: any) => {
         toast({
           title: t('common:titles.error'),
           description: error.message,
-          variant: 'destructive',
+          variant: 'destructive'
         });
       }
     });
   };
-
   const openEditDialog = (reference: any) => {
-    setEditingReference({ ...reference });
+    setEditingReference({
+      ...reference
+    });
     setIsEditDialogOpen(true);
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
           <p className="text-muted-foreground">{t('subtitle')}</p>
         </div>
-        {isAdmin && (
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        {isAdmin && <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
@@ -198,22 +178,17 @@ export default function WorksiteReferencesPage() {
               <div className="grid gap-4 py-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">{t('form.nameLabel')} *</Label>
-                    <Input
-                      id="name"
-                      value={newReference.name}
-                      onChange={(e) => setNewReference({ ...newReference, name: e.target.value })}
-                      placeholder={t('form.namePlaceholder')}
-                    />
+                    <Input id="name" value={newReference.name} onChange={e => setNewReference({
+                ...newReference,
+                name: e.target.value
+              })} placeholder={t('form.namePlaceholder')} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="telephone">{t('form.phoneLabel')}</Label>
-                    <Input
-                      id="telephone"
-                      type="tel"
-                      value={newReference.telephone}
-                      onChange={(e) => setNewReference({ ...newReference, telephone: e.target.value })}
-                      placeholder={t('form.phonePlaceholder')}
-                    />
+                    <Input id="telephone" type="tel" value={newReference.telephone} onChange={e => setNewReference({
+                ...newReference,
+                telephone: e.target.value
+              })} placeholder={t('form.phonePlaceholder')} />
                   </div>
                 </div>
               <DialogFooter>
@@ -223,8 +198,7 @@ export default function WorksiteReferencesPage() {
                 <Button onClick={handleCreateReference}>{t('createButton')}</Button>
               </DialogFooter>
             </DialogContent>
-          </Dialog>
-        )}
+          </Dialog>}
       </div>
 
       {/* Stats */}
@@ -232,7 +206,7 @@ export default function WorksiteReferencesPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('stats.total')}</CardTitle>
-            <Plus className="h-4 w-4 text-muted-foreground" />
+            
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{references.length}</div>
@@ -244,12 +218,7 @@ export default function WorksiteReferencesPage() {
       <div className="flex items-center gap-4">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder={t('searchPlaceholder')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
+          <Input placeholder={t('searchPlaceholder')} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9" />
         </div>
       </div>
 
@@ -266,22 +235,16 @@ export default function WorksiteReferencesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredReferences.map((reference: any) => (
-                  <TableRow key={reference.id}>
+                {filteredReferences.map((reference: any) => <TableRow key={reference.id}>
                     <TableCell>
                       <div className="font-medium">{reference.name}</div>
                     </TableCell>
                     <TableCell>
-                      {reference.telephone ? (
-                        <div className="text-sm">{reference.telephone}</div>
-                      ) : (
-                        <div className="text-sm text-muted-foreground">
+                      {reference.telephone ? <div className="text-sm">{reference.telephone}</div> : <div className="text-sm text-muted-foreground">
                           {t('common:messages.notSet')}
-                        </div>
-                      )}
+                        </div>}
                     </TableCell>
-                    {isAdmin && (
-                      <TableCell className="text-right">
+                    {isAdmin && <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
                           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(reference)}>
                             <Edit2 className="h-4 w-4" />
@@ -296,7 +259,9 @@ export default function WorksiteReferencesPage() {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>{t('dialogs.deleteTitle')}</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  {t('dialogs.deleteDescription', { name: reference.name })}
+                                  {t('dialogs.deleteDescription', {
+                              name: reference.name
+                            })}
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
@@ -308,17 +273,13 @@ export default function WorksiteReferencesPage() {
                             </AlertDialogContent>
                           </AlertDialog>
                         </div>
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))}
-                {filteredReferences.length === 0 && (
-                  <TableRow>
+                      </TableCell>}
+                  </TableRow>)}
+                {filteredReferences.length === 0 && <TableRow>
                     <TableCell colSpan={isAdmin ? 3 : 2} className="h-24 text-center">
                       {t('messages.noReferences')}
                     </TableCell>
-                  </TableRow>
-                )}
+                  </TableRow>}
               </TableBody>
             </Table>
           </div>
@@ -332,27 +293,22 @@ export default function WorksiteReferencesPage() {
             <DialogTitle>{t('form.editTitle')}</DialogTitle>
             <DialogDescription>{t('form.editDescription')}</DialogDescription>
           </DialogHeader>
-          {editingReference && (
-            <div className="grid gap-4 py-4">
+          {editingReference && <div className="grid gap-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="editName">{t('form.nameLabel')} *</Label>
-                <Input
-                  id="editName"
-                  value={editingReference.name}
-                  onChange={(e) => setEditingReference({ ...editingReference, name: e.target.value })}
-                />
+                <Input id="editName" value={editingReference.name} onChange={e => setEditingReference({
+              ...editingReference,
+              name: e.target.value
+            })} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="editTelephone">{t('form.phoneLabel')}</Label>
-                <Input
-                  id="editTelephone"
-                  type="tel"
-                  value={editingReference.telephone || ''}
-                  onChange={(e) => setEditingReference({ ...editingReference, telephone: e.target.value })}
-                />
+                <Input id="editTelephone" type="tel" value={editingReference.telephone || ''} onChange={e => setEditingReference({
+              ...editingReference,
+              telephone: e.target.value
+            })} />
               </div>
-            </div>
-          )}
+            </div>}
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               {t('common:actions.cancel')}
@@ -361,6 +317,5 @@ export default function WorksiteReferencesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 }
