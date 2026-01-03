@@ -2,26 +2,40 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { workReportsApi } from '@/lib/api';
 
 // Query key factory
+type WorkReportKeyId = string | number;
+
+const normalizeWorkReportId = (id: WorkReportKeyId) => String(id);
+
 export const workReportsKeys = {
   all: ['workReports'] as const,
-  byWork: (workId: string) => [...workReportsKeys.all, 'work', workId] as const,
-  entries: (workId: string) => [...workReportsKeys.all, 'entries', workId] as const,
+  byWork: (workId: WorkReportKeyId) => [
+    ...workReportsKeys.all,
+    'work',
+    normalizeWorkReportId(workId),
+  ] as const,
+  entries: (workId: WorkReportKeyId) => [
+    ...workReportsKeys.all,
+    'entries',
+    normalizeWorkReportId(workId),
+  ] as const,
 };
 
 // Fetch work report by work ID
-export function useWorkReport(workId: string) {
+export function useWorkReport(workId: WorkReportKeyId) {
+  const normalizedWorkId = normalizeWorkReportId(workId);
   return useQuery({
-    queryKey: workReportsKeys.byWork(workId),
-    queryFn: () => workReportsApi.getByWorkId(workId),
+    queryKey: workReportsKeys.byWork(normalizedWorkId),
+    queryFn: () => workReportsApi.getByWorkId(normalizedWorkId),
     enabled: !!workId,
   });
 }
 
 // Fetch work report entries
-export function useWorkReportEntries(workId: string) {
+export function useWorkReportEntries(workId: WorkReportKeyId) {
+  const normalizedWorkId = normalizeWorkReportId(workId);
   return useQuery({
-    queryKey: workReportsKeys.entries(workId),
-    queryFn: () => workReportsApi.getEntries(workId),
+    queryKey: workReportsKeys.entries(normalizedWorkId),
+    queryFn: () => workReportsApi.getEntries(normalizedWorkId),
     enabled: !!workId,
   });
 }

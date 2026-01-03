@@ -917,7 +917,17 @@ export const apiRequest = async <T>(
     return null as T;
   }
 
-  return response.json();
+  const contentType = response.headers.get('content-type') || '';
+  const text = await response.text();
+  if (!text) {
+    return null as T;
+  }
+
+  if (contentType.includes('application/json')) {
+    return JSON.parse(text) as T;
+  }
+
+  return text as unknown as T;
 };
 
 // Auth API

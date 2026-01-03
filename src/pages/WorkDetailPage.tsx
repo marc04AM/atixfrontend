@@ -425,6 +425,22 @@ export default function WorkDetailPage() {
       });
     }
   };
+  const resolveWorksiteReferenceName = (assignment: any) => {
+    const directName = assignment?.worksiteReference?.name
+      || assignment?.worksiteReferenceName
+      || assignment?.referenceName
+      || assignment?.worksiteReference?.label;
+    if (directName) return directName;
+
+    const referenceId = assignment?.worksiteReferenceId
+      ?? assignment?.referenceId
+      ?? assignment?.worksiteReference?.id
+      ?? assignment?.reference?.id;
+    if (!referenceId) return t('common:messages.notSet');
+
+    const match = allWorksiteReferences.find((ref: any) => String(ref.id) === String(referenceId));
+    return match?.name || t('common:messages.notSet');
+  };
   const totalHours = reportEntries.reduce((sum: number, e: any) => sum + e.hours, 0);
   return <div className="space-y-6">
       {/* Header */}
@@ -837,7 +853,7 @@ export default function WorkDetailPage() {
               {work.worksiteReferenceAssignments && work.worksiteReferenceAssignments.length > 0 ? work.worksiteReferenceAssignments.map((assignment: any) => <div key={assignment.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">
-                        {assignment.worksiteReference?.name || t('common:messages.notSet')}
+                        {resolveWorksiteReferenceName(assignment)}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {t(`worksite-references:roles.${assignment.role}`)}

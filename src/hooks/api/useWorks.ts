@@ -3,12 +3,16 @@ import { worksApi } from '@/lib/api';
 import { Work, PaginatedResponse } from '@/types';
 
 // Query key factory
+type WorkKeyId = string | number;
+
+const normalizeWorkId = (id: WorkKeyId) => String(id);
+
 export const worksKeys = {
   all: ['works'] as const,
   lists: () => [...worksKeys.all, 'list'] as const,
   list: (filters?: Record<string, any>) => [...worksKeys.lists(), { filters }] as const,
   details: () => [...worksKeys.all, 'detail'] as const,
-  detail: (id: string) => [...worksKeys.details(), id] as const,
+  detail: (id: WorkKeyId) => [...worksKeys.details(), normalizeWorkId(id)] as const,
 };
 
 // Fetch all works with filters
@@ -21,10 +25,11 @@ export function useWorks(params?: Record<string, any>) {
 }
 
 // Fetch single work
-export function useWork(id: string) {
+export function useWork(id: WorkKeyId) {
+  const workId = normalizeWorkId(id);
   return useQuery<Work>({
-    queryKey: worksKeys.detail(id),
-    queryFn: () => worksApi.getById(id),
+    queryKey: worksKeys.detail(workId),
+    queryFn: () => worksApi.getById(workId),
     enabled: !!id,
   });
 }
