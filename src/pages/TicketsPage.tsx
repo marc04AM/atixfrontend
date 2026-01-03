@@ -98,26 +98,60 @@ export default function TicketsPage() {
   });
 
   // Build API params
-  const params = useMemo(() => {
+  const baseParams = useMemo(() => {
     const p: Record<string, any> = {
       ...filters,
-      page: currentPage,
-      size: PAGE_SIZE,
     };
-    if (filters.status !== 'all') {
-      p.status = filters.status;
+    if (p.status === 'all') {
+      delete p.status;
     }
     // Remove empty values
-    Object.keys(p).forEach(key => {
-      if (p[key] === '' || p[key] === undefined || p[key] === null || p[key] === 'all') {
+    Object.keys(p).forEach((key) => {
+      if (p[key] === '' || p[key] === undefined || p[key] === null) {
         delete p[key];
       }
     });
     return p;
-  }, [filters, activeTab, currentPage]);
+  }, [filters]);
+
+  const listParams = useMemo(() => ({
+    ...baseParams,
+    page: currentPage,
+    size: PAGE_SIZE,
+  }), [baseParams, currentPage, activeTab]);
+
+  const countBaseParams = useMemo(() => {
+    const { status, ...rest } = baseParams;
+    return {
+      ...rest,
+      page: 0,
+      size: 1,
+    };
+  }, [baseParams]);
+
+  const openCountParams = useMemo(() => ({
+    ...countBaseParams,
+    status: 'OPEN',
+  }), [countBaseParams]);
+  const inProgressCountParams = useMemo(() => ({
+    ...countBaseParams,
+    status: 'IN_PROGRESS',
+  }), [countBaseParams]);
+  const resolvedCountParams = useMemo(() => ({
+    ...countBaseParams,
+    status: 'RESOLVED',
+  }), [countBaseParams]);
+  const closedCountParams = useMemo(() => ({
+    ...countBaseParams,
+    status: 'CLOSED',
+  }), [countBaseParams]);
 
   // Fetch tickets
-  const { data: ticketsData, isLoading, error } = useTickets(params);
+  const { data: ticketsData, isLoading, error } = useTickets(listParams);
+  const { data: openTicketsData } = useTickets(openCountParams);
+  const { data: inProgressTicketsData } = useTickets(inProgressCountParams);
+  const { data: resolvedTicketsData } = useTickets(resolvedCountParams);
+  const { data: closedTicketsData } = useTickets(closedCountParams);
   const createTicket = useCreateTicket();
 
   const tickets = ticketsData?.content || [];
@@ -183,6 +217,21 @@ export default function TicketsPage() {
 
   const totalPages = ticketsData?.totalPages || 0;
   const totalElements = ticketsData?.totalElements || 0;
+  const statusFilter = baseParams.status as TicketStatus | undefined;
+  const openTicketsCount = statusFilter
+    ? statusFilter === 'OPEN'
+      ? openTicketsData?.totalElements || 0
+      : statusFilter === 'IN_PROGRESS'
+        ? inProgressTicketsData?.totalElements || 0
+        : 0
+    : (openTicketsData?.totalElements || 0) + (inProgressTicketsData?.totalElements || 0);
+  const closedTicketsCount = statusFilter
+    ? statusFilter === 'CLOSED'
+      ? closedTicketsData?.totalElements || 0
+      : statusFilter === 'RESOLVED'
+        ? resolvedTicketsData?.totalElements || 0
+        : 0
+    : (closedTicketsData?.totalElements || 0) + (resolvedTicketsData?.totalElements || 0);
 
   if (isLoading) return <LoadingSpinner message="Loading tickets..." />;
   if (error) return (
@@ -296,10 +345,10 @@ export default function TicketsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <TabsList>
             <TabsTrigger value="open">
-              Open ({tickets.filter(t => t.status === 'OPEN' || t.status === 'IN_PROGRESS').length})
+              Open ({openTicketsCount})
             </TabsTrigger>
             <TabsTrigger value="closed">
-              Closed ({tickets.filter(t => t.status === 'CLOSED' || t.status === 'RESOLVED').length})
+              Closed ({closedTicketsCount})
             </TabsTrigger>
           </TabsList>
 
