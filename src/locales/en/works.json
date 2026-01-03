@@ -171,6 +171,10 @@
   "dialogs": {
     "deleteTitle": "Delete Work",
     "deleteDescription": "Are you sure you want to delete this work? This action cannot be undone.",
+    "removeTechnicianTitle": "Remove Technician",
+    "removeTechnicianDescription": "Remove {{name}} from this work?",
+    "removeReferenceTitle": "Remove Reference",
+    "removeReferenceDescription": "Remove {{name}} from this work?",
     "addClient": {
       "title": "Add New Client",
       "description": "Create a new client that will be available for selection.",
@@ -228,6 +232,10 @@
     "assignedDescription": "You have been assigned to this work.",
     "technicianAssignedTitle": "Technician Assigned",
     "technicianAssignedDescription": "{{name}} has been assigned.",
+    "technicianRemovedTitle": "Technician Removed",
+    "technicianRemovedDescription": "{{name}} has been removed from this work.",
+    "referenceRemovedTitle": "Reference Removed",
+    "referenceRemovedDescription": "{{name}} has been removed from this work.",
     "deleteSuccessTitle": "Work Deleted",
     "deleteSuccessDescription": "The work has been deleted.",
     "referenceAddedTitle": "Reference Added",

@@ -113,6 +113,19 @@ export function useAssignTechnician() {
   });
 }
 
+// Unassign technician mutation
+export function useUnassignTechnician() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workId, technicianId }: { workId: string; technicianId: string }) =>
+      worksApi.unassignTechnician(workId, technicianId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: worksKeys.detail(variables.workId) });
+    },
+  });
+}
+
 // Add reference mutation
 export function useAddReference() {
   const queryClient = useQueryClient();
@@ -120,6 +133,19 @@ export function useAddReference() {
   return useMutation({
     mutationFn: ({ workId, data }: { workId: string; data: any }) =>
       worksApi.addReference(workId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: worksKeys.detail(variables.workId) });
+    },
+  });
+}
+
+// Remove reference mutation
+export function useRemoveReference() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workId, assignmentId }: { workId: string; assignmentId: string }) =>
+      worksApi.removeReference(workId, assignmentId),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: worksKeys.detail(variables.workId) });
     },

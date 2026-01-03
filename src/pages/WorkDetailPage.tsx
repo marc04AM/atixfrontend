@@ -18,7 +18,7 @@ import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, 
 import { Work, WorkReportEntry, User as UserType, WorkStatus, Attachment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
-import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useDeleteWork, useAssignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useCreateWorksiteReference } from '@/hooks/api';
+import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate, formatDateTime } from '@/lib/date';
@@ -90,8 +90,10 @@ export default function WorkDetailPage() {
   const invoiceWork = useInvoiceWork();
   const deleteWork = useDeleteWork();
   const assignTechnician = useAssignTechnician();
+  const unassignTechnician = useUnassignTechnician();
   const createReportEntry = useCreateReportEntry();
   const addReference = useAddReference();
+  const removeReference = useRemoveReference();
   const createWorksiteReference = useCreateWorksiteReference();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -151,6 +153,7 @@ export default function WorkDetailPage() {
     ? assignedTechnicians.some((assignment) => assignment.technicianId === currentUser.id)
     : false;
   const canDelete = isOwner();
+  const canManageAssignments = isAdmin() || isOwner();
   const availableTechnicians = technicians.filter((t: any) => !assignedTechnicianIds.includes(t.id));
 
   // Work status helper
@@ -341,6 +344,51 @@ export default function WorkDetailPage() {
         });
       }
     });
+  };
+  const handleUnassignTechnician = (assignment: AssignedTechnicianSummary) => {
+    if (!assignment.technicianId) return;
+    unassignTechnician.mutate(
+      { workId: work.id, technicianId: assignment.technicianId },
+      {
+        onSuccess: () => {
+          toast({
+            title: t('messages.technicianRemovedTitle'),
+            description: t('messages.technicianRemovedDescription', { name: assignment.name }),
+            variant: 'destructive'
+          });
+        },
+        onError: (error: any) => {
+          toast({
+            title: t('common:titles.error'),
+            description: error.message,
+            variant: 'destructive'
+          });
+        }
+      }
+    );
+  };
+  const handleRemoveReference = (assignment: any) => {
+    if (!assignment?.id) return;
+    const referenceName = resolveWorksiteReferenceName(assignment);
+    removeReference.mutate(
+      { workId: work.id, assignmentId: assignment.id },
+      {
+        onSuccess: () => {
+          toast({
+            title: t('messages.referenceRemovedTitle'),
+            description: t('messages.referenceRemovedDescription', { name: referenceName }),
+            variant: 'destructive'
+          });
+        },
+        onError: (error: any) => {
+          toast({
+            title: t('common:titles.error'),
+            description: error.message,
+            variant: 'destructive'
+          });
+        }
+      }
+    );
   };
   const handleDelete = () => {
     deleteWork.mutate(work.id, {
@@ -866,6 +914,29 @@ export default function WorkDetailPage() {
                         {assignment.email || t('assignments.emailUnavailable')}
                       </p>
                     </div>
+                    {canManageAssignments && assignment.technicianId && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>{t('dialogs.removeTechnicianTitle')}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {t('dialogs.removeTechnicianDescription', { name: assignment.name })}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleUnassignTechnician(assignment)}>
+                              {t('common:actions.remove')}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
                   </div>) : <p className="text-sm text-muted-foreground">{t('assignments.empty')}</p>}
 
               <Separator />
@@ -934,6 +1005,29 @@ export default function WorkDetailPage() {
                         </p>
                       )}
                     </div>
+                    {canManageAssignments && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>{t('dialogs.removeReferenceTitle')}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {t('dialogs.removeReferenceDescription', { name: resolveWorksiteReferenceName(assignment) })}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleRemoveReference(assignment)}>
+                              {t('common:actions.remove')}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
                   </div>) : <p className="text-sm text-muted-foreground">{t('references.empty')}</p>}
 
               <Separator />

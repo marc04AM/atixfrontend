@@ -171,6 +171,10 @@
   "dialogs": {
     "deleteTitle": "Elimina lavoro",
     "deleteDescription": "Sei sicuro di voler eliminare questo lavoro? Questa azione non può essere annullata.",
+    "removeTechnicianTitle": "Rimuovi tecnico",
+    "removeTechnicianDescription": "Rimuovere {{name}} da questo lavoro?",
+    "removeReferenceTitle": "Rimuovi riferimento",
+    "removeReferenceDescription": "Rimuovere {{name}} da questo lavoro?",
     "addClient": {
       "title": "Aggiungi nuovo cliente",
       "description": "Crea un nuovo cliente disponibile per la selezione.",
@@ -228,6 +232,10 @@
     "assignedDescription": "Sei stato assegnato a questo lavoro.",
     "technicianAssignedTitle": "Tecnico assegnato",
     "technicianAssignedDescription": "{{name}} è stato assegnato.",
+    "technicianRemovedTitle": "Tecnico rimosso",
+    "technicianRemovedDescription": "{{name}} è stato rimosso da questo lavoro.",
+    "referenceRemovedTitle": "Riferimento rimosso",
+    "referenceRemovedDescription": "{{name}} è stato rimosso da questo lavoro.",
     "deleteSuccessTitle": "Lavoro eliminato",
     "deleteSuccessDescription": "Il lavoro è stato eliminato.",
     "referenceAddedTitle": "Riferimento aggiunto",
