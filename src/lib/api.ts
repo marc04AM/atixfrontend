@@ -297,15 +297,18 @@ const createDemoStore = () => {
   const worksiteReferences = [
     {
       id: 'worksite-ref-1',
-      name: 'Mario Rossi - Idraulico',
+      name: 'Mario Rossi',
+      telephone: '+39 02 1234567',
     },
     {
       id: 'worksite-ref-2',
-      name: 'Luca Bianchi - Elettricista',
+      name: 'Luca Bianchi',
+      telephone: '+39 02 7654321',
     },
     {
       id: 'worksite-ref-3',
-      name: 'Giulia Verdi - Responsabile Impianto',
+      name: 'Giulia Verdi',
+      telephone: '+39 051 445566',
     },
   ];
 
@@ -768,6 +771,35 @@ const buildDemoMutationResponse = (endpoint: string, method: string, options: Re
     const id = path.split('/')[2];
     return demoStore.works.find((item) => item.id === id) || null;
   }
+  if (path.startsWith('/works/') && method === 'DELETE' && path.includes('/technicians/')) {
+    const [, , workId, , technicianId] = path.split('/');
+    const work = demoStore.works.find((item) => item.id === workId);
+    if (work) {
+      if (work.assignedTechnicians) {
+        work.assignedTechnicians = work.assignedTechnicians.filter(
+          (assignment: any) =>
+            String(assignment.technicianId) !== technicianId && String(assignment.id) !== technicianId
+        );
+      }
+      if (work.assignments) {
+        work.assignments = work.assignments.filter(
+          (assignment: any) =>
+            String(assignment.user?.id) !== technicianId && String(assignment.id) !== technicianId
+        );
+      }
+    }
+    return null;
+  }
+  if (path.startsWith('/works/') && method === 'DELETE' && path.includes('/references/')) {
+    const [, , workId, , referenceAssignmentId] = path.split('/');
+    const work = demoStore.works.find((item) => item.id === workId);
+    if (work?.worksiteReferenceAssignments) {
+      work.worksiteReferenceAssignments = work.worksiteReferenceAssignments.filter(
+        (assignment: any) => String(assignment.id) !== referenceAssignmentId
+      );
+    }
+    return null;
+  }
   if (path.startsWith('/works/') && method === 'PATCH') {
     const id = path.split('/')[2];
     const work = demoStore.works.find((item) => item.id === id);
@@ -1097,6 +1129,10 @@ export const worksApi = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+  removeReference: (id: string, referenceId: string) =>
+    apiRequest<void>(`/works/${id}/references/${referenceId}`, { method: 'DELETE' }),
+  unassignTechnician: (id: string, technicianId: string) =>
+    apiRequest<void>(`/works/${id}/technicians/${technicianId}`, { method: 'DELETE' }),
   delete: (id: string) =>
     apiRequest<void>(`/works/${id}`, { method: 'DELETE' }),
 };

@@ -14,11 +14,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus } from 'lucide-react';
+import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus, Phone, Mail } from 'lucide-react';
 import { Work, WorkReportEntry, User as UserType, WorkStatus, Attachment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
-import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useDeleteWork, useAssignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useCreateWorksiteReference } from '@/hooks/api';
+import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate, formatDateTime } from '@/lib/date';
@@ -90,8 +90,10 @@ export default function WorkDetailPage() {
   const invoiceWork = useInvoiceWork();
   const deleteWork = useDeleteWork();
   const assignTechnician = useAssignTechnician();
+  const unassignTechnician = useUnassignTechnician();
   const createReportEntry = useCreateReportEntry();
   const addReference = useAddReference();
+  const removeReference = useRemoveReference();
   const createWorksiteReference = useCreateWorksiteReference();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -126,6 +128,7 @@ export default function WorkDetailPage() {
   const [selectedRole, setSelectedRole] = useState<'PLUMBER' | 'ELECTRICIAN'>('PLUMBER');
   const [isCreatingNewReference, setIsCreatingNewReference] = useState(false);
   const [newReferenceName, setNewReferenceName] = useState('');
+  const [newReferencePhone, setNewReferencePhone] = useState('');
 
   // Loading and error states
   if (isLoading) return <LoadingSpinner message={t('messages.loadingDetails')} />;
@@ -150,6 +153,7 @@ export default function WorkDetailPage() {
     ? assignedTechnicians.some((assignment) => assignment.technicianId === currentUser.id)
     : false;
   const canDelete = isOwner();
+  const canManageAssignments = isAdmin() || isOwner();
   const availableTechnicians = technicians.filter((t: any) => !assignedTechnicianIds.includes(t.id));
 
   // Work status helper
@@ -341,6 +345,51 @@ export default function WorkDetailPage() {
       }
     });
   };
+  const handleUnassignTechnician = (assignment: AssignedTechnicianSummary) => {
+    if (!assignment.technicianId) return;
+    unassignTechnician.mutate(
+      { workId: work.id, technicianId: assignment.technicianId },
+      {
+        onSuccess: () => {
+          toast({
+            title: t('messages.technicianRemovedTitle'),
+            description: t('messages.technicianRemovedDescription', { name: assignment.name }),
+            variant: 'destructive'
+          });
+        },
+        onError: (error: any) => {
+          toast({
+            title: t('common:titles.error'),
+            description: error.message,
+            variant: 'destructive'
+          });
+        }
+      }
+    );
+  };
+  const handleRemoveReference = (assignment: any) => {
+    if (!assignment?.id) return;
+    const referenceName = resolveWorksiteReferenceName(assignment);
+    removeReference.mutate(
+      { workId: work.id, assignmentId: assignment.id },
+      {
+        onSuccess: () => {
+          toast({
+            title: t('messages.referenceRemovedTitle'),
+            description: t('messages.referenceRemovedDescription', { name: referenceName }),
+            variant: 'destructive'
+          });
+        },
+        onError: (error: any) => {
+          toast({
+            title: t('common:titles.error'),
+            description: error.message,
+            variant: 'destructive'
+          });
+        }
+      }
+    );
+  };
   const handleDelete = () => {
     deleteWork.mutate(work.id, {
       onSuccess: () => {
@@ -373,7 +422,14 @@ export default function WorkDetailPage() {
         return;
       }
 
-      createWorksiteReference.mutate({ name: newReferenceName }, {
+      const payload = {
+        name: newReferenceName,
+        ...(newReferencePhone.trim()
+          ? { telephone: newReferencePhone.trim() }
+          : {}),
+      };
+
+      createWorksiteReference.mutate(payload, {
         onSuccess: (newRef) => {
           // After creating, add it to the work
           addReference.mutate({
@@ -389,6 +445,7 @@ export default function WorkDetailPage() {
               setSelectedRole('PLUMBER');
               setIsCreatingNewReference(false);
               setNewReferenceName('');
+              setNewReferencePhone('');
               toast({
                 title: t('messages.referenceCreatedAndAddedTitle'),
                 description: t('messages.referenceCreatedAndAddedDescription', {
@@ -462,6 +519,23 @@ export default function WorkDetailPage() {
 
     const match = allWorksiteReferences.find((ref: any) => String(ref.id) === String(referenceId));
     return match?.name || t('common:messages.notSet');
+  };
+  const resolveWorksiteReferencePhone = (assignment: any) => {
+    const directPhone = assignment?.worksiteReference?.telephone
+      || assignment?.worksiteReferenceTelephone
+      || assignment?.referenceTelephone
+      || assignment?.telephone
+      || assignment?.phone;
+    if (directPhone) return directPhone;
+
+    const referenceId = assignment?.worksiteReferenceId
+      ?? assignment?.referenceId
+      ?? assignment?.worksiteReference?.id
+      ?? assignment?.reference?.id;
+    if (!referenceId) return '';
+
+    const match = allWorksiteReferences.find((ref: any) => String(ref.id) === String(referenceId));
+    return match?.telephone || '';
   };
   const totalHours = reportEntries.reduce((sum: number, e: any) => sum + e.hours, 0);
   return <div className="space-y-6">
@@ -825,21 +899,53 @@ export default function WorkDetailPage() {
               <CardTitle>{t('assignments.title')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {assignedTechnicians.length > 0 ? assignedTechnicians.map(assignment => <div key={assignment.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
+              {assignedTechnicians.length > 0 ? assignedTechnicians.map(assignment => <div key={assignment.id} className="group flex items-start gap-3 rounded-lg border border-border/50 bg-muted/40 p-3">
                     <Avatar className="h-8 w-8 shrink-0">
                       <AvatarImage src={assignment.profileImageUrl || ""} />
                       <AvatarFallback className="text-xs">
                         {assignment.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">
-                        {assignment.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {assignment.email || t('assignments.emailUnavailable')}
-                      </p>
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <p className="text-sm font-medium truncate">{assignment.name}</p>
+                      {assignment.email ? (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Mail className="h-3.5 w-3.5" />
+                          <span className="truncate">{assignment.email}</span>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {t('assignments.emailUnavailable')}
+                        </p>
+                      )}
                     </div>
+                    {canManageAssignments && assignment.technicianId && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>{t('dialogs.removeTechnicianTitle')}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {t('dialogs.removeTechnicianDescription', { name: assignment.name })}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleUnassignTechnician(assignment)}>
+                              {t('common:actions.remove')}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
                   </div>) : <p className="text-sm text-muted-foreground">{t('assignments.empty')}</p>}
 
               <Separator />
@@ -894,15 +1000,54 @@ export default function WorkDetailPage() {
               <CardTitle>{t('references.title')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {work.worksiteReferenceAssignments && work.worksiteReferenceAssignments.length > 0 ? work.worksiteReferenceAssignments.map((assignment: any) => <div key={assignment.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">
-                        {resolveWorksiteReferenceName(assignment)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {t(`worksite-references:roles.${assignment.role}`)}
-                      </p>
+              {work.worksiteReferenceAssignments && work.worksiteReferenceAssignments.length > 0 ? work.worksiteReferenceAssignments.map((assignment: any) => <div key={assignment.id} className="group flex items-start gap-3 rounded-lg border border-border/50 bg-muted/40 p-3">
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-medium truncate">
+                          {resolveWorksiteReferenceName(assignment)}
+                        </p>
+                        <Badge variant="secondary" className="text-xs">
+                          {t(`worksite-references:roles.${assignment.role}`)}
+                        </Badge>
+                      </div>
+                      {resolveWorksiteReferencePhone(assignment) ? (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Phone className="h-3.5 w-3.5" />
+                          <span>{resolveWorksiteReferencePhone(assignment)}</span>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          {t('common:messages.notSet')}
+                        </p>
+                      )}
                     </div>
+                    {canManageAssignments && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive opacity-0 transition-opacity group-hover:opacity-100"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>{t('dialogs.removeReferenceTitle')}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {t('dialogs.removeReferenceDescription', { name: resolveWorksiteReferenceName(assignment) })}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleRemoveReference(assignment)}>
+                              {t('common:actions.remove')}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
                   </div>) : <p className="text-sm text-muted-foreground">{t('references.empty')}</p>}
 
               <Separator />
@@ -912,6 +1057,7 @@ export default function WorkDetailPage() {
                   if (!open) {
                     setIsCreatingNewReference(false);
                     setNewReferenceName('');
+                    setNewReferencePhone('');
                     setSelectedReference('');
                   }
                 }}>
@@ -954,6 +1100,14 @@ export default function WorkDetailPage() {
                             value={newReferenceName}
                             onChange={(e) => setNewReferenceName(e.target.value)}
                             placeholder={t('references.referenceNamePlaceholder')}
+                          />
+                          <Label htmlFor="newReferencePhone">{t('references.referencePhoneLabel')}</Label>
+                          <Input
+                            id="newReferencePhone"
+                            type="tel"
+                            value={newReferencePhone}
+                            onChange={(e) => setNewReferencePhone(e.target.value)}
+                            placeholder={t('references.referencePhonePlaceholder')}
                           />
                         </div>
                       ) : (

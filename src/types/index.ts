@@ -129,6 +129,7 @@ export interface Ticket {
 export interface WorksiteReference {
   id: string;
   name: string;
+  telephone?: string;
 }
 
 export interface WorksiteReferenceAssignment {
