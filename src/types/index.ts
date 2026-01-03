@@ -6,7 +6,7 @@ export type WorkStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'INVOICED';
 export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
 export type AttachmentType = 'PHOTO' | 'PDF' | 'DOC' | 'OTHER';
 export type AttachmentTargetType = 'WORK' | 'PLANT' | 'TICKET' | 'REPORT';
-export type WorksiteReferenceRole = 'MANAGER' | 'SUPERVISOR' | 'CONTACT';
+export type WorksiteReferenceRole = 'PLUMBER' | 'ELECTRICIAN';
 
 // User types
 export interface User {

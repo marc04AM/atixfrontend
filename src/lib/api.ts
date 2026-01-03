@@ -294,6 +294,21 @@ const createDemoStore = () => {
     ],
   };
 
+  const worksiteReferences = [
+    {
+      id: 'worksite-ref-1',
+      name: 'Mario Rossi - Idraulico',
+    },
+    {
+      id: 'worksite-ref-2',
+      name: 'Luca Bianchi - Elettricista',
+    },
+    {
+      id: 'worksite-ref-3',
+      name: 'Giulia Verdi - Responsabile Impianto',
+    },
+  ];
+
   return {
     users,
     clients,
@@ -301,6 +316,7 @@ const createDemoStore = () => {
     tickets,
     works,
     workReportEntries,
+    worksiteReferences,
   };
 };
 
@@ -591,6 +607,14 @@ const buildDemoGetResponse = (endpoint: string) => {
     return { data: { dashboardSummary: buildDemoDashboardSummary() } };
   }
 
+  if (path === '/worksite-references') {
+    return demoStore.worksiteReferences;
+  }
+  if (path.startsWith('/worksite-references/')) {
+    const id = path.split('/')[2];
+    return demoStore.worksiteReferences.find((ref) => ref.id === id) || demoStore.worksiteReferences[0];
+  }
+
   return null;
 };
 
@@ -808,6 +832,23 @@ const buildDemoMutationResponse = (endpoint: string, method: string, options: Re
         (entry: any) => entry.id !== id
       );
     });
+    return null;
+  }
+
+  if (path === '/worksite-references' && method === 'POST') {
+    const reference = { id: createDemoId('worksite-ref'), ...body };
+    demoStore.worksiteReferences.push(reference);
+    return reference;
+  }
+  if (path.startsWith('/worksite-references/') && method === 'PATCH') {
+    const id = path.split('/')[2];
+    const reference = demoStore.worksiteReferences.find((item) => item.id === id);
+    if (reference) Object.assign(reference, body);
+    return reference || null;
+  }
+  if (path.startsWith('/worksite-references/') && method === 'DELETE') {
+    const id = path.split('/')[2];
+    demoStore.worksiteReferences = demoStore.worksiteReferences.filter((item) => item.id !== id);
     return null;
   }
 
@@ -1203,4 +1244,22 @@ export const dashboardApi = {
       };
     }
   },
+};
+
+// Worksite References API
+export const worksiteReferencesApi = {
+  getAll: () => apiRequest<any[]>('/worksite-references'),
+  getById: (id: string) => apiRequest<any>(`/worksite-references/${id}`),
+  create: (data: { name: string }) =>
+    apiRequest<any>('/worksite-references', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  update: (id: string, data: { name: string }) =>
+    apiRequest<any>(`/worksite-references/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+  delete: (id: string) =>
+    apiRequest<void>(`/worksite-references/${id}`, { method: 'DELETE' }),
 };

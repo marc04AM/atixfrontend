@@ -16,7 +16,7 @@ import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, 
 import { Work, WorkReportEntry, User as UserType, WorkStatus, Attachment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
-import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useAssignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType } from '@/hooks/api';
+import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useAssignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useCreateWorksiteReference } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate, formatDateTime } from '@/lib/date';
@@ -66,6 +66,7 @@ export default function WorkDetailPage() {
   const { data: work, isLoading, error } = useWork(id!);
   const { data: reportEntriesData } = useWorkReportEntries(id!);
   const { data: techniciansData } = useUsersByType('TECHNICIAN');
+  const { data: worksiteReferencesData } = useWorksiteReferences();
 
   // Mutations
   const updateWork = useUpdateWork();
@@ -73,6 +74,8 @@ export default function WorkDetailPage() {
   const invoiceWork = useInvoiceWork();
   const assignTechnician = useAssignTechnician();
   const createReportEntry = useCreateReportEntry();
+  const addReference = useAddReference();
+  const createWorksiteReference = useCreateWorksiteReference();
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedWork, setEditedWork] = useState<any>({});
@@ -80,6 +83,7 @@ export default function WorkDetailPage() {
 
   const reportEntries = reportEntriesData || [];
   const technicians = techniciansData || [];
+  const allWorksiteReferences = worksiteReferencesData || [];
 
   // Update editedWork when work data loads
   useEffect(() => {
@@ -98,6 +102,13 @@ export default function WorkDetailPage() {
   // Assign technician dialog
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [selectedTechnician, setSelectedTechnician] = useState('');
+
+  // Add worksite reference dialog
+  const [isAddReferenceOpen, setIsAddReferenceOpen] = useState(false);
+  const [selectedReference, setSelectedReference] = useState('');
+  const [selectedRole, setSelectedRole] = useState<'PLUMBER' | 'ELECTRICIAN'>('PLUMBER');
+  const [isCreatingNewReference, setIsCreatingNewReference] = useState(false);
+  const [newReferenceName, setNewReferenceName] = useState('');
 
   // Loading and error states
   if (isLoading) return <LoadingSpinner message="Loading work details..." />;
@@ -308,6 +319,86 @@ export default function WorkDetailPage() {
         });
       }
     });
+  };
+  const handleAddReference = () => {
+    if (isCreatingNewReference) {
+      // Create new reference first, then add it to the work
+      if (!newReferenceName) {
+        toast({
+          title: 'Validation Error',
+          description: 'Please enter a name for the new reference.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      createWorksiteReference.mutate({ name: newReferenceName }, {
+        onSuccess: (newRef) => {
+          // After creating, add it to the work
+          addReference.mutate({
+            workId: work.id,
+            data: {
+              worksiteReferenceId: newRef.id,
+              role: selectedRole
+            }
+          }, {
+            onSuccess: () => {
+              setIsAddReferenceOpen(false);
+              setSelectedReference('');
+              setSelectedRole('PLUMBER');
+              setIsCreatingNewReference(false);
+              setNewReferenceName('');
+              toast({
+                title: 'Reference Created and Added',
+                description: `${newReferenceName} has been created and added as ${selectedRole}.`
+              });
+            },
+            onError: (error: any) => {
+              toast({
+                title: 'Error',
+                description: error.message,
+                variant: 'destructive'
+              });
+            }
+          });
+        },
+        onError: (error: any) => {
+          toast({
+            title: 'Error Creating Reference',
+            description: error.message,
+            variant: 'destructive'
+          });
+        }
+      });
+    } else {
+      // Add existing reference
+      if (!selectedReference) return;
+      const reference = allWorksiteReferences.find((ref: any) => ref.id === selectedReference);
+      addReference.mutate({
+        workId: work.id,
+        data: {
+          worksiteReferenceId: selectedReference,
+          role: selectedRole
+        }
+      }, {
+        onSuccess: () => {
+          setIsAddReferenceOpen(false);
+          setSelectedReference('');
+          setSelectedRole('PLUMBER');
+          toast({
+            title: 'Reference Added',
+            description: `${reference?.name} has been added as ${selectedRole}.`
+          });
+        },
+        onError: (error: any) => {
+          toast({
+            title: 'Error',
+            description: error.message,
+            variant: 'destructive'
+          });
+        }
+      });
+    }
   };
   const totalHours = reportEntries.reduce((sum: number, e: any) => sum + e.hours, 0);
   return <div className="space-y-6">
@@ -667,15 +758,15 @@ export default function WorkDetailPage() {
                       </p>
                     </div>
                   </div>) : <p className="text-sm text-muted-foreground">No technicians assigned yet.</p>}
-              
+
               <Separator />
-              
+
               <div className="space-y-2">
                 {!isAssigned && <Button variant="outline" className="w-full" onClick={handleAssignMyself}>
                     <UserPlus className="h-4 w-4 mr-2" />
                     Assign Myself
                   </Button>}
-                
+
                 {isAdmin && availableTechnicians.length > 0 && <Dialog open={isAssignOpen} onOpenChange={setIsAssignOpen}>
                     <DialogTrigger asChild>
                       <Button variant="outline" className="w-full">
@@ -713,6 +804,121 @@ export default function WorkDetailPage() {
                     </DialogContent>
                   </Dialog>}
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Worksite References */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Worksite References</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {work.worksiteReferenceAssignments && work.worksiteReferenceAssignments.length > 0 ? work.worksiteReferenceAssignments.map((assignment: any) => <div key={assignment.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {assignment.worksiteReference?.name || 'Unknown'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {assignment.role}
+                      </p>
+                    </div>
+                  </div>) : <p className="text-sm text-muted-foreground">No worksite references assigned yet.</p>}
+
+              <Separator />
+
+              {isAdmin && <Dialog open={isAddReferenceOpen} onOpenChange={(open) => {
+                  setIsAddReferenceOpen(open);
+                  if (!open) {
+                    setIsCreatingNewReference(false);
+                    setNewReferenceName('');
+                    setSelectedReference('');
+                  }
+                }}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Reference
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add Worksite Reference</DialogTitle>
+                      <DialogDescription>
+                        Select an existing reference or create a new one.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant={!isCreatingNewReference ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setIsCreatingNewReference(false)}
+                        >
+                          Select Existing
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={isCreatingNewReference ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setIsCreatingNewReference(true)}
+                        >
+                          Create New
+                        </Button>
+                      </div>
+
+                      {isCreatingNewReference ? (
+                        <div className="grid gap-2">
+                          <Label htmlFor="newReferenceName">Reference Name</Label>
+                          <Input
+                            id="newReferenceName"
+                            value={newReferenceName}
+                            onChange={(e) => setNewReferenceName(e.target.value)}
+                            placeholder="Mario Rossi - Idraulico"
+                          />
+                        </div>
+                      ) : (
+                        <div className="grid gap-2">
+                          <Label htmlFor="reference">Reference</Label>
+                          <Select value={selectedReference} onValueChange={setSelectedReference}>
+                            <SelectTrigger id="reference">
+                              <SelectValue placeholder="Select reference" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {allWorksiteReferences.map((ref: any) => <SelectItem key={ref.id} value={ref.id}>
+                                  {ref.name}
+                                </SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+
+                      <div className="grid gap-2">
+                        <Label htmlFor="role">Role</Label>
+                        <Select value={selectedRole} onValueChange={(value: any) => setSelectedRole(value)}>
+                          <SelectTrigger id="role">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="PLUMBER">Plumber</SelectItem>
+                            <SelectItem value="ELECTRICIAN">Electrician</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsAddReferenceOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleAddReference}
+                        disabled={isCreatingNewReference ? !newReferenceName : !selectedReference}
+                      >
+                        {isCreatingNewReference ? 'Create & Add' : 'Add Reference'}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>}
             </CardContent>
           </Card>
         </div>

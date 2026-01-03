@@ -5,6 +5,7 @@ import {
   Users,
   Building2,
   Factory,
+  Wrench,
   Settings,
   LogOut,
   User,
@@ -37,6 +38,7 @@ const mainNavItems = [
 const managementItems = [
   { title: 'Clients', url: '/clients', icon: Building2 },
   { title: 'Plants', url: '/plants', icon: Factory },
+  { title: 'Worksite References', url: '/worksite-references', icon: Wrench },
   { title: 'Users', url: '/users', icon: Users, adminOnly: true },
 ];
 
@@ -47,7 +49,8 @@ export function AppSidebar() {
 
   const isActive = (url: string) => {
     if (url === '/') return location.pathname === '/';
-    return location.pathname.startsWith(url);
+    // Exact match or starts with url followed by /
+    return location.pathname === url || location.pathname.startsWith(url + '/');
   };
 
   return (

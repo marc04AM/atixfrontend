@@ -1029,7 +1029,7 @@ Crea un nuovo riferimento cantiere.
 **Request Body:**
 ```json
 {
-  "name": "Idraulico Rossi Mario"
+  "name": "Rossi Mario"
 }
 ```
 
