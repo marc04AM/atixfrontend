@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus } from 'lucide-react';
+import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus, Phone } from 'lucide-react';
 import { Work, WorkReportEntry, User as UserType, WorkStatus, Attachment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
@@ -991,24 +991,35 @@ export default function WorkDetailPage() {
               <CardTitle>{t('references.title')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {work.worksiteReferenceAssignments && work.worksiteReferenceAssignments.length > 0 ? work.worksiteReferenceAssignments.map((assignment: any) => <div key={assignment.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">
-                        {resolveWorksiteReferenceName(assignment)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {t(`worksite-references:roles.${assignment.role}`)}
-                      </p>
-                      {resolveWorksiteReferencePhone(assignment) && (
+              {work.worksiteReferenceAssignments && work.worksiteReferenceAssignments.length > 0 ? work.worksiteReferenceAssignments.map((assignment: any) => <div key={assignment.id} className="group flex items-start gap-3 rounded-lg border border-border/50 bg-muted/40 p-3">
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-medium truncate">
+                          {resolveWorksiteReferenceName(assignment)}
+                        </p>
+                        <Badge variant="secondary" className="text-xs">
+                          {t(`worksite-references:roles.${assignment.role}`)}
+                        </Badge>
+                      </div>
+                      {resolveWorksiteReferencePhone(assignment) ? (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Phone className="h-3.5 w-3.5" />
+                          <span>{resolveWorksiteReferencePhone(assignment)}</span>
+                        </div>
+                      ) : (
                         <p className="text-xs text-muted-foreground">
-                          {resolveWorksiteReferencePhone(assignment)}
+                          {t('common:messages.notSet')}
                         </p>
                       )}
                     </div>
                     {canManageAssignments && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive opacity-0 transition-opacity group-hover:opacity-100"
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>

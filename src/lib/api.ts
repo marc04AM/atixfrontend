@@ -297,17 +297,17 @@ const createDemoStore = () => {
   const worksiteReferences = [
     {
       id: 'worksite-ref-1',
-      name: 'Mario Rossi - Idraulico',
+      name: 'Mario Rossi',
       telephone: '+39 02 1234567',
     },
     {
       id: 'worksite-ref-2',
-      name: 'Luca Bianchi - Elettricista',
+      name: 'Luca Bianchi',
       telephone: '+39 02 7654321',
     },
     {
       id: 'worksite-ref-3',
-      name: 'Giulia Verdi - Responsabile Impianto',
+      name: 'Giulia Verdi',
       telephone: '+39 051 445566',
     },
   ];
