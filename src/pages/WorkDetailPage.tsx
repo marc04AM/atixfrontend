@@ -30,7 +30,14 @@ type AssignedTechnicianSummary = {
   profileImageUrl?: string;
 };
 
-const getAssignedTechnicians = (work: Work): AssignedTechnicianSummary[] => {
+const getAssignedTechnicians = (
+  work: Work,
+  technicians: UserType[] = []
+): AssignedTechnicianSummary[] => {
+  const technicianById = new Map(technicians.map((tech) => [tech.id, tech]));
+  const resolveProfileImageUrl = (technicianId?: string, fallback?: string) =>
+    fallback || (technicianId ? technicianById.get(technicianId)?.profileImageUrl : undefined);
+
   if (work.assignedTechnicians && work.assignedTechnicians.length > 0) {
     return work.assignedTechnicians
       .map((assignment) => ({
@@ -38,7 +45,10 @@ const getAssignedTechnicians = (work: Work): AssignedTechnicianSummary[] => {
         technicianId: assignment.technicianId,
         name: `${assignment.technicianFirstName} ${assignment.technicianLastName}`.trim(),
         email: assignment.technicianEmail,
-        profileImageUrl: assignment.profileImageUrl,
+        profileImageUrl: resolveProfileImageUrl(
+          assignment.technicianId,
+          assignment.profileImageUrl
+        ),
       }))
       .filter((assignment) => assignment.name);
   }
@@ -49,7 +59,10 @@ const getAssignedTechnicians = (work: Work): AssignedTechnicianSummary[] => {
       technicianId: assignment.user?.id,
       name: `${assignment.user?.firstName || ''} ${assignment.user?.lastName || ''}`.trim(),
       email: assignment.user?.email,
-      profileImageUrl: assignment.user?.profileImageUrl,
+      profileImageUrl: resolveProfileImageUrl(
+        assignment.user?.id,
+        assignment.user?.profileImageUrl
+      ),
     }))
     .filter((assignment) => assignment.name);
 };
@@ -127,7 +140,7 @@ export default function WorkDetailPage() {
   );
   if (!work) return null;
 
-  const assignedTechnicians = getAssignedTechnicians(work);
+  const assignedTechnicians = getAssignedTechnicians(work, technicians);
   const assignedTechnicianIds = assignedTechnicians
     .map((assignment) => assignment.technicianId)
     .filter((id): id is string => Boolean(id));
