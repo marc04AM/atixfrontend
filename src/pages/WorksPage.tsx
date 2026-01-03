@@ -41,7 +41,7 @@ import { useWorks, useClients, usePlants, useUsersByType, useTickets } from '@/h
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 interface WorkFilters {
   atixClientId: string;

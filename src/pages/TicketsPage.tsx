@@ -46,7 +46,7 @@ import { useTickets, useCreateTicket } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 const getTicketStatusColor = (status: TicketStatus) => {
   switch (status) {
