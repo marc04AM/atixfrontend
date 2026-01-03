@@ -679,7 +679,10 @@ function WorksList({
                     </Badge>
                     <h3 className="font-medium">{work.name}</h3>
                     {work.completed ? (
-                      <Badge variant="outline" className="border-chart-3 text-chart-3">
+                      <Badge
+                        variant="outline"
+                        className="border-emerald-600 bg-emerald-600/10 text-emerald-700 dark:border-emerald-400 dark:bg-emerald-400/10 dark:text-emerald-300"
+                      >
                         <CheckCircle2 className="h-3 w-3 mr-1" />
                         Completed
                       </Badge>

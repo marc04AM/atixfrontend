@@ -260,7 +260,9 @@ export default function Dashboard() {
                     {work.invoiced ? (
                       <Badge variant="secondary">{t('recentWorks.badges.invoiced')}</Badge>
                     ) : work.completed ? (
-                      <Badge className="bg-chart-3/20 text-chart-3 border-chart-3">{t('recentWorks.badges.completed')}</Badge>
+                      <Badge className="border-emerald-600 bg-emerald-600/15 text-emerald-700 dark:border-emerald-400 dark:bg-emerald-400/15 dark:text-emerald-300">
+                        {t('recentWorks.badges.completed')}
+                      </Badge>
                     ) : (
                       <Badge variant="outline">{t('recentWorks.badges.inProgress')}</Badge>
                     )}
