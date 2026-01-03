@@ -403,6 +403,13 @@ export default function WorkDetailPage() {
                   expectedPlantHours: Number(e.target.value)
                 })} />
                   </div>
+                  <div className="grid gap-2 md:col-span-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea id="description" rows={6} value={editedWork.description || ''} onChange={e => setEditedWork({
+                  ...editedWork,
+                  description: e.target.value
+                })} />
+                  </div>
                 </div> : <div className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
@@ -421,6 +428,11 @@ export default function WorkDetailPage() {
                       <Label className="text-muted-foreground text-xs">Expected Start</Label>
                       <p>{formatDate(work.expectedStartDate, 'Not set')}</p>
                     </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-muted-foreground text-xs">Description</Label>
+                    <p className="mt-1 whitespace-pre-wrap">{work.description || ''}</p>
                   </div>
                   
                   <Separator />

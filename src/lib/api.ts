@@ -139,6 +139,7 @@ const createDemoStore = () => {
     {
       id: 'work-1',
       name: 'Packaging Line Revamp',
+      description: 'Revise PLC logic and refresh electrical documentation for line 4.',
       bidNumber: 'BID-2024-001',
       orderNumber: 'ORD-2024-441',
       orderDate: '2024-10-12',
@@ -169,6 +170,7 @@ const createDemoStore = () => {
     {
       id: 'work-2',
       name: 'Robot Cell Upgrade',
+      description: 'Upgrade robot cell safety and validate interlocks after firmware update.',
       bidNumber: 'BID-2024-014',
       orderNumber: 'ORD-2024-882',
       orderDate: '2024-09-05',
@@ -199,6 +201,7 @@ const createDemoStore = () => {
     {
       id: 'work-3',
       name: 'MES Integration',
+      description: 'Integrate MES data points and align reporting for production events.',
       bidNumber: 'BID-2023-122',
       orderNumber: 'ORD-2023-990',
       orderDate: '2024-06-14',
@@ -234,6 +237,7 @@ const createDemoStore = () => {
     {
       id: 'work-4',
       name: 'Safety PLC Audit',
+      description: 'Audit safety PLC wiring and produce compliance checklist.',
       bidNumber: 'BID-2024-055',
       orderNumber: 'ORD-2024-777',
       orderDate: '2024-11-05',
@@ -674,6 +678,7 @@ const buildDemoMutationResponse = (endpoint: string, method: string, options: Re
     const work = {
       id: workId,
       name: body?.name || 'New Work',
+      description: body?.description || '',
       bidNumber: body?.bidNumber || '',
       orderNumber: body?.orderNumber || '',
       orderDate: body?.orderDate || '',

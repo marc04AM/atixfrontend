@@ -53,6 +53,7 @@ export interface Plant {
 export interface Work {
   id: string;
   name: string;
+  description?: string;
   bidNumber: string;
   orderNumber: string;
   orderDate: string;
