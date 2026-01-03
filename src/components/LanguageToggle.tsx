@@ -1,4 +1,3 @@
-import { Languages } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,11 +14,16 @@ export function LanguageToggle() {
     i18n.changeLanguage(lang);
   };
 
+  const currentLanguage = (i18n.resolvedLanguage || i18n.language || 'en').split('-')[0];
+  const currentFlag = currentLanguage === 'it' ? '🇮🇹' : '🇬🇧';
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="h-9 w-9">
-          <Languages className="h-4 w-4" />
+          <span className="text-base leading-none" aria-hidden="true">
+            {currentFlag}
+          </span>
           <span className="sr-only">Change language</span>
         </Button>
       </DropdownMenuTrigger>
