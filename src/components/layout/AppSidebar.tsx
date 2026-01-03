@@ -54,8 +54,12 @@ export function AppSidebar() {
     <Sidebar className="border-r">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-            <Briefcase className="h-5 w-5 text-primary-foreground" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg">
+            <img
+              src="/favicon.svg"
+              alt="ATIX"
+              className="h-full w-full"
+            />
           </div>
           <div className="flex flex-col">
             <span className="font-semibold text-sidebar-foreground">ATIX MS</span>
