@@ -24,6 +24,14 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import {
   Plus,
   Search,
   Filter,
@@ -37,6 +45,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useTickets, useCreateTicket } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
+
+const PAGE_SIZE = 20;
 
 const getTicketStatusColor = (status: TicketStatus) => {
   switch (status) {
@@ -69,6 +79,7 @@ export default function TicketsPage() {
 
   const initialTab = searchParams.get('status') === 'CLOSED' ? 'closed' : 'open';
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -90,8 +101,8 @@ export default function TicketsPage() {
   const params = useMemo(() => {
     const p: Record<string, any> = {
       ...filters,
-      page: 0,
-      size: 100,
+      page: currentPage,
+      size: PAGE_SIZE,
     };
     if (filters.status !== 'all') {
       p.status = filters.status;
@@ -103,7 +114,7 @@ export default function TicketsPage() {
       }
     });
     return p;
-  }, [filters, activeTab]);
+  }, [filters, activeTab, currentPage]);
 
   // Fetch tickets
   const { data: ticketsData, isLoading, error } = useTickets(params);
@@ -164,10 +175,14 @@ export default function TicketsPage() {
       createdAtTo: '',
     });
     setSearchQuery('');
+    setCurrentPage(0);
   };
 
   const hasActiveFilters = filters.senderEmail !== '' || filters.name !== '' || filters.description !== '' ||
     filters.status !== 'all' || filters.createdAtFrom !== '' || filters.createdAtTo !== '' || searchQuery !== '';
+
+  const totalPages = ticketsData?.totalPages || 0;
+  const totalElements = ticketsData?.totalElements || 0;
 
   if (isLoading) return <LoadingSpinner message="Loading tickets..." />;
   if (error) return (
@@ -206,6 +221,7 @@ export default function TicketsPage() {
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     setFilters(prev => ({ ...prev, status: 'all' }));
+    setCurrentPage(0);
   };
 
   return (
@@ -394,13 +410,102 @@ export default function TicketsPage() {
         )}
 
         {/* Tickets List */}
-        <TabsContent value="open" className="mt-4">
+        <TabsContent value="open" className="mt-4 space-y-4">
           <TicketsList tickets={filteredTickets} navigate={navigate} />
+          {totalPages > 1 && (
+            <TicketsPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              pageSize={PAGE_SIZE}
+              onPageChange={setCurrentPage}
+            />
+          )}
         </TabsContent>
-        <TabsContent value="closed" className="mt-4">
+        <TabsContent value="closed" className="mt-4 space-y-4">
           <TicketsList tickets={filteredTickets} navigate={navigate} />
+          {totalPages > 1 && (
+            <TicketsPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              pageSize={PAGE_SIZE}
+              onPageChange={setCurrentPage}
+            />
+          )}
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function TicketsPagination({
+  currentPage,
+  totalPages,
+  totalElements,
+  pageSize,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  totalElements: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+}) {
+  const startItem = currentPage * pageSize + 1;
+  const endItem = Math.min((currentPage + 1) * pageSize, totalElements);
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    
+    if (totalPages <= maxVisible) {
+      for (let i = 0; i < totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage < 3) {
+        for (let i = 0; i < Math.min(maxVisible, totalPages); i++) pages.push(i);
+      } else if (currentPage > totalPages - 4) {
+        for (let i = totalPages - maxVisible; i < totalPages; i++) pages.push(i);
+      } else {
+        for (let i = currentPage - 2; i <= currentPage + 2; i++) pages.push(i);
+      }
+    }
+    return pages;
+  };
+
+  return (
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p className="text-sm text-muted-foreground">
+        Showing {startItem}-{endItem} of {totalElements} tickets
+      </p>
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => onPageChange(Math.max(0, currentPage - 1))}
+              className={currentPage === 0 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+          {getPageNumbers().map((page) => (
+            <PaginationItem key={page}>
+              <PaginationLink
+                onClick={() => onPageChange(page)}
+                isActive={currentPage === page}
+                className="cursor-pointer"
+              >
+                {page + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => onPageChange(Math.min(totalPages - 1, currentPage + 1))}
+              className={currentPage >= totalPages - 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }
