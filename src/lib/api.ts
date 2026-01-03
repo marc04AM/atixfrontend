@@ -1,6 +1,8 @@
 // API configuration and helper functions
 // This will connect to your backend
 
+import { PaginatedResponse } from '@/types';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
 
 // Get stored auth token

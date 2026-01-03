@@ -14,6 +14,14 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import {
   Plus,
   Search,
   Filter,
@@ -32,6 +40,8 @@ import { Work } from '@/types';
 import { useWorks, useClients, usePlants, useUsersByType, useTickets } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
+
+const PAGE_SIZE = 20;
 
 interface WorkFilters {
   atixClientId: string;
@@ -54,6 +64,7 @@ export default function WorksPage() {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('open');
+  const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<WorkFilters>({
@@ -90,9 +101,9 @@ export default function WorksPage() {
   const listParams = useMemo(() => ({
     ...baseParams,
     completed: activeTab === 'closed',
-    page: 0,
-    size: 100,
-  }), [baseParams, activeTab]);
+    page: currentPage,
+    size: PAGE_SIZE,
+  }), [baseParams, activeTab, currentPage]);
 
   const countParams = useMemo(() => ({
     ...baseParams,
@@ -171,12 +182,21 @@ export default function WorksPage() {
       orderNumber: '',
     });
     setSearchQuery('');
+    setCurrentPage(0);
   };
 
   const hasActiveFilters = Object.values(filters).some(v => v !== '') || searchQuery !== '';
 
   const openWorksCount = openWorksData?.totalElements || 0;
   const closedWorksCount = closedWorksData?.totalElements || 0;
+  const totalPages = worksData?.totalPages || 0;
+  const totalElements = worksData?.totalElements || 0;
+
+  // Reset page when tab changes
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setCurrentPage(0);
+  };
 
   if (worksLoading) {
     return <LoadingSpinner message="Loading works..." />;
@@ -211,7 +231,7 @@ export default function WorksPage() {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <TabsList>
             <TabsTrigger value="open">
@@ -443,13 +463,102 @@ export default function WorksPage() {
         )}
 
         {/* Works List */}
-        <TabsContent value="open" className="mt-4">
+        <TabsContent value="open" className="mt-4 space-y-4">
           <WorksList works={filteredWorks} navigate={navigate} />
+          {totalPages > 1 && (
+            <WorksPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              pageSize={PAGE_SIZE}
+              onPageChange={setCurrentPage}
+            />
+          )}
         </TabsContent>
-        <TabsContent value="closed" className="mt-4">
+        <TabsContent value="closed" className="mt-4 space-y-4">
           <WorksList works={filteredWorks} navigate={navigate} />
+          {totalPages > 1 && (
+            <WorksPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              pageSize={PAGE_SIZE}
+              onPageChange={setCurrentPage}
+            />
+          )}
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function WorksPagination({
+  currentPage,
+  totalPages,
+  totalElements,
+  pageSize,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  totalElements: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+}) {
+  const startItem = currentPage * pageSize + 1;
+  const endItem = Math.min((currentPage + 1) * pageSize, totalElements);
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    
+    if (totalPages <= maxVisible) {
+      for (let i = 0; i < totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage < 3) {
+        for (let i = 0; i < Math.min(maxVisible, totalPages); i++) pages.push(i);
+      } else if (currentPage > totalPages - 4) {
+        for (let i = totalPages - maxVisible; i < totalPages; i++) pages.push(i);
+      } else {
+        for (let i = currentPage - 2; i <= currentPage + 2; i++) pages.push(i);
+      }
+    }
+    return pages;
+  };
+
+  return (
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p className="text-sm text-muted-foreground">
+        Showing {startItem}-{endItem} of {totalElements} works
+      </p>
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => onPageChange(Math.max(0, currentPage - 1))}
+              className={currentPage === 0 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+          {getPageNumbers().map((page) => (
+            <PaginationItem key={page}>
+              <PaginationLink
+                onClick={() => onPageChange(page)}
+                isActive={currentPage === page}
+                className="cursor-pointer"
+              >
+                {page + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => onPageChange(Math.min(totalPages - 1, currentPage + 1))}
+              className={currentPage >= totalPages - 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }
