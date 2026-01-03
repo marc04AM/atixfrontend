@@ -167,6 +167,8 @@
     "addButton": "Aggiungi riferimento"
   },
   "dialogs": {
+    "deleteTitle": "Elimina lavoro",
+    "deleteDescription": "Sei sicuro di voler eliminare questo lavoro? Questa azione non può essere annullata.",
     "addClient": {
       "title": "Aggiungi nuovo cliente",
       "description": "Crea un nuovo cliente disponibile per la selezione.",
@@ -224,6 +226,8 @@
     "assignedDescription": "Sei stato assegnato a questo lavoro.",
     "technicianAssignedTitle": "Tecnico assegnato",
     "technicianAssignedDescription": "{{name}} è stato assegnato.",
+    "deleteSuccessTitle": "Lavoro eliminato",
+    "deleteSuccessDescription": "Il lavoro è stato eliminato.",
     "referenceAddedTitle": "Riferimento aggiunto",
     "referenceAddedDescription": "{{name}} è stato aggiunto come {{role}}.",
     "referenceCreatedAndAddedTitle": "Riferimento creato e aggiunto",

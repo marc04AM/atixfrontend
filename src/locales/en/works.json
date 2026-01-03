@@ -167,6 +167,8 @@
     "addButton": "Add Reference"
   },
   "dialogs": {
+    "deleteTitle": "Delete Work",
+    "deleteDescription": "Are you sure you want to delete this work? This action cannot be undone.",
     "addClient": {
       "title": "Add New Client",
       "description": "Create a new client that will be available for selection.",
@@ -224,6 +226,8 @@
     "assignedDescription": "You have been assigned to this work.",
     "technicianAssignedTitle": "Technician Assigned",
     "technicianAssignedDescription": "{{name}} has been assigned.",
+    "deleteSuccessTitle": "Work Deleted",
+    "deleteSuccessDescription": "The work has been deleted.",
     "referenceAddedTitle": "Reference Added",
     "referenceAddedDescription": "{{name}} has been added as {{role}}.",
     "referenceCreatedAndAddedTitle": "Reference Created and Added",

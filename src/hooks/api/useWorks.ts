@@ -86,6 +86,20 @@ export function useInvoiceWork() {
   });
 }
 
+// Delete work mutation
+export function useDeleteWork() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: WorkKeyId) => worksApi.delete(normalizeWorkId(id)),
+    onSuccess: (_, workId) => {
+      const normalizedId = normalizeWorkId(workId);
+      queryClient.invalidateQueries({ queryKey: worksKeys.lists() });
+      queryClient.removeQueries({ queryKey: worksKeys.detail(normalizedId) });
+    },
+  });
+}
+
 // Assign technician mutation
 export function useAssignTechnician() {
   const queryClient = useQueryClient();

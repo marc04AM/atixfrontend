@@ -1097,6 +1097,8 @@ export const worksApi = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+  delete: (id: string) =>
+    apiRequest<void>(`/works/${id}`, { method: 'DELETE' }),
 };
 
 // Tickets API

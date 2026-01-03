@@ -11,13 +11,14 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus } from 'lucide-react';
 import { Work, WorkReportEntry, User as UserType, WorkStatus, Attachment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
-import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useAssignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useCreateWorksiteReference } from '@/hooks/api';
+import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useDeleteWork, useAssignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useCreateWorksiteReference } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate, formatDateTime } from '@/lib/date';
@@ -74,7 +75,7 @@ export default function WorkDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user: currentUser, isAdmin } = useAuth();
+  const { user: currentUser, isAdmin, isOwner } = useAuth();
   const { t } = useTranslation(['works', 'worksite-references']);
 
   // Fetch data
@@ -87,6 +88,7 @@ export default function WorkDetailPage() {
   const updateWork = useUpdateWork();
   const closeWork = useCloseWork();
   const invoiceWork = useInvoiceWork();
+  const deleteWork = useDeleteWork();
   const assignTechnician = useAssignTechnician();
   const createReportEntry = useCreateReportEntry();
   const addReference = useAddReference();
@@ -147,6 +149,7 @@ export default function WorkDetailPage() {
   const isAssigned = currentUser
     ? assignedTechnicians.some((assignment) => assignment.technicianId === currentUser.id)
     : false;
+  const canDelete = isOwner();
   const availableTechnicians = technicians.filter((t: any) => !assignedTechnicianIds.includes(t.id));
 
   // Work status helper
@@ -338,6 +341,25 @@ export default function WorkDetailPage() {
       }
     });
   };
+  const handleDelete = () => {
+    deleteWork.mutate(work.id, {
+      onSuccess: () => {
+        toast({
+          title: t('messages.deleteSuccessTitle'),
+          description: t('messages.deleteSuccessDescription'),
+          variant: 'destructive'
+        });
+        navigate('/works');
+      },
+      onError: (error: any) => {
+        toast({
+          title: t('common:titles.error'),
+          description: error.message,
+          variant: 'destructive'
+        });
+      }
+    });
+  };
   const handleAddReference = () => {
     const roleLabel = t(`worksite-references:roles.${selectedRole}`);
     if (isCreatingNewReference) {
@@ -490,6 +512,28 @@ export default function WorkDetailPage() {
                 <Edit2 className="h-4 w-4 mr-2" />
                 {t('common:actions.edit')}
               </Button>
+              {canDelete && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      {t('common:actions.delete')}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t('dialogs.deleteTitle')}</AlertDialogTitle>
+                      <AlertDialogDescription>{t('dialogs.deleteDescription')}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>
+                        {t('common:actions.delete')}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
               {!work.completed && <Button onClick={handleMarkComplete}>
                   <CheckCircle2 className="h-4 w-4 mr-2" />
                   {t('actions.markCompleted')}
