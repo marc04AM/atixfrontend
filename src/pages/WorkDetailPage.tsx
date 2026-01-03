@@ -20,6 +20,38 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate, formatDateTime } from '@/lib/date';
 
+type AssignedTechnicianSummary = {
+  id: string;
+  technicianId?: string;
+  name: string;
+  email?: string;
+};
+
+const getAssignedTechnicians = (work: Work): AssignedTechnicianSummary[] => {
+  if (work.assignedTechnicians && work.assignedTechnicians.length > 0) {
+    return work.assignedTechnicians
+      .map((assignment) => ({
+        id: assignment.id,
+        technicianId: assignment.technicianId,
+        name: `${assignment.technicianFirstName} ${assignment.technicianLastName}`.trim(),
+        email: assignment.technicianEmail,
+      }))
+      .filter((assignment) => assignment.name);
+  }
+
+  return (work.assignments || [])
+    .map((assignment) => ({
+      id: assignment.id,
+      technicianId: assignment.user?.id,
+      name: `${assignment.user?.firstName || ''} ${assignment.user?.lastName || ''}`.trim(),
+      email: assignment.user?.email,
+    }))
+    .filter((assignment) => assignment.name);
+};
+
+const getPlantDirectory = (work: Work): string =>
+  work.plant?.nasDirectory || work.relatedPlantNasDirectory || '';
+
 export default function WorkDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -76,6 +108,15 @@ export default function WorkDetailPage() {
   );
   if (!work) return null;
 
+  const assignedTechnicians = getAssignedTechnicians(work);
+  const assignedTechnicianIds = assignedTechnicians
+    .map((assignment) => assignment.technicianId)
+    .filter((id): id is string => Boolean(id));
+  const isAssigned = currentUser
+    ? assignedTechnicians.some((assignment) => assignment.technicianId === currentUser.id)
+    : false;
+  const availableTechnicians = technicians.filter((t: any) => !assignedTechnicianIds.includes(t.id));
+
   // Work status helper
   const getWorkStatus = (): WorkStatus => {
     if (work.invoiced) return 'INVOICED';
@@ -85,14 +126,14 @@ export default function WorkDetailPage() {
 
   // Generate work index (e.g., "nasplant1work1")
   const getWorkIndex = (): string => {
-    const plantDir = work.plant?.nasDirectory || '';
+    const plantDir = getPlantDirectory(work);
     const workDir = work.nasSubDirectory || '';
     return (plantDir + workDir).toLowerCase().replace(/\//g, '');
   };
 
   // Get full directory path
   const getFullDirectory = (): string => {
-    const plantDir = work.plant?.nasDirectory || '';
+    const plantDir = getPlantDirectory(work);
     const workDir = work.nasSubDirectory || '';
     return plantDir + workDir;
   };
@@ -131,7 +172,6 @@ export default function WorkDetailPage() {
       });
     }
   };
-  const isAssigned = work.assignments?.some((a: any) => a.user?.id === currentUser?.id);
   const handleSave = () => {
     updateWork.mutate({ id: work.id, data: editedWork }, {
       onSuccess: () => {
@@ -266,8 +306,6 @@ export default function WorkDetailPage() {
     });
   };
   const totalHours = reportEntries.reduce((sum: number, e: any) => sum + e.hours, 0);
-  const assignedTechnicianIds = work.assignments?.map((a: any) => a.user?.id) || [];
-  const availableTechnicians = technicians.filter((t: any) => !assignedTechnicianIds.includes(t.id));
   return <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -609,16 +647,16 @@ export default function WorkDetailPage() {
               <CardTitle>Assigned Technicians</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {work.assignments && work.assignments.length > 0 ? work.assignments.map(assignment => <div key={assignment.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
+              {assignedTechnicians.length > 0 ? assignedTechnicians.map(assignment => <div key={assignment.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
                     <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
                       <User className="h-4 w-4 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">
-                        {assignment.user?.firstName} {assignment.user?.lastName}
+                        {assignment.name}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
-                        {assignment.user?.email}
+                        {assignment.email || 'Email not available'}
                       </p>
                     </div>
                   </div>) : <p className="text-sm text-muted-foreground">No technicians assigned yet.</p>}

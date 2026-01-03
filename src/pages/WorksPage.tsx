@@ -36,7 +36,7 @@ import {
   TrendingUp,
   BarChart3
 } from 'lucide-react';
-import { Work } from '@/types';
+import { Client, Plant, Work } from '@/types';
 import { useWorks, useClients, usePlants, useUsersByType, useTickets } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
@@ -59,6 +59,55 @@ interface WorkFilters {
   bidNumber: string;
   orderNumber: string;
 }
+
+const getAssignedTechnicianNames = (work: Work): string[] => {
+  if (work.assignedTechnicians && work.assignedTechnicians.length > 0) {
+    return work.assignedTechnicians
+      .map((assignment) => `${assignment.technicianFirstName} ${assignment.technicianLastName}`.trim())
+      .filter(Boolean);
+  }
+
+  return (work.assignments || [])
+    .map((assignment) => `${assignment.user?.firstName || ''} ${assignment.user?.lastName || ''}`.trim())
+    .filter(Boolean);
+};
+
+const getClientNames = (work: Work, clientsById?: Map<string, Client>): string[] => {
+  const names: string[] = [];
+
+  if (work.atixClient?.name) {
+    names.push(work.atixClient.name);
+  }
+  if (work.finalClient?.name) {
+    names.push(work.finalClient.name);
+  }
+
+  if (names.length === 0 && clientsById) {
+    if (work.atixClientId) {
+      const atixClient = clientsById.get(work.atixClientId);
+      if (atixClient?.name) names.push(atixClient.name);
+    }
+    if (work.finalClientId) {
+      const finalClient = clientsById.get(work.finalClientId);
+      if (finalClient?.name) names.push(finalClient.name);
+    }
+  }
+
+  return names.filter(Boolean);
+};
+
+const getPlantName = (work: Work, plantsById?: Map<string, Plant>): string => {
+  if (work.plant?.name) return work.plant.name;
+  if (work.plantId && plantsById) return plantsById.get(work.plantId)?.name || '';
+  return '';
+};
+
+const getPlantDirectory = (work: Work, plantsById?: Map<string, Plant>): string => {
+  if (work.plant?.nasDirectory) return work.plant.nasDirectory;
+  if (work.relatedPlantNasDirectory) return work.relatedPlantNasDirectory;
+  if (work.plantId && plantsById) return plantsById.get(work.plantId)?.nasDirectory || '';
+  return '';
+};
 
 export default function WorksPage() {
   const navigate = useNavigate();
@@ -137,23 +186,25 @@ export default function WorksPage() {
   const sellers = sellersData || [];
   const technicians = techniciansData || [];
   const tickets = ticketsData?.content || [];
+  const clientsById = useMemo(() => new Map(clients.map((client) => [client.id, client])), [clients]);
+  const plantsById = useMemo(() => new Map(plants.map((plant) => [plant.id, plant])), [plants]);
   const filteredWorks = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     if (!query) return works;
 
     return works.filter((work) => {
       const sellerName = work.seller ? `${work.seller.firstName} ${work.seller.lastName}` : '';
-      const assignmentNames = (work.assignments || [])
-        .map((assignment) => `${assignment.user?.firstName || ''} ${assignment.user?.lastName || ''}`.trim())
-        .join(' ');
+      const assignmentNames = getAssignedTechnicianNames(work).join(' ');
+      const clientNames = getClientNames(work, clientsById).join(' ');
+      const plantName = getPlantName(work, plantsById);
+      const plantDirectory = getPlantDirectory(work, plantsById);
       const fields = [
         work.name,
         work.bidNumber,
         work.orderNumber,
-        work.atixClient?.name,
-        work.finalClient?.name,
-        work.plant?.name,
-        work.plant?.nasDirectory,
+        clientNames,
+        plantName,
+        plantDirectory,
         work.nasSubDirectory,
         sellerName,
         assignmentNames,
@@ -162,7 +213,7 @@ export default function WorksPage() {
 
       return fields.some((field) => field && field.toLowerCase().includes(query));
     });
-  }, [searchQuery, works]);
+  }, [searchQuery, works, clientsById, plantsById]);
 
   const clearFilters = () => {
     setFilters({
@@ -464,7 +515,12 @@ export default function WorksPage() {
 
         {/* Works List */}
         <TabsContent value="open" className="mt-4 space-y-4">
-          <WorksList works={filteredWorks} navigate={navigate} />
+          <WorksList
+            works={filteredWorks}
+            navigate={navigate}
+            clientsById={clientsById}
+            plantsById={plantsById}
+          />
           {totalPages > 1 && (
             <WorksPagination
               currentPage={currentPage}
@@ -476,7 +532,12 @@ export default function WorksPage() {
           )}
         </TabsContent>
         <TabsContent value="closed" className="mt-4 space-y-4">
-          <WorksList works={filteredWorks} navigate={navigate} />
+          <WorksList
+            works={filteredWorks}
+            navigate={navigate}
+            clientsById={clientsById}
+            plantsById={plantsById}
+          />
           {totalPages > 1 && (
             <WorksPagination
               currentPage={currentPage}
@@ -565,14 +626,18 @@ function WorksPagination({
 
 function WorksList({
   works,
-  navigate
+  navigate,
+  clientsById,
+  plantsById,
 }: {
   works: Work[];
   navigate: (path: string) => void;
+  clientsById: Map<string, Client>;
+  plantsById: Map<string, Plant>;
 }) {
   // Generate work index (e.g., "nasplant1work1")
   const getWorkIndex = (work: Work): string => {
-    const plantDir = work.plant?.nasDirectory || '';
+    const plantDir = getPlantDirectory(work, plantsById);
     const workDir = work.nasSubDirectory || '';
     return (plantDir + workDir).toLowerCase().replace(/\//g, '');
   };
@@ -595,6 +660,9 @@ function WorksList({
     <div className="space-y-3">
       {works.map((work) => {
         const expectedStartDateLabel = formatDate(work.expectedStartDate);
+        const clientName = getClientNames(work, clientsById).join(' / ');
+        const plantName = getPlantName(work, plantsById);
+        const technicianNames = getAssignedTechnicianNames(work).join(', ');
 
         return (
           <Card
@@ -635,22 +703,22 @@ function WorksList({
                         <span>{expectedStartDateLabel}</span>
                       </div>
                     )}
-                    {work.atixClient && (
+                    {clientName && (
                       <div className="flex items-center gap-1">
                         <Building2 className="h-3 w-3" />
-                        <span>{work.atixClient.name}</span>
+                        <span>{clientName}</span>
                       </div>
                     )}
-                    {work.plant && (
+                    {plantName && (
                       <div className="flex items-center gap-1">
                         <Factory className="h-3 w-3" />
-                        <span>{work.plant.name}</span>
+                        <span>{plantName}</span>
                       </div>
                     )}
-                    {work.assignments && work.assignments.length > 0 && (
+                    {technicianNames && (
                       <div className="flex items-center gap-1">
                         <User className="h-3 w-3" />
-                        <span>{work.assignments.map(a => `${a.user?.firstName} ${a.user?.lastName}`).join(', ')}</span>
+                        <span>{technicianNames}</span>
                       </div>
                     )}
                   </div>

@@ -49,6 +49,15 @@ export interface Plant {
   pswStation: string;
 }
 
+export interface AssignedTechnician {
+  id: string;
+  technicianId: string;
+  technicianFirstName: string;
+  technicianLastName: string;
+  technicianEmail?: string;
+  assignedAt: string;
+}
+
 // Work types
 export interface Work {
   id: string;
@@ -57,6 +66,9 @@ export interface Work {
   bidNumber: string;
   orderNumber: string;
   orderDate: string;
+  atixClientId?: string;
+  finalClientId?: string;
+  plantId?: string;
   electricalSchemaProgression: number;
   programmingProgression: number;
   expectedStartDate?: string;
@@ -66,6 +78,7 @@ export interface Work {
   invoiced: boolean;
   invoicedAt?: string;
   nasSubDirectory: string;
+  relatedPlantNasDirectory?: string;
   expectedOfficeHours: number;
   expectedPlantHours: number;
   seller?: SellerUser;
@@ -75,6 +88,7 @@ export interface Work {
   ticket?: Ticket;
   workReport?: WorkReport;
   assignments?: WorkAssignment[];
+  assignedTechnicians?: AssignedTechnician[];
 }
 
 export interface WorkAssignment {
