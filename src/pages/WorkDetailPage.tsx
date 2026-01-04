@@ -1040,7 +1040,7 @@ export default function WorkDetailPage() {
               <CardTitle>{t('references.title')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {work.worksiteReferenceAssignments && work.worksiteReferenceAssignments.length > 0 ? work.worksiteReferenceAssignments.map((assignment: any) => <div key={assignment.id} className="group flex items-start gap-3 rounded-lg border border-border/50 bg-muted/40 p-3">
+              {(work as any).worksiteReferenceAssignments && (work as any).worksiteReferenceAssignments.length > 0 ? (work as any).worksiteReferenceAssignments.map((assignment: any) => <div key={assignment.id} className="group flex items-start gap-3 rounded-lg border border-border/50 bg-muted/40 p-3">
                     <div className="flex-1 min-w-0 space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="text-sm font-medium truncate">

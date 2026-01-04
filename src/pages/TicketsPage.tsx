@@ -503,6 +503,7 @@ function TicketsPagination({
   pageSize: number;
   onPageChange: (page: number) => void;
 }) {
+  const { t } = useTranslation('tickets');
   const startItem = currentPage * pageSize + 1;
   const endItem = Math.min((currentPage + 1) * pageSize, totalElements);
 
