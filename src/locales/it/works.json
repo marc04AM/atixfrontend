@@ -233,6 +233,8 @@
     "completedDescription": "Il lavoro è stato segnato come completato.",
     "invoicedTitle": "Lavoro fatturato",
     "invoicedDescription": "Il lavoro è stato segnato come fatturato.",
+    "reopenedTitle": "Lavoro riaperto",
+    "reopenedDescription": "Il lavoro è stato riportato in corso.",
     "entryAddedTitle": "Voce aggiunta",
     "entryAddedDescription": "La voce di report è stata aggiunta.",
     "entryDeletedTitle": "Voce eliminata",

@@ -760,6 +760,17 @@ const buildDemoMutationResponse = (endpoint: string, method: string, options: Re
     }
     return work || null;
   }
+  if (path.startsWith('/works/') && method === 'PATCH' && path.endsWith('/reopen')) {
+    const id = path.split('/')[2];
+    const work = demoStore.works.find((item) => item.id === id);
+    if (work) {
+      work.completed = false;
+      work.completedAt = '';
+      work.invoiced = false;
+      work.invoicedAt = '';
+    }
+    return work || null;
+  }
   if (path.startsWith('/works/') && method === 'POST' && path.endsWith('/assign-technician')) {
     const id = path.split('/')[2];
     const work = demoStore.works.find((item) => item.id === id);
@@ -1189,6 +1200,8 @@ export const worksApi = {
     apiRequest<any>(`/works/${id}/close`, { method: 'PATCH' }),
   invoice: (id: string) =>
     apiRequest<any>(`/works/${id}/invoice`, { method: 'PATCH' }),
+  reopen: (id: string) =>
+    apiRequest<any>(`/works/${id}/reopen`, { method: 'PATCH' }),
   assignTechnician: (id: string, technicianId: string) =>
     apiRequest<any>(`/works/${id}/assign-technician`, {
       method: 'POST',

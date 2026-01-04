@@ -233,6 +233,8 @@
     "completedDescription": "The work has been marked as complete.",
     "invoicedTitle": "Work Invoiced",
     "invoicedDescription": "The work has been marked as invoiced.",
+    "reopenedTitle": "Work Reopened",
+    "reopenedDescription": "The work has been set back to in progress.",
     "entryAddedTitle": "Entry Added",
     "entryAddedDescription": "Work report entry has been added.",
     "entryDeletedTitle": "Entry Deleted",

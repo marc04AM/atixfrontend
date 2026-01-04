@@ -86,6 +86,19 @@ export function useInvoiceWork() {
   });
 }
 
+// Reopen work mutation
+export function useReopenWork() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => worksApi.reopen(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: worksKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: worksKeys.lists() });
+    },
+  });
+}
+
 // Delete work mutation
 export function useDeleteWork() {
   const queryClient = useQueryClient();

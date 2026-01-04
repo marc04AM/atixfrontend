@@ -18,7 +18,7 @@ import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, 
 import { Work, WorkReportEntry, User as UserType, WorkStatus } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
-import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference } from '@/hooks/api';
+import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useReopenWork, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate, formatDateTime } from '@/lib/date';
@@ -88,6 +88,7 @@ export default function WorkDetailPage() {
   const updateWork = useUpdateWork();
   const closeWork = useCloseWork();
   const invoiceWork = useInvoiceWork();
+  const reopenWork = useReopenWork();
   const deleteWork = useDeleteWork();
   const assignTechnician = useAssignTechnician();
   const unassignTechnician = useUnassignTechnician();
@@ -184,7 +185,24 @@ export default function WorkDetailPage() {
     return plantDir + workDir;
   };
   const handleStatusChange = (status: WorkStatus) => {
-    if (status === 'COMPLETED' && !work.completed) {
+    if (status === 'IN_PROGRESS' && (work.completed || work.invoiced)) {
+      // Reopen work
+      reopenWork.mutate(work.id, {
+        onSuccess: () => {
+          toast({
+            title: t('messages.reopenedTitle'),
+            description: t('messages.reopenedDescription')
+          });
+        },
+        onError: (error: any) => {
+          toast({
+            title: t('common:titles.error'),
+            description: error.message,
+            variant: 'destructive'
+          });
+        }
+      });
+    } else if (status === 'COMPLETED' && !work.completed) {
       closeWork.mutate(work.id, {
         onSuccess: () => {
           toast({
