@@ -590,31 +590,47 @@ export default function WorkDetailPage() {
             <Badge variant="outline" className="font-mono text-xs">
               {getWorkIndex()}
             </Badge>
-            <Select value={getWorkStatus()} onValueChange={value => handleStatusChange(value as WorkStatus)}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="IN_PROGRESS">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-3 w-3" />
-                    {t('badges.inProgress')}
-                  </div>
-                </SelectItem>
-                <SelectItem value="COMPLETED">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3 w-3" />
-                    {t('badges.completed')}
-                  </div>
-                </SelectItem>
-                <SelectItem value="INVOICED">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-3 w-3" />
-                    {t('badges.invoiced')}
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            {isEditing ? (
+              <Select value={getWorkStatus()} onValueChange={value => handleStatusChange(value as WorkStatus)}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="IN_PROGRESS">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-3 w-3" />
+                      {t('badges.inProgress')}
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="COMPLETED">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-3 w-3" />
+                      {t('badges.completed')}
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="INVOICED">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-3 w-3" />
+                      {t('badges.invoiced')}
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <Badge variant={
+                getWorkStatus() === 'INVOICED' ? 'default' :
+                getWorkStatus() === 'COMPLETED' ? 'secondary' : 'outline'
+              }>
+                <div className="flex items-center gap-2">
+                  {getWorkStatus() === 'INVOICED' && <TrendingUp className="h-3 w-3" />}
+                  {getWorkStatus() === 'COMPLETED' && <CheckCircle2 className="h-3 w-3" />}
+                  {getWorkStatus() === 'IN_PROGRESS' && <Clock className="h-3 w-3" />}
+                  {getWorkStatus() === 'INVOICED' && t('badges.invoiced')}
+                  {getWorkStatus() === 'COMPLETED' && t('badges.completed')}
+                  {getWorkStatus() === 'IN_PROGRESS' && t('badges.inProgress')}
+                </div>
+              </Badge>
+            )}
           </div>
 
         </div>

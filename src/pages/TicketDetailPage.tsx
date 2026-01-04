@@ -164,17 +164,23 @@ export default function TicketDetailPage() {
             <h1 className="text-2xl font-bold tracking-tight">
               {isEditing ? t('form.editTitle') : ticket.name}
             </h1>
-            <Select value={ticket.status} onValueChange={value => handleStatusChange(value as TicketStatus)}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="OPEN">{t('statuses.OPEN')}</SelectItem>
-                <SelectItem value="IN_PROGRESS">{t('statuses.IN_PROGRESS')}</SelectItem>
-                <SelectItem value="RESOLVED">{t('statuses.RESOLVED')}</SelectItem>
-                <SelectItem value="CLOSED">{t('statuses.CLOSED')}</SelectItem>
-              </SelectContent>
-            </Select>
+            {isEditing ? (
+              <Select value={ticket.status} onValueChange={value => handleStatusChange(value as TicketStatus)}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="OPEN">{t('statuses.OPEN')}</SelectItem>
+                  <SelectItem value="IN_PROGRESS">{t('statuses.IN_PROGRESS')}</SelectItem>
+                  <SelectItem value="RESOLVED">{t('statuses.RESOLVED')}</SelectItem>
+                  <SelectItem value="CLOSED">{t('statuses.CLOSED')}</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <Badge className={getTicketStatusColor(ticket.status)}>
+                {t(`statuses.${ticket.status}`)}
+              </Badge>
+            )}
           </div>
           
         </div>
