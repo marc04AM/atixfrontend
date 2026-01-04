@@ -784,7 +784,7 @@ const buildDemoMutationResponse = (endpoint: string, method: string, options: Re
   }
   if (path.startsWith('/works/') && method === 'DELETE' && path.includes('/technicians/')) {
     const [, , workId, , technicianId] = path.split('/');
-    const work = demoStore.works.find((item) => item.id === workId);
+    const work = demoStore.works.find((item) => item.id === workId) as any;
     if (work) {
       if (work.assignedTechnicians) {
         work.assignedTechnicians = work.assignedTechnicians.filter(
@@ -803,7 +803,7 @@ const buildDemoMutationResponse = (endpoint: string, method: string, options: Re
   }
   if (path.startsWith('/works/') && method === 'DELETE' && path.includes('/references/')) {
     const [, , workId, , referenceAssignmentId] = path.split('/');
-    const work = demoStore.works.find((item) => item.id === workId);
+    const work = demoStore.works.find((item) => item.id === workId) as any;
     if (work?.worksiteReferenceAssignments) {
       work.worksiteReferenceAssignments = work.worksiteReferenceAssignments.filter(
         (assignment: any) => String(assignment.id) !== referenceAssignmentId
@@ -931,10 +931,59 @@ export const apiRequest = async <T>(
   });
 
   if (!response.ok) {
-    // Try to parse error response
-    const error = await response.json().catch(() => ({
+    // Try to parse error response for logging (development only)
+    const rawError = await response.json().catch(() => ({
       message: `HTTP error! status: ${response.status}`
     }));
+
+    // Log detailed error info for debugging (development only)
+    if (import.meta.env.DEV) {
+      console.error('API Error:', { status: response.status, error: rawError, endpoint });
+    }
+
+    // Sanitize error messages - only allow safe, user-friendly messages
+    const sanitizeErrorMessage = (error: any, status: number): string => {
+      // Whitelist of safe error messages that can be shown to users
+      const safeMessages: Record<string, boolean> = {
+        'Invalid credentials': true,
+        'Email already exists': true,
+        'Validation failed': true,
+        'Resource not found': true,
+        'Session expired': true,
+      };
+
+      // If the error message is in our safe list, allow it
+      if (error?.message && safeMessages[error.message]) {
+        return error.message;
+      }
+
+      // Otherwise, return generic messages based on status code
+      switch (status) {
+        case 400:
+          return 'Invalid request. Please check your input.';
+        case 401:
+          return 'Authentication required';
+        case 403:
+          return 'You do not have permission to perform this action';
+        case 404:
+          return 'The requested resource was not found';
+        case 409:
+          return 'A conflict occurred. Please refresh and try again.';
+        case 422:
+          return 'The provided data is invalid';
+        case 429:
+          return 'Too many requests. Please wait and try again.';
+        case 500:
+        case 502:
+        case 503:
+        case 504:
+          return 'Server error. Please try again later.';
+        default:
+          return 'An unexpected error occurred. Please try again.';
+      }
+    };
+
+    const safeMessage = sanitizeErrorMessage(rawError, response.status);
 
     // Handle specific status codes
     if (response.status === 401) {
@@ -942,22 +991,10 @@ export const apiRequest = async <T>(
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUser');
       window.location.href = '/login';
-      throw new Error(error.message || 'Authentication required');
+      throw new Error(safeMessage);
     }
 
-    if (response.status === 403) {
-      throw new Error(error.message || 'Permission denied');
-    }
-
-    if (response.status === 404) {
-      throw new Error(error.message || 'Resource not found');
-    }
-
-    if (response.status === 500) {
-      throw new Error(error.message || 'Server error. Please try again later.');
-    }
-
-    throw new Error(error.message || `HTTP error! status: ${response.status}`);
+    throw new Error(safeMessage);
   }
 
   // Handle 204 No Content
