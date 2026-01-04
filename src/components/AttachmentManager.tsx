@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Upload, File, Image, FileText, Download, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useAttachments, useUploadAttachment, useDeleteAttachment } from '@/hooks/api/useAttachments';
 import { AttachmentType, AttachmentTargetType, Attachment } from '@/types';
+import { cn } from '@/lib/utils';
 
 interface AttachmentManagerProps {
   targetType: AttachmentTargetType;
@@ -34,6 +35,7 @@ export default function AttachmentManager({
 }: AttachmentManagerProps) {
   const { toast } = useToast();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   // Fetch attachments from API
   const { data: attachments = [], isLoading } = useAttachments(targetType, targetId);
@@ -44,26 +46,55 @@ export default function AttachmentManager({
   // Delete mutation
   const deleteMutation = useDeleteAttachment();
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+  const uploadFiles = useCallback(async (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
+    if (fileArray.length === 0) return;
 
     try {
-      // Upload files sequentially to avoid race conditions
-      for (const file of Array.from(files)) {
+      for (const file of fileArray) {
         await uploadMutation.mutateAsync({
           targetType,
           targetId,
           file,
         });
       }
-      toast({ title: 'Success', description: `${files.length} file(s) uploaded` });
+      toast({ title: 'Success', description: `${fileArray.length} file(s) uploaded` });
     } catch {
       toast({ title: 'Error', description: 'Failed to upload files', variant: 'destructive' });
-    } finally {
-      event.target.value = '';
     }
+  }, [targetType, targetId, uploadMutation, toast]);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+    await uploadFiles(files);
+    event.target.value = '';
   };
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!readOnly) {
+      setIsDragOver(true);
+    }
+  }, [readOnly]);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    if (readOnly || uploadMutation.isPending) return;
+
+    const files = e.dataTransfer.files;
+    await uploadFiles(files);
+  }, [readOnly, uploadMutation.isPending, uploadFiles]);
 
   const handleDelete = async (attachmentId: string) => {
     try {
@@ -134,6 +165,27 @@ export default function AttachmentManager({
         )}
       </CardHeader>
       <CardContent>
+        {/* Drop Zone */}
+        {!readOnly && (
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={cn(
+              "border-2 border-dashed rounded-lg p-6 mb-4 text-center transition-colors",
+              isDragOver 
+                ? "border-primary bg-primary/5" 
+                : "border-muted-foreground/25 hover:border-muted-foreground/50",
+              uploadMutation.isPending && "opacity-50 pointer-events-none"
+            )}
+          >
+            <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">
+              {isDragOver ? "Drop files here" : "Drag & drop files here, or click Upload"}
+            </p>
+          </div>
+        )}
+
         {attachments.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
             No attachments yet
