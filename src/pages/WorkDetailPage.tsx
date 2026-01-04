@@ -888,20 +888,6 @@ export default function WorkDetailPage() {
               <CardTitle>{t('sections.projectInfo')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {work.atixClient && <div className="flex items-center gap-3">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <Label className="text-muted-foreground text-xs">{t('details.atixClient')}</Label>
-                    <p className="text-sm font-medium">{work.atixClient.name}</p>
-                  </div>
-                </div>}
-              {work.finalClient && <div className="flex items-center gap-3">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <Label className="text-muted-foreground text-xs">{t('details.finalClient')}</Label>
-                    <p className="text-sm font-medium">{work.finalClient.name}</p>
-                  </div>
-                </div>}
               {work.plant && <div className="flex items-center gap-3">
                   <Factory className="h-4 w-4 text-muted-foreground" />
                   <div>
@@ -921,6 +907,20 @@ export default function WorkDetailPage() {
                   <div>
                     <Label className="text-muted-foreground text-xs">{t('details.seller')}</Label>
                     <p className="text-sm font-medium">{work.seller.firstName} {work.seller.lastName}</p>
+                  </div>
+                </div>}
+              {work.atixClient && <div className="flex items-center gap-3">
+                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <Label className="text-muted-foreground text-xs">{t('details.atixClient')}</Label>
+                    <p className="text-sm font-medium">{work.atixClient.name}</p>
+                  </div>
+                </div>}
+              {work.finalClient && <div className="flex items-center gap-3">
+                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <Label className="text-muted-foreground text-xs">{t('details.finalClient')}</Label>
+                    <p className="text-sm font-medium">{work.finalClient.name}</p>
                   </div>
                 </div>}
               <div className="flex items-center gap-3">
