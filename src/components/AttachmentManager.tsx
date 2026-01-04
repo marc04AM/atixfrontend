@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import { Upload, File, Image, FileText, Download, Trash2, X } from 'lucide-react';
+import { Upload, File, Image, FileText, Download, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Attachment, AttachmentType, AttachmentTargetType } from '@/types';
+import { useAttachments, useUploadAttachment, useDeleteAttachment } from '@/hooks/api/useAttachments';
+import { AttachmentType, AttachmentTargetType, Attachment } from '@/types';
 
 interface AttachmentManagerProps {
   targetType: AttachmentTargetType;
   targetId: string;
-  attachments: Attachment[];
-  onAttachmentsChange: (attachments: Attachment[]) => void;
   readOnly?: boolean;
 }
 
@@ -27,61 +27,55 @@ const getAttachmentIcon = (type: AttachmentType) => {
   }
 };
 
-const getTypeFromMime = (mimeType: string): AttachmentType => {
-  if (mimeType.startsWith('image/')) return 'PHOTO';
-  if (mimeType === 'application/pdf') return 'PDF';
-  if (mimeType.includes('document') || mimeType.includes('word')) return 'DOC';
-  return 'OTHER';
-};
-
 export default function AttachmentManager({
   targetType,
   targetId,
-  attachments,
-  onAttachmentsChange,
   readOnly = false,
 }: AttachmentManagerProps) {
   const { toast } = useToast();
-  const [isUploading, setIsUploading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  // Fetch attachments from API
+  const { data: attachments = [], isLoading } = useAttachments(targetType, targetId);
+
+  // Upload mutation
+  const uploadMutation = useUploadAttachment();
+
+  // Delete mutation
+  const deleteMutation = useDeleteAttachment();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    setIsUploading(true);
-
     try {
-      const newAttachments: Attachment[] = [];
-      
+      // Upload files sequentially to avoid race conditions
       for (const file of Array.from(files)) {
-        // In a real app, this would upload to the server
-        // For demo, we'll create a mock attachment with a local URL
-        const url = URL.createObjectURL(file);
-        const attachment: Attachment = {
-          id: String(Date.now()) + Math.random(),
-          url,
-          publicId: file.name,
-          resourceType: file.type,
-          type: getTypeFromMime(file.type),
-          uploadedAt: new Date().toISOString(),
-        };
-        newAttachments.push(attachment);
+        await uploadMutation.mutateAsync({
+          targetType,
+          targetId,
+          file,
+        });
       }
-
-      onAttachmentsChange([...attachments, ...newAttachments]);
       toast({ title: 'Success', description: `${files.length} file(s) uploaded` });
     } catch {
       toast({ title: 'Error', description: 'Failed to upload files', variant: 'destructive' });
     } finally {
-      setIsUploading(false);
       event.target.value = '';
     }
   };
 
-  const handleDelete = (attachmentId: string) => {
-    onAttachmentsChange(attachments.filter((a) => a.id !== attachmentId));
-    toast({ title: 'Deleted', description: 'Attachment removed' });
+  const handleDelete = async (attachmentId: string) => {
+    try {
+      await deleteMutation.mutateAsync({
+        attachmentId,
+        targetType,
+        targetId,
+      });
+      toast({ title: 'Deleted', description: 'Attachment removed' });
+    } catch {
+      toast({ title: 'Error', description: 'Failed to delete attachment', variant: 'destructive' });
+    }
   };
 
   const handleDownload = (attachment: Attachment) => {
@@ -101,6 +95,23 @@ export default function AttachmentManager({
     }
   };
 
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Attachments</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="aspect-square rounded-lg" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -113,11 +124,11 @@ export default function AttachmentManager({
               accept="image/*,.pdf,.doc,.docx"
               onChange={handleFileUpload}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              disabled={isUploading}
+              disabled={uploadMutation.isPending}
             />
-            <Button variant="outline" size="sm" disabled={isUploading}>
+            <Button variant="outline" size="sm" disabled={uploadMutation.isPending}>
               <Upload className="mr-2 h-4 w-4" />
-              {isUploading ? 'Uploading...' : 'Upload'}
+              {uploadMutation.isPending ? 'Uploading...' : 'Upload'}
             </Button>
           </div>
         )}
@@ -129,7 +140,7 @@ export default function AttachmentManager({
           </p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {attachments.map((attachment) => {
+            {attachments.map((attachment: Attachment) => {
               const Icon = getAttachmentIcon(attachment.type);
               const isImage = attachment.type === 'PHOTO';
 
@@ -177,6 +188,7 @@ export default function AttachmentManager({
                         variant="destructive"
                         size="icon"
                         className="h-6 w-6"
+                        disabled={deleteMutation.isPending}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDelete(attachment.id);

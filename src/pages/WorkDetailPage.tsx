@@ -15,7 +15,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus, Phone, Mail } from 'lucide-react';
-import { Work, WorkReportEntry, User as UserType, WorkStatus, Attachment } from '@/types';
+import { Work, WorkReportEntry, User as UserType, WorkStatus } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
 import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference } from '@/hooks/api';
@@ -98,7 +98,7 @@ export default function WorkDetailPage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedWork, setEditedWork] = useState<any>({});
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  
 
   const reportEntries = reportEntriesData || [];
   const technicians = techniciansData || [];
@@ -877,7 +877,7 @@ export default function WorkDetailPage() {
           </Card>
 
           {/* Attachments */}
-          <AttachmentManager targetType="WORK" targetId={id || ''} attachments={attachments} onAttachmentsChange={setAttachments} readOnly={false} />
+          <AttachmentManager targetType="WORK" targetId={id || ''} readOnly={false} />
         </div>
 
         {/* Sidebar */}

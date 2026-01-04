@@ -7,3 +7,4 @@ export * from './useUsers';
 export * from './useWorkReports';
 export * from './useDashboard';
 export * from './useWorksiteReferences';
+export * from './useAttachments';
