@@ -24,9 +24,9 @@ export default function PlantsPage() {
     name: '',
     notes: '',
     nasDirectory: '',
-    pswPhrase: '',
-    pswPlatform: '',
-    pswStation: '',
+    pswPhrase: 'Atixbnt5555',
+    pswPlatform: 'Niagara1995',
+    pswStation: 'Atixbnt5555',
   });
 
   // Fetch plants
@@ -51,7 +51,7 @@ export default function PlantsPage() {
 
     createPlant.mutate(newPlant, {
       onSuccess: () => {
-        setNewPlant({ name: '', notes: '', nasDirectory: '', pswPhrase: '', pswPlatform: '', pswStation: '' });
+        setNewPlant({ name: '', notes: '', nasDirectory: '', pswPhrase: 'Atixbnt5555', pswPlatform: 'Niagara1995', pswStation: 'Atixbnt5555' });
         setIsCreateOpen(false);
         toast({
           title: t('common:titles.success'),
@@ -142,7 +142,6 @@ export default function PlantsPage() {
                   <Label htmlFor="pswPhrase">{t('form.pswPhraseLabel')}</Label>
                   <Input
                     id="pswPhrase"
-                    type="password"
                     value={newPlant.pswPhrase}
                     onChange={(e) => setNewPlant({ ...newPlant, pswPhrase: e.target.value })}
                   />
@@ -151,7 +150,6 @@ export default function PlantsPage() {
                   <Label htmlFor="pswPlatform">{t('form.pswPlatformLabel')}</Label>
                   <Input
                     id="pswPlatform"
-                    type="password"
                     value={newPlant.pswPlatform}
                     onChange={(e) => setNewPlant({ ...newPlant, pswPlatform: e.target.value })}
                   />
@@ -160,7 +158,6 @@ export default function PlantsPage() {
                   <Label htmlFor="pswStation">{t('form.pswStationLabel')}</Label>
                   <Input
                     id="pswStation"
-                    type="password"
                     value={newPlant.pswStation}
                     onChange={(e) => setNewPlant({ ...newPlant, pswStation: e.target.value })}
                   />
