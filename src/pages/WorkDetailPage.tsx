@@ -668,13 +668,11 @@ export default function WorkDetailPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Work Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('details.title')}</CardTitle>
-            </CardHeader>
+        {/* Work Details */}
+        <Card className="order-1 lg:order-1 lg:col-span-2">
+          <CardHeader>
+            <CardTitle>{t('details.title')}</CardTitle>
+          </CardHeader>
             <CardContent>
               {isEditing ? <div className="grid gap-4 md:grid-cols-2">
                   <div className="grid gap-2">
@@ -800,8 +798,59 @@ export default function WorkDetailPage() {
             </CardContent>
           </Card>
 
+          {/* Client & Plant Info */}
+          <Card className="order-2 lg:order-2">
+            <CardHeader>
+              <CardTitle>{t('sections.projectInfo')}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {work.plant && <div className="flex items-center gap-3">
+                  <Factory className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <Label className="text-muted-foreground text-xs">{t('details.plant')}</Label>
+                    <p className="text-sm font-medium">{work.plant.name}</p>
+                  </div>
+                </div>}
+              {work.plant && work.nasSubDirectory && <div className="flex items-center gap-3">
+                  <Factory className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex-1">
+                    <Label className="text-muted-foreground text-xs">{t('details.directory')}</Label>
+                    <p className="text-sm font-mono break-all">{getFullDirectory()}</p>
+                  </div>
+                </div>}
+              {work.seller && <div className="flex items-center gap-3">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <Label className="text-muted-foreground text-xs">{t('details.seller')}</Label>
+                    <p className="text-sm font-medium">{work.seller.firstName} {work.seller.lastName}</p>
+                  </div>
+                </div>}
+              {work.atixClient && <div className="flex items-center gap-3">
+                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <Label className="text-muted-foreground text-xs">{t('details.atixClient')}</Label>
+                    <p className="text-sm font-medium">{work.atixClient.name}</p>
+                  </div>
+                </div>}
+              {work.finalClient && <div className="flex items-center gap-3">
+                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <Label className="text-muted-foreground text-xs">{t('details.finalClient')}</Label>
+                    <p className="text-sm font-medium">{work.finalClient.name}</p>
+                  </div>
+                </div>}
+              <div className="flex items-center gap-3">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <Label className="text-muted-foreground text-xs">{t('details.createdAt')}</Label>
+                  <p className="text-sm">{formatDateTime(work.createdAt, t('common:messages.notSet'))}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Work Report */}
-          <Card>
+          <Card className="order-3 lg:order-3 lg:col-span-2">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>{t('sections.workReport')}</CardTitle>
@@ -877,64 +926,12 @@ export default function WorkDetailPage() {
           </Card>
 
           {/* Attachments */}
-          <AttachmentManager targetType="WORK" targetId={id || ''} readOnly={false} />
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Client & Plant Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('sections.projectInfo')}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {work.plant && <div className="flex items-center gap-3">
-                  <Factory className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <Label className="text-muted-foreground text-xs">{t('details.plant')}</Label>
-                    <p className="text-sm font-medium">{work.plant.name}</p>
-                  </div>
-                </div>}
-              {work.plant && work.nasSubDirectory && <div className="flex items-center gap-3">
-                  <Factory className="h-4 w-4 text-muted-foreground" />
-                  <div className="flex-1">
-                    <Label className="text-muted-foreground text-xs">{t('details.directory')}</Label>
-                    <p className="text-sm font-mono break-all">{getFullDirectory()}</p>
-                  </div>
-                </div>}
-              {work.seller && <div className="flex items-center gap-3">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <Label className="text-muted-foreground text-xs">{t('details.seller')}</Label>
-                    <p className="text-sm font-medium">{work.seller.firstName} {work.seller.lastName}</p>
-                  </div>
-                </div>}
-              {work.atixClient && <div className="flex items-center gap-3">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <Label className="text-muted-foreground text-xs">{t('details.atixClient')}</Label>
-                    <p className="text-sm font-medium">{work.atixClient.name}</p>
-                  </div>
-                </div>}
-              {work.finalClient && <div className="flex items-center gap-3">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <Label className="text-muted-foreground text-xs">{t('details.finalClient')}</Label>
-                    <p className="text-sm font-medium">{work.finalClient.name}</p>
-                  </div>
-                </div>}
-              <div className="flex items-center gap-3">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <Label className="text-muted-foreground text-xs">{t('details.createdAt')}</Label>
-                  <p className="text-sm">{formatDateTime(work.createdAt, t('common:messages.notSet'))}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="order-4 lg:order-5 lg:col-span-2">
+            <AttachmentManager targetType="WORK" targetId={id || ''} readOnly={false} />
+          </div>
 
           {/* Assigned Technicians */}
-          <Card>
+          <Card className="order-5 lg:order-4">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>{t('assignments.title')}</CardTitle>
             </CardHeader>
@@ -1035,7 +1032,7 @@ export default function WorkDetailPage() {
           </Card>
 
           {/* Worksite References */}
-          <Card>
+          <Card className="order-6 lg:order-6">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>{t('references.title')}</CardTitle>
             </CardHeader>
@@ -1202,7 +1199,6 @@ export default function WorkDetailPage() {
                 </Dialog>}
             </CardContent>
           </Card>
-        </div>
       </div>
     </div>;
 }
