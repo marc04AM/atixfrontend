@@ -10,6 +10,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout } from "./components/layout/AppLayout";
 import { LoadingSpinner } from "./components/LoadingSpinner";
 import LoginPage from "./pages/LoginPage";
+import { Sentry } from "./lib/sentry";
 
 // Lazy load pages for code splitting
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -42,49 +43,73 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route
-                path="/*"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Suspense fallback={<LoadingSpinner />}>
-                        <Routes>
-                          <Route path="/" element={<Dashboard />} />
-                          <Route path="/tickets" element={<TicketsPage />} />
-                          <Route path="/tickets/:id" element={<TicketDetailPage />} />
-                          <Route path="/works" element={<WorksPage />} />
-                          <Route path="/works/new" element={<CreateWorkPage />} />
-                          <Route path="/works/:id" element={<WorkDetailPage />} />
-                          <Route path="/users" element={<UsersPage />} />
-                          <Route path="/clients" element={<ClientsPage />} />
-                          <Route path="/clients/:id" element={<ClientDetailPage />} />
-                          <Route path="/plants" element={<PlantsPage />} />
-                          <Route path="/plants/:id" element={<PlantDetailPage />} />
-                          <Route path="/worksite-references" element={<WorksiteReferencesPage />} />
-                          <Route path="/worksite-references/:id" element={<WorksiteReferenceDetailPage />} />
-                          <Route path="/profile" element={<ProfilePage />} />
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
-                      </Suspense>
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+  <Sentry.ErrorBoundary
+    fallback={({ error, resetError }) => (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <div className="w-full max-w-md space-y-4 rounded-lg border bg-card p-6 shadow-lg">
+          <h2 className="text-2xl font-bold text-destructive">Si è verificato un errore</h2>
+          <p className="text-sm text-muted-foreground">
+            Ci scusiamo per l'inconveniente. L'errore è stato registrato e verrà esaminato.
+          </p>
+          <details className="rounded bg-muted p-3">
+            <summary className="cursor-pointer font-medium">Dettagli tecnici</summary>
+            <pre className="mt-2 overflow-auto text-xs">{error.toString()}</pre>
+          </details>
+          <button
+            onClick={resetError}
+            className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Riprova
+          </button>
+        </div>
+      </div>
+    )}
+    showDialog={false}
+  >
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route
+                  path="/*"
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout>
+                        <Suspense fallback={<LoadingSpinner />}>
+                          <Routes>
+                            <Route path="/" element={<Dashboard />} />
+                            <Route path="/tickets" element={<TicketsPage />} />
+                            <Route path="/tickets/:id" element={<TicketDetailPage />} />
+                            <Route path="/works" element={<WorksPage />} />
+                            <Route path="/works/new" element={<CreateWorkPage />} />
+                            <Route path="/works/:id" element={<WorkDetailPage />} />
+                            <Route path="/users" element={<UsersPage />} />
+                            <Route path="/clients" element={<ClientsPage />} />
+                            <Route path="/clients/:id" element={<ClientDetailPage />} />
+                            <Route path="/plants" element={<PlantsPage />} />
+                            <Route path="/plants/:id" element={<PlantDetailPage />} />
+                            <Route path="/worksite-references" element={<WorksiteReferencesPage />} />
+                            <Route path="/worksite-references/:id" element={<WorksiteReferenceDetailPage />} />
+                            <Route path="/profile" element={<ProfilePage />} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </Suspense>
+                      </AppLayout>
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  </Sentry.ErrorBoundary>
 );
 
 export default App;

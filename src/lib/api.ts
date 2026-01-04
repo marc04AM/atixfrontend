@@ -2,6 +2,7 @@
 // This will connect to your backend
 
 import { PaginatedResponse } from '@/types';
+import * as Sentry from '@sentry/react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
 
@@ -984,6 +985,22 @@ export const apiRequest = async <T>(
     };
 
     const safeMessage = sanitizeErrorMessage(rawError, response.status);
+
+    // Report error to Sentry with context
+    Sentry.captureException(new Error(`API Error: ${safeMessage}`), {
+      contexts: {
+        api: {
+          url: response.url,
+          status: response.status,
+          method: options.method || 'GET',
+        },
+      },
+      tags: {
+        api_error: true,
+        status_code: response.status.toString(),
+      },
+      level: response.status >= 500 ? 'error' : 'warning',
+    });
 
     // Handle specific status codes
     if (response.status === 401) {
