@@ -1364,3 +1364,57 @@ export const worksiteReferencesApi = {
   delete: (id: string) =>
     apiRequest<void>(`/worksite-references/${id}`, { method: 'DELETE' }),
 };
+
+// Attachments API
+export const attachmentsApi = {
+  getByTarget: (targetType: string, targetId: string) =>
+    apiRequest<any[]>(`/attachments/${targetType}/${targetId}`),
+
+  upload: async (targetType: string, targetId: string, file: File) => {
+    const token = getAuthToken();
+
+    // Demo mode: return mock attachment
+    if (isDemoToken(token)) {
+      const previewUrl = URL.createObjectURL(file);
+      const getTypeFromMime = (mimeType: string) => {
+        if (mimeType.startsWith('image/')) return 'PHOTO';
+        if (mimeType === 'application/pdf') return 'PDF';
+        if (mimeType.includes('document') || mimeType.includes('word')) return 'DOC';
+        return 'OTHER';
+      };
+      return {
+        id: `attachment-${Date.now()}`,
+        attachment: {
+          id: `att-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          url: previewUrl,
+          publicId: file.name,
+          resourceType: file.type,
+          type: getTypeFromMime(file.type),
+          uploadedAt: new Date().toISOString(),
+        },
+        targetType,
+        targetId,
+      };
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/attachments/${targetType}/${targetId}`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to upload attachment');
+    }
+
+    return response.json();
+  },
+
+  delete: (attachmentId: string) =>
+    apiRequest<void>(`/attachments/${attachmentId}`, { method: 'DELETE' }),
+};

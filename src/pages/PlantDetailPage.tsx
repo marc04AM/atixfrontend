@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Plant, Attachment, Work } from '@/types';
+import { Plant, Work } from '@/types';
 import AttachmentManager from '@/components/AttachmentManager';
 import { usePlant, useUpdatePlant, useDeletePlant, useWorks } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -33,7 +33,7 @@ export default function PlantDetailPage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedPlant, setEditedPlant] = useState<Plant | null>(null);
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  
   const [showPasswords, setShowPasswords] = useState(false);
 
   useEffect(() => {
@@ -362,8 +362,6 @@ export default function PlantDetailPage() {
       <AttachmentManager
         targetType="PLANT"
         targetId={id || ''}
-        attachments={attachments}
-        onAttachmentsChange={setAttachments}
         readOnly={false}
       />
     </div>

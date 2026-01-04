@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ArrowLeft, Save, Briefcase, Mail, Calendar, Edit2, X, Trash2 } from 'lucide-react';
-import { TicketStatus, Ticket, Attachment } from '@/types';
+import { TicketStatus, Ticket } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
 import { useTicket, useUpdateTicket, useDeleteTicket } from '@/hooks/api';
@@ -43,7 +43,7 @@ export default function TicketDetailPage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedTicket, setEditedTicket] = useState<Ticket | null>(null);
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  
 
   useEffect(() => {
     if (ticket) {
@@ -258,7 +258,7 @@ export default function TicketDetailPage() {
           </Card>
 
           {/* Attachments */}
-          <AttachmentManager targetType="TICKET" targetId={id || ''} attachments={attachments} onAttachmentsChange={setAttachments} readOnly={false} />
+          <AttachmentManager targetType="TICKET" targetId={id || ''} readOnly={false} />
         </div>
 
         {/* Sidebar */}
