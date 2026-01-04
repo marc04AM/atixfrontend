@@ -38,7 +38,8 @@ export default function AttachmentManager({
   const [isDragOver, setIsDragOver] = useState(false);
 
   // Fetch attachments from API
-  const { data: attachments = [], isLoading } = useAttachments(targetType, targetId);
+  const { data, isLoading } = useAttachments(targetType, targetId);
+  const attachments = data ?? [];
 
   // Upload mutation
   const uploadMutation = useUploadAttachment();
