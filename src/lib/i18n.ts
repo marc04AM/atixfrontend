@@ -16,6 +16,7 @@ import worksiteReferencesIT from '@/locales/it/worksite-references.json';
 import profileIT from '@/locales/it/profile.json';
 import validationIT from '@/locales/it/validation.json';
 import notfoundIT from '@/locales/it/notfound.json';
+import attachmentsIT from '@/locales/it/attachments.json';
 
 // Import English translations
 import commonEN from '@/locales/en/common.json';
@@ -31,6 +32,7 @@ import worksiteReferencesEN from '@/locales/en/worksite-references.json';
 import profileEN from '@/locales/en/profile.json';
 import validationEN from '@/locales/en/validation.json';
 import notfoundEN from '@/locales/en/notfound.json';
+import attachmentsEN from '@/locales/en/attachments.json';
 
 i18n
   .use(LanguageDetector) // Detect user language
@@ -51,6 +53,7 @@ i18n
         profile: profileIT,
         validation: validationIT,
         notfound: notfoundIT,
+        attachments: attachmentsIT,
       },
       en: {
         common: commonEN,
@@ -66,6 +69,7 @@ i18n
         profile: profileEN,
         validation: validationEN,
         notfound: notfoundEN,
+        attachments: attachmentsEN,
       },
     },
     fallbackLng: 'en',

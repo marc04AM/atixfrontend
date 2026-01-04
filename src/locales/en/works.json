@@ -58,7 +58,7 @@
   "sections": {
     "basicInfo": "Basic Information",
     "associations": "Associations",
-    "projectInfo": "Project Info",
+    "projectInfo": "Other informations",
     "workReport": "Work Report"
   },
   "details": {
@@ -176,6 +176,10 @@
   "dialogs": {
     "deleteTitle": "Delete Work",
     "deleteDescription": "Are you sure you want to delete this work? This action cannot be undone.",
+    "markCompletedTitle": "Mark as Completed",
+    "markCompletedDescription": "Are you sure you want to mark this work as completed?",
+    "markInvoicedTitle": "Mark as Invoiced",
+    "markInvoicedDescription": "Are you sure you want to mark this work as invoiced?",
     "removeTechnicianTitle": "Remove Technician",
     "removeTechnicianDescription": "Remove {{name}} from this work?",
     "removeReferenceTitle": "Remove Reference",

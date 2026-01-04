@@ -58,7 +58,7 @@
   "sections": {
     "basicInfo": "Informazioni di base",
     "associations": "Associazioni",
-    "projectInfo": "Info progetto",
+    "projectInfo": "Altre informazioni",
     "workReport": "Report lavoro"
   },
   "details": {
@@ -176,6 +176,10 @@
   "dialogs": {
     "deleteTitle": "Elimina lavoro",
     "deleteDescription": "Sei sicuro di voler eliminare questo lavoro? Questa azione non può essere annullata.",
+    "markCompletedTitle": "Segna come completato",
+    "markCompletedDescription": "Sei sicuro di voler segnare questo lavoro come completato?",
+    "markInvoicedTitle": "Segna come fatturato",
+    "markInvoicedDescription": "Sei sicuro di voler segnare questo lavoro come fatturato?",
     "removeTechnicianTitle": "Rimuovi tecnico",
     "removeTechnicianDescription": "Rimuovere {{name}} da questo lavoro?",
     "removeReferenceTitle": "Rimuovi riferimento",

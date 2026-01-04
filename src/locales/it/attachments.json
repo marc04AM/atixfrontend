@@ -1,0 +1,15 @@
+{
+  "title": "Allegati",
+  "upload": "Carica",
+  "uploading": "Caricamento...",
+  "dropZone": "Trascina e rilascia i file qui, oppure clicca Carica",
+  "dropHere": "Rilascia i file qui",
+  "noAttachments": "Nessun allegato",
+  "imagePreview": "Anteprima immagine",
+  "messages": {
+    "uploadSuccess": "{{count}} file caricati",
+    "uploadError": "Errore nel caricamento dei file",
+    "deleteSuccess": "Allegato rimosso",
+    "deleteError": "Errore nell'eliminazione dell'allegato"
+  }
+}

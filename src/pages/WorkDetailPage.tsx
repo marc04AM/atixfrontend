@@ -636,6 +636,50 @@ export default function WorkDetailPage() {
         </div>
         <div className="flex gap-2 flex-wrap">
           {!isEditing ? <>
+              {!work.completed && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button>
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      {t('actions.markCompleted')}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t('dialogs.markCompletedTitle')}</AlertDialogTitle>
+                      <AlertDialogDescription>{t('dialogs.markCompletedDescription')}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleMarkComplete}>
+                        {t('common:actions.confirm')}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+              {work.completed && !work.invoiced && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button>
+                      <TrendingUp className="h-4 w-4 mr-2" />
+                      {t('actions.markInvoiced')}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t('dialogs.markInvoicedTitle')}</AlertDialogTitle>
+                      <AlertDialogDescription>{t('dialogs.markInvoicedDescription')}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleMarkInvoiced}>
+                        {t('common:actions.confirm')}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
               <Button variant="outline" onClick={() => setIsEditing(true)}>
                 <Edit2 className="h-4 w-4 mr-2" />
                 {t('common:actions.edit')}
@@ -662,14 +706,6 @@ export default function WorkDetailPage() {
                   </AlertDialogContent>
                 </AlertDialog>
               )}
-              {!work.completed && <Button onClick={handleMarkComplete}>
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  {t('actions.markCompleted')}
-                </Button>}
-              {work.completed && !work.invoiced && <Button onClick={handleMarkInvoiced}>
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  {t('actions.markInvoiced')}
-                </Button>}
             </> : <>
               <Button variant="outline" onClick={handleCancel}>
                 <X className="h-4 w-4 mr-2" />

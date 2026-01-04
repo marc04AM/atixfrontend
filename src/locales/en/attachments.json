@@ -1,0 +1,15 @@
+{
+  "title": "Attachments",
+  "upload": "Upload",
+  "uploading": "Uploading...",
+  "dropZone": "Drag & drop files here, or click Upload",
+  "dropHere": "Drop files here",
+  "noAttachments": "No attachments yet",
+  "imagePreview": "Image Preview",
+  "messages": {
+    "uploadSuccess": "{{count}} file(s) uploaded",
+    "uploadError": "Failed to upload files",
+    "deleteSuccess": "Attachment removed",
+    "deleteError": "Failed to delete attachment"
+  }
+}

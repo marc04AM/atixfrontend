@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Upload, File, Image, FileText, Download, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -33,6 +34,7 @@ export default function AttachmentManager({
   targetId,
   readOnly = false,
 }: AttachmentManagerProps) {
+  const { t } = useTranslation('attachments');
   const { toast } = useToast();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -59,9 +61,9 @@ export default function AttachmentManager({
           file,
         });
       }
-      toast({ title: 'Success', description: `${fileArray.length} file(s) uploaded` });
+      toast({ title: t('common:titles.success'), description: t('messages.uploadSuccess', { count: fileArray.length }) });
     } catch {
-      toast({ title: 'Error', description: 'Failed to upload files', variant: 'destructive' });
+      toast({ title: t('common:titles.error'), description: t('messages.uploadError'), variant: 'destructive' });
     }
   }, [targetType, targetId, uploadMutation, toast]);
 
@@ -104,9 +106,9 @@ export default function AttachmentManager({
         targetType,
         targetId,
       });
-      toast({ title: 'Deleted', description: 'Attachment removed' });
+      toast({ title: t('common:titles.deleted'), description: t('messages.deleteSuccess') });
     } catch {
-      toast({ title: 'Error', description: 'Failed to delete attachment', variant: 'destructive' });
+      toast({ title: t('common:titles.error'), description: t('messages.deleteError'), variant: 'destructive' });
     }
   };
 
@@ -131,7 +133,7 @@ export default function AttachmentManager({
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Attachments</CardTitle>
+          <CardTitle className="text-lg">{t('title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -147,7 +149,7 @@ export default function AttachmentManager({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg">Attachments</CardTitle>
+        <CardTitle className="text-lg">{t('title')}</CardTitle>
         {!readOnly && (
           <div className="relative">
             <input
@@ -160,7 +162,7 @@ export default function AttachmentManager({
             />
             <Button variant="outline" size="sm" disabled={uploadMutation.isPending}>
               <Upload className="mr-2 h-4 w-4" />
-              {uploadMutation.isPending ? 'Uploading...' : 'Upload'}
+              {uploadMutation.isPending ? t('uploading') : t('upload')}
             </Button>
           </div>
         )}
@@ -182,14 +184,14 @@ export default function AttachmentManager({
           >
             <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">
-              {isDragOver ? "Drop files here" : "Drag & drop files here, or click Upload"}
+              {isDragOver ? t('dropHere') : t('dropZone')}
             </p>
           </div>
         )}
 
         {attachments.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            No attachments yet
+            {t('noAttachments')}
           </p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -262,7 +264,7 @@ export default function AttachmentManager({
       <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>Image Preview</DialogTitle>
+            <DialogTitle>{t('imagePreview')}</DialogTitle>
           </DialogHeader>
           {previewImage && (
             <img
