@@ -908,6 +908,15 @@ export default function WorkDetailPage() {
                     </Select>
                   </div>
                   <div className="grid gap-2">
+                    <Label htmlFor="nasSubDirectory">{t('details.nasSubDirectory')}</Label>
+                    <Input
+                      id="nasSubDirectory"
+                      value={editedWork.nasSubDirectory || ''}
+                      onChange={(e) => setEditedWork({ ...editedWork, nasSubDirectory: e.target.value })}
+                      placeholder={t('details.nasSubDirectoryPlaceholder')}
+                    />
+                  </div>
+                  <div className="grid gap-2">
                     <Label htmlFor="sellerId">{t('details.seller')}</Label>
                     <Select 
                       value={editedWork.sellerId || ''} 

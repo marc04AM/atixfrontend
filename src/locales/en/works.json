@@ -88,7 +88,9 @@
     "atixClient": "ATIX Client",
     "finalClient": "Final Client",
     "directory": "Directory",
-    "seller": "Seller"
+    "seller": "Seller",
+    "nasSubDirectory": "NAS Sub Directory",
+    "nasSubDirectoryPlaceholder": "/projects/work-name"
   },
   "form": {
     "createTitle": "Create New Work",
