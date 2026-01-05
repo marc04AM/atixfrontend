@@ -88,7 +88,9 @@
     "atixClient": "Cliente ATIX",
     "finalClient": "Cliente finale",
     "directory": "Directory",
-    "seller": "Venditore"
+    "seller": "Venditore",
+    "nasSubDirectory": "Sottodirectory NAS",
+    "nasSubDirectoryPlaceholder": "/progetti/nome-lavoro"
   },
   "form": {
     "createTitle": "Crea Nuovo Lavoro",
