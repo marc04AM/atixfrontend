@@ -152,8 +152,8 @@ export default function CreateWorkPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate required fields
-    if (!formData.name || !formData.bidNumber || !formData.orderNumber || !formData.atixClientId || !formData.nasSubDirectory) {
+    // Validate required fields (only name, bidNumber, orderNumber, orderDate are required)
+    if (!formData.name || !formData.bidNumber || !formData.orderNumber || !formData.orderDate) {
       toast({
         title: t('messages.validationErrorTitle'),
         description: t('messages.validationErrorDescription'),
@@ -168,11 +168,11 @@ export default function CreateWorkPage() {
       bidNumber: formData.bidNumber,
       orderNumber: formData.orderNumber,
       orderDate: formData.orderDate,
-      atixClientId: formData.atixClientId,
-      nasSubDirectory: formData.nasSubDirectory,
     };
 
     // Add optional fields
+    if (formData.atixClientId) workData.atixClientId = formData.atixClientId;
+    if (formData.nasSubDirectory) workData.nasSubDirectory = formData.nasSubDirectory;
     if (formData.sellerId) workData.sellerId = formData.sellerId;
     if (formData.expectedStartDate) workData.expectedStartDate = formData.expectedStartDate;
     if (formData.finalClientId) workData.finalClientId = formData.finalClientId;
