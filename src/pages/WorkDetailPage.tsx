@@ -1083,7 +1083,7 @@ export default function WorkDetailPage() {
                     <TableRow>
                       <TableHead>{t('report.tableDescription')}</TableHead>
                       <TableHead>{t('report.tableTechnician')}</TableHead>
-                      <TableHead className="w-32">{t('report.tableDate')}</TableHead>
+                      <TableHead className="hidden sm:table-cell w-32">{t('report.tableDate')}</TableHead>
                       <TableHead className="w-24 text-right">{t('report.tableHours')}</TableHead>
                       <TableHead className="w-16"></TableHead>
                     </TableRow>
@@ -1092,7 +1092,7 @@ export default function WorkDetailPage() {
                     {reportEntries.map(entry => <TableRow key={entry.id}>
                         <TableCell>{entry.description}</TableCell>
                         <TableCell>{resolveReportEntryTechnician(entry)}</TableCell>
-                        <TableCell>{formatDate(entry.date, t('common:messages.notSet'))}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{formatDate(entry.date, t('common:messages.notSet'))}</TableCell>
                         <TableCell className="text-right font-medium">{entry.hours}</TableCell>
                         <TableCell>
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDeleteEntry(entry.id)}>
