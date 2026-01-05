@@ -136,6 +136,7 @@ export default function WorkDetailPage() {
   const [newEntry, setNewEntry] = useState({
     description: '',
     hours: 0,
+    date: '',
     technicianId: ''
   });
 
@@ -270,6 +271,7 @@ export default function WorkDetailPage() {
       workId: work.id,
       description: newEntry.description,
       hours: newEntry.hours,
+      ...(newEntry.date ? { date: newEntry.date } : {}),
       ...(newEntry.technicianId ? { technicianId: newEntry.technicianId } : {})
     }, {
       onSuccess: () => {
@@ -280,6 +282,7 @@ export default function WorkDetailPage() {
         setNewEntry({
           description: '',
           hours: 0,
+          date: '',
           technicianId: defaultTechnicianId
         });
         toast({
@@ -1052,6 +1055,14 @@ export default function WorkDetailPage() {
                       hours: Number(e.target.value)
                     })} />
                     </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="entry-date">{t('report.dateLabel')}</Label>
+                      <Input id="entry-date" type="date" value={newEntry.date} onChange={e => setNewEntry({
+                      ...newEntry,
+                      date: e.target.value
+                    })} />
+                      <p className="text-xs text-muted-foreground">{t('report.dateHelper')}</p>
+                    </div>
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setIsAddEntryOpen(false)}>
@@ -1072,6 +1083,7 @@ export default function WorkDetailPage() {
                     <TableRow>
                       <TableHead>{t('report.tableDescription')}</TableHead>
                       <TableHead>{t('report.tableTechnician')}</TableHead>
+                      <TableHead className="w-32">{t('report.tableDate')}</TableHead>
                       <TableHead className="w-24 text-right">{t('report.tableHours')}</TableHead>
                       <TableHead className="w-16"></TableHead>
                     </TableRow>
@@ -1080,6 +1092,7 @@ export default function WorkDetailPage() {
                     {reportEntries.map(entry => <TableRow key={entry.id}>
                         <TableCell>{entry.description}</TableCell>
                         <TableCell>{resolveReportEntryTechnician(entry)}</TableCell>
+                        <TableCell>{formatDate(entry.date, t('common:messages.notSet'))}</TableCell>
                         <TableCell className="text-right font-medium">{entry.hours}</TableCell>
                         <TableCell>
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDeleteEntry(entry.id)}>

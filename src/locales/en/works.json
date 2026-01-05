@@ -140,9 +140,12 @@
     "technicianLabel": "Technician",
     "technicianPlaceholder": "Select technician",
     "hoursLabel": "Hours",
+    "dateLabel": "Date",
+    "dateHelper": "Optional. If not specified, today's date will be used.",
     "empty": "No report entries yet. Add your first entry to start tracking.",
     "tableDescription": "Description",
     "tableTechnician": "Technician",
+    "tableDate": "Date",
     "tableHours": "Hours"
   },
   "assignments": {

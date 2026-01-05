@@ -140,9 +140,12 @@
     "technicianLabel": "Tecnico",
     "technicianPlaceholder": "Seleziona tecnico",
     "hoursLabel": "Ore",
+    "dateLabel": "Data",
+    "dateHelper": "Opzionale. Se non specificata verrà usata la data odierna.",
     "empty": "Nessuna voce di report. Aggiungi la prima voce per iniziare.",
     "tableDescription": "Descrizione",
     "tableTechnician": "Tecnico",
+    "tableDate": "Data",
     "tableHours": "Ore"
   },
   "assignments": {

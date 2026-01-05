@@ -111,6 +111,7 @@ export interface WorkReportEntry {
   id: string;
   description: string;
   hours: number;
+  date: string;
   technicianId?: string;
   technician?: User;
   report?: WorkReport;

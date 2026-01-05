@@ -354,19 +354,20 @@ Crea un nuovo lavoro.
 - `bidNumber`: stringa
 - `orderNumber`: stringa
 - `orderDate`: data (formato ISO: YYYY-MM-DD)
-- `atixClientId`: UUID
-- `nasSubDirectory`: stringa
 
 **Campi opzionali:**
-- `sellerId`: UUID
-- `electricalSchemaProgression`: 0-100
-- `programmingProgression`: 0-100
-- `expectedStartDate`: data
-- `plantId`: UUID
-- `finalClientId`: UUID
-- `expectedOfficeHours`: numero
-- `expectedPlantHours`: numero
-- `ticketId`: UUID
+- `description`: stringa - Descrizione del lavoro
+- `sellerId`: UUID - ID del venditore
+- `electricalSchemaProgression`: 0-100 - Progressione schema elettrico
+- `programmingProgression`: 0-100 - Progressione programmazione
+- `expectedStartDate`: data - Data inizio prevista
+- `plantId`: UUID - ID dell'impianto
+- `atixClientId`: UUID - ID cliente Atix
+- `finalClientId`: UUID - ID cliente finale
+- `nasSubDirectory`: stringa - Sottocartella NAS
+- `expectedOfficeHours`: numero - Ore ufficio previste
+- `expectedPlantHours`: numero - Ore impianto previste
+- `ticketId`: UUID - ID ticket associato
 
 **Response 201:**
 ```json
@@ -972,6 +973,7 @@ Ottiene il report di un lavoro specifico.
       "reportId": "550e8400-e29b-41d4-a716-446655440000",
       "description": "Installazione quadro elettrico",
       "hours": 8.00,
+      "date": "2024-01-15",
       "technicianId": "123e4567-e89b-12d3-a456-426614174000",
       "technicianName": "Mario Rossi"
     }
@@ -991,9 +993,16 @@ Crea una nuova voce nel report di lavoro.
 {
   "workId": "550e8400-e29b-41d4-a716-446655440000",
   "description": "Installazione quadro elettrico",
-  "hours": 8.0
+  "hours": 8.0,
+  "date": "2024-01-15"
 }
 ```
+
+**Validazioni:**
+- `workId`: UUID, obbligatorio
+- `description`: stringa, obbligatorio
+- `hours`: numero decimale > 0, obbligatorio
+- `date`: data (formato ISO: YYYY-MM-DD), opzionale - se non fornita, viene usata la data odierna
 
 **Response 201:**
 ```json
@@ -1002,6 +1011,7 @@ Crea una nuova voce nel report di lavoro.
   "reportId": "550e8400-e29b-41d4-a716-446655440000",
   "description": "Installazione quadro elettrico",
   "hours": 8.0,
+  "date": "2024-01-15",
   "technicianId": "123e4567-e89b-12d3-a456-426614174000",
   "technicianName": "Mario Rossi"
 }
@@ -1021,7 +1031,8 @@ Aggiorna una voce del report.
 ```json
 {
   "description": "Descrizione aggiornata",
-  "hours": 10.5
+  "hours": 10.5,
+  "date": "2024-01-16"
 }
 ```
 
@@ -1032,6 +1043,7 @@ Aggiorna una voce del report.
   "reportId": "550e8400-e29b-41d4-a716-446655440000",
   "description": "Descrizione aggiornata",
   "hours": 10.5,
+  "date": "2024-01-16",
   "technicianId": "123e4567-e89b-12d3-a456-426614174000",
   "technicianName": "Mario Rossi"
 }
@@ -1055,6 +1067,7 @@ Ottiene tutte le voci del report per un lavoro.
     "reportId": "550e8400-e29b-41d4-a716-446655440000",
     "description": "Installazione quadro elettrico",
     "hours": 8.0,
+    "date": "2024-01-15",
     "technicianId": "123e4567-e89b-12d3-a456-426614174000",
     "technicianName": "Mario Rossi"
   }
@@ -1273,26 +1286,26 @@ Elimina un allegato.
 ```typescript
 {
   id: string (UUID)
-  name: string
+  name: string                                    // Obbligatorio
   description?: string
-  bidNumber: string
+  bidNumber: string                               // Obbligatorio
   seller?: UserSummary
-  orderNumber: string
-  orderDate: string (ISO date)
-  electricalSchemaProgression: number (0-100)
-  programmingProgression: number (0-100)
+  orderNumber: string                             // Obbligatorio
+  orderDate: string (ISO date)                    // Obbligatorio
+  electricalSchemaProgression?: number (0-100)    // Opzionale
+  programmingProgression?: number (0-100)         // Opzionale
   expectedStartDate?: string (ISO date)
-  completed: boolean
+  completed?: boolean                             // Opzionale
   completedAt?: string (ISO datetime)
-  createdAt: string (ISO datetime)
-  invoiced: boolean
+  createdAt?: string (ISO datetime)               // Opzionale
+  invoiced?: boolean                              // Opzionale
   invoicedAt?: string (ISO datetime)
   plant?: Plant
-  atixClient: Client
+  atixClient?: Client                             // Opzionale
   finalClient?: Client
   worksiteReferenceAssignments: WorksiteReferenceAssignment[]
   assignedTechnicians: WorkAssignment[]
-  nasSubDirectory: string
+  nasSubDirectory?: string                        // Opzionale
   expectedOfficeHours?: number
   expectedPlantHours?: number
   ticket?: Ticket
@@ -1303,15 +1316,15 @@ Elimina un allegato.
 ```typescript
 {
   id: string (UUID)
-  name: string
-  bidNumber: string
-  orderNumber: string
-  orderDate: string (ISO date)
-  completed: boolean
-  invoiced: boolean
-  electricalSchemaProgression: number (0-100)
-  programmingProgression: number (0-100)
-  nasSubDirectory: string
+  name: string                                    // Obbligatorio
+  bidNumber: string                               // Obbligatorio
+  orderNumber: string                             // Obbligatorio
+  orderDate: string (ISO date)                    // Obbligatorio
+  completed?: boolean                             // Opzionale
+  invoiced?: boolean                              // Opzionale
+  electricalSchemaProgression?: number (0-100)    // Opzionale
+  programmingProgression?: number (0-100)         // Opzionale
+  nasSubDirectory?: string                        // Opzionale
   relatedPlantNasDirectory?: string
   expectedStartDate?: string (ISO date)
   plant?: Plant
@@ -1372,6 +1385,7 @@ Elimina un allegato.
   id: string (UUID),
   description: string,
   hours: number (decimal),
+  date: string (ISO date),      // Obbligatorio - default: today
   technicianId: string (UUID),
   technicianName: string
 }
@@ -1519,5 +1533,12 @@ I messaggi di errore di validazione sono in italiano e provengono direttamente d
 
 ---
 
-**Ultima modifica:** 2026-01-03
+**Ultima modifica:** 2026-01-05
 **Versione API:** 1.0
+
+## Changelog
+
+### 2026-01-05
+- **Lavori (Works)**: Modificati i campi obbligatori. Solo `name`, `orderNumber`, `bidNumber` e `orderDate` sono ora obbligatori
+- Resi opzionali: `atixClientId`, `nasSubDirectory`, `electricalSchemaProgression`, `programmingProgression`, `completed`, `invoiced`
+- **Report Lavori (WorkReportEntry)**: Aggiunto campo `date` obbligatorio nell'entità, opzionale nel DTO di creazione (default: data odierna se non fornita)
