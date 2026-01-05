@@ -22,6 +22,7 @@ import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useReopenWork, us
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate, formatDateTime } from '@/lib/date';
+import { StatusBadge, getWorkStatus } from '@/components/ui/status-badge';
 
 type AssignedTechnicianSummary = {
   id: string;
@@ -176,13 +177,6 @@ export default function WorkDetailPage() {
   const canDelete = isOwner();
   const canManageAssignments = isAdmin() || isOwner();
   const availableTechnicians = technicians.filter((t: any) => !assignedTechnicianIds.includes(t.id));
-
-  // Work status helper
-  const getWorkStatus = (): WorkStatus => {
-    if (work.invoiced) return 'INVOICED';
-    if (work.completed) return 'COMPLETED';
-    return 'IN_PROGRESS';
-  };
 
   // Generate work index (e.g., "nasplant1work1")
   const getWorkIndex = (): string => {
@@ -622,7 +616,7 @@ export default function WorkDetailPage() {
               {getWorkIndex()}
             </Badge>
             {isEditing ? (
-              <Select value={getWorkStatus()} onValueChange={value => handleStatusChange(value as WorkStatus)}>
+              <Select value={getWorkStatus(work)} onValueChange={value => handleStatusChange(value as WorkStatus)}>
                 <SelectTrigger className="w-[160px]">
                   <SelectValue />
                 </SelectTrigger>
@@ -648,19 +642,14 @@ export default function WorkDetailPage() {
                 </SelectContent>
               </Select>
             ) : (
-              <Badge variant={
-                getWorkStatus() === 'INVOICED' ? 'default' :
-                getWorkStatus() === 'COMPLETED' ? 'secondary' : 'outline'
-              }>
-                <div className="flex items-center gap-2">
-                  {getWorkStatus() === 'INVOICED' && <TrendingUp className="h-3 w-3" />}
-                  {getWorkStatus() === 'COMPLETED' && <CheckCircle2 className="h-3 w-3" />}
-                  {getWorkStatus() === 'IN_PROGRESS' && <Clock className="h-3 w-3" />}
-                  {getWorkStatus() === 'INVOICED' && t('badges.invoiced')}
-                  {getWorkStatus() === 'COMPLETED' && t('badges.completed')}
-                  {getWorkStatus() === 'IN_PROGRESS' && t('badges.inProgress')}
-                </div>
-              </Badge>
+              <StatusBadge
+                status={getWorkStatus(work)}
+                type="work"
+                label={t(`badges.${
+                  work.invoiced ? 'invoiced' :
+                  work.completed ? 'completed' : 'inProgress'
+                }`)}
+              />
             )}
           </div>
 

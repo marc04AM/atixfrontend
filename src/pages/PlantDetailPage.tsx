@@ -16,6 +16,7 @@ import AttachmentManager from '@/components/AttachmentManager';
 import { usePlant, useUpdatePlant, useDeletePlant, useWorks } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
+import { StatusBadge, getWorkStatus } from '@/components/ui/status-badge';
 
 export default function PlantDetailPage() {
   const { id } = useParams();
@@ -341,13 +342,14 @@ export default function PlantDetailPage() {
                       <TableCell className="hidden sm:table-cell">{work.orderNumber}</TableCell>
                       <TableCell className="hidden sm:table-cell">{formatDate(work.orderDate, t('common:messages.notSet'))}</TableCell>
                       <TableCell>
-                        {work.invoiced ? (
-                          <Badge variant="secondary">{t('works:badges.invoiced')}</Badge>
-                        ) : work.completed ? (
-                          <Badge className="bg-chart-3 text-chart-3-foreground">{t('works:badges.completed')}</Badge>
-                        ) : (
-                          <Badge variant="outline">{t('works:badges.inProgress')}</Badge>
-                        )}
+                        <StatusBadge
+                          status={getWorkStatus(work)}
+                          type="work"
+                          label={t(`works:badges.${
+                            work.invoiced ? 'invoiced' :
+                            work.completed ? 'completed' : 'inProgress'
+                          }`)}
+                        />
                       </TableCell>
                     </TableRow>
                   ))}

@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -16,21 +15,7 @@ import AttachmentManager from '@/components/AttachmentManager';
 import { useTicket, useUpdateTicket, useDeleteTicket } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDateTime } from '@/lib/date';
-
-const getTicketStatusColor = (status: TicketStatus) => {
-  switch (status) {
-    case 'OPEN':
-      return 'bg-destructive text-destructive-foreground';
-    case 'IN_PROGRESS':
-      return 'bg-primary text-primary-foreground';
-    case 'RESOLVED':
-      return 'bg-accent text-accent-foreground';
-    case 'CLOSED':
-      return 'bg-secondary text-secondary-foreground';
-    default:
-      return 'bg-muted text-muted-foreground';
-  }
-};
+import { StatusBadge } from '@/components/ui/status-badge';
 export default function TicketDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -164,9 +149,11 @@ export default function TicketDetailPage() {
             <h1 className="text-2xl font-bold tracking-tight">
               {isEditing ? t('form.editTitle') : ticket.name}
             </h1>
-            <Badge className={getTicketStatusColor(ticket.status)}>
-              {t(`statuses.${ticket.status}`)}
-            </Badge>
+            <StatusBadge
+              status={ticket.status}
+              type="ticket"
+              label={t(`statuses.${ticket.status}`)}
+            />
           </div>
           
         </div>

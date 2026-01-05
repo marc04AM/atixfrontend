@@ -32,15 +32,13 @@ import {
   Factory,
   User,
   X,
-  CheckCircle2,
-  Clock,
-  TrendingUp,
   BarChart3
 } from 'lucide-react';
 import { Client, Plant, Work } from '@/types';
 import { useWorks, useClients, usePlants, useUsersByType, useTickets } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
+import { StatusBadge, getWorkStatus } from '@/components/ui/status-badge';
 
 const PAGE_SIZE = 10;
 
@@ -680,26 +678,14 @@ function WorksList({
                       {getWorkIndex(work)}
                     </Badge>
                     <h3 className="font-medium">{work.name}</h3>
-                    {work.completed ? (
-                    <Badge
-                      variant="outline"
-                      className="border-emerald-600 bg-emerald-600/10 text-emerald-700 dark:border-emerald-400 dark:bg-emerald-400/10 dark:text-emerald-300"
-                    >
-                      <CheckCircle2 className="h-3 w-3 mr-1" />
-                      {t('badges.completed')}
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="border-primary text-primary">
-                      <Clock className="h-3 w-3 mr-1" />
-                      {t('badges.inProgress')}
-                    </Badge>
-                  )}
-                  {work.invoiced && (
-                    <Badge variant="secondary">
-                      <TrendingUp className="h-3 w-3 mr-1" />
-                      {t('badges.invoiced')}
-                    </Badge>
-                  )}
+                    <StatusBadge
+                      status={getWorkStatus(work)}
+                      type="work"
+                      label={t(`badges.${
+                        work.invoiced ? 'invoiced' :
+                        work.completed ? 'completed' : 'inProgress'
+                      }`)}
+                    />
                   </div>
                   <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
                     {expectedStartDateLabel && (

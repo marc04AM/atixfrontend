@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
@@ -46,23 +45,9 @@ import { useTickets, useCreateTicket } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
 import { useTranslation } from 'react-i18next';
+import { StatusBadge } from '@/components/ui/status-badge';
 
 const PAGE_SIZE = 10;
-
-const getTicketStatusColor = (status: TicketStatus) => {
-  switch (status) {
-    case 'OPEN':
-      return 'bg-destructive text-destructive-foreground';
-    case 'IN_PROGRESS':
-      return 'bg-primary text-primary-foreground';
-    case 'RESOLVED':
-      return 'bg-accent text-accent-foreground';
-    case 'CLOSED':
-      return 'bg-secondary text-secondary-foreground';
-    default:
-      return 'bg-muted text-muted-foreground';
-  }
-};
 
 interface TicketFilters {
   senderEmail: string;
@@ -598,9 +583,11 @@ function TicketsList({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-medium truncate">{ticket.name}</h3>
-                  <Badge className={getTicketStatusColor(ticket.status)}>
-                    {ticket.status.replace('_', ' ')}
-                  </Badge>
+                  <StatusBadge
+                    status={ticket.status}
+                    type="ticket"
+                    label={t(`statuses.${ticket.status}`)}
+                  />
                 </div>
                 <p className="text-sm text-muted-foreground line-clamp-1">
                   {ticket.description}

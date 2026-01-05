@@ -1,32 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import {
   Briefcase,
   Ticket,
   AlertCircle
 } from 'lucide-react';
-import { TicketStatus } from '@/types';
+import { TicketStatus, WorkStatus } from '@/types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useDashboard } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
 import { useTranslation } from 'react-i18next';
-
-const getTicketStatusColor = (status: TicketStatus) => {
-  switch (status) {
-    case 'OPEN':
-      return 'bg-destructive text-destructive-foreground';
-    case 'IN_PROGRESS':
-      return 'bg-primary text-primary-foreground';
-    case 'RESOLVED':
-      return 'bg-accent text-accent-foreground';
-    case 'CLOSED':
-      return 'bg-secondary text-secondary-foreground';
-    default:
-      return 'bg-muted text-muted-foreground';
-  }
-};
+import { StatusBadge, getWorkStatus } from '@/components/ui/status-badge';
 
 // Chart colors - orange palette
 const WORK_COLORS = ['#f97316', '#fb923c', '#fdba74', '#fed7aa'];
@@ -36,6 +21,8 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { data, isLoading, error } = useDashboard();
   const { t } = useTranslation('dashboard');
+  const { t: tTickets } = useTranslation('tickets');
+  const { t: tWorks } = useTranslation('works');
 
   if (isLoading) return <LoadingSpinner message={t('loading')} />;
   if (error) return (
@@ -257,15 +244,14 @@ export default function Dashboard() {
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    {work.invoiced ? (
-                      <Badge variant="secondary">{t('recentWorks.badges.invoiced')}</Badge>
-                    ) : work.completed ? (
-                      <Badge className="border-emerald-600 bg-emerald-600/15 text-emerald-700 dark:border-emerald-400 dark:bg-emerald-400/15 dark:text-emerald-300">
-                        {t('recentWorks.badges.completed')}
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline">{t('recentWorks.badges.inProgress')}</Badge>
-                    )}
+                    <StatusBadge
+                      status={getWorkStatus(work)}
+                      type="work"
+                      label={tWorks(`badges.${
+                        work.invoiced ? 'invoiced' :
+                        work.completed ? 'completed' : 'inProgress'
+                      }`)}
+                    />
                   </div>
                 </div>
               ))}
@@ -301,9 +287,11 @@ export default function Dashboard() {
                       {ticket.senderEmail}
                     </p>
                   </div>
-                  <Badge className={getTicketStatusColor(ticket.status)}>
-                    {ticket.status.replace('_', ' ')}
-                  </Badge>
+                  <StatusBadge
+                    status={ticket.status}
+                    type="ticket"
+                    label={tTickets(`statuses.${ticket.status}`)}
+                  />
                 </div>
               ))}
             </div>
