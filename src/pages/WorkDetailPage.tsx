@@ -18,7 +18,7 @@ import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, 
 import { Work, WorkReportEntry, User as UserType, WorkStatus } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
-import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useReopenWork, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference } from '@/hooks/api';
+import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useReopenWork, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference, usePlants, useClients } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate, formatDateTime } from '@/lib/date';
@@ -82,7 +82,10 @@ export default function WorkDetailPage() {
   const { data: work, isLoading, error } = useWork(id!);
   const { data: reportEntriesData } = useWorkReportEntries(id!);
   const { data: techniciansData } = useUsersByType('TECHNICIAN');
+  const { data: sellersData } = useUsersByType('SELLER');
   const { data: worksiteReferencesData } = useWorksiteReferences();
+  const { data: plantsData } = usePlants(0, 100);
+  const { data: clientsData } = useClients(0, 100);
 
   // Mutations
   const updateWork = useUpdateWork();
@@ -103,12 +106,22 @@ export default function WorkDetailPage() {
 
   const reportEntries = reportEntriesData || [];
   const technicians = techniciansData || [];
+  const sellers = sellersData || [];
+  const plants = plantsData?.content || [];
+  const atixClients = (clientsData?.content || []).filter((c: any) => c.type === 'ATIX');
+  const finalClients = (clientsData?.content || []).filter((c: any) => c.type === 'FINAL');
   const allWorksiteReferences = worksiteReferencesData || [];
 
   // Update editedWork when work data loads
   useEffect(() => {
     if (work) {
-      setEditedWork(work);
+      setEditedWork({
+        ...work,
+        plantId: work.plantId || work.plant?.id || null,
+        sellerId: (work as any).sellerId || work.seller?.id || null,
+        atixClientId: work.atixClientId || work.atixClient?.id || null,
+        finalClientId: work.finalClientId || work.finalClient?.id || null,
+      });
     }
   }, [work]);
 
@@ -874,48 +887,134 @@ export default function WorkDetailPage() {
               <CardTitle>{t('sections.projectInfo')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {work.plant && <div className="flex items-center gap-3">
-                  <Factory className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <Label className="text-muted-foreground text-xs">{t('details.plant')}</Label>
-                    <p className="text-sm font-medium">{work.plant.name}</p>
+              {isEditing ? (
+                <>
+                  <div className="grid gap-2">
+                    <Label htmlFor="plantId">{t('details.plant')}</Label>
+                    <Select 
+                      value={editedWork.plantId || ''} 
+                      onValueChange={(value) => setEditedWork({ ...editedWork, plantId: value || null })}
+                    >
+                      <SelectTrigger id="plantId">
+                        <SelectValue placeholder={t('common:messages.notSet')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {plants.map((plant: any) => (
+                          <SelectItem key={plant.id} value={plant.id}>
+                            {plant.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                </div>}
-              {work.plant && work.nasSubDirectory && <div className="flex items-center gap-3">
-                  <Factory className="h-4 w-4 text-muted-foreground" />
-                  <div className="flex-1">
-                    <Label className="text-muted-foreground text-xs">{t('details.directory')}</Label>
-                    <p className="text-sm font-mono break-all">{getFullDirectory()}</p>
+                  <div className="grid gap-2">
+                    <Label htmlFor="sellerId">{t('details.seller')}</Label>
+                    <Select 
+                      value={editedWork.sellerId || ''} 
+                      onValueChange={(value) => setEditedWork({ ...editedWork, sellerId: value || null })}
+                    >
+                      <SelectTrigger id="sellerId">
+                        <SelectValue placeholder={t('common:messages.notSet')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sellers.map((seller: any) => (
+                          <SelectItem key={seller.id} value={seller.id}>
+                            {seller.firstName} {seller.lastName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                </div>}
-              {work.seller && <div className="flex items-center gap-3">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <Label className="text-muted-foreground text-xs">{t('details.seller')}</Label>
-                    <p className="text-sm font-medium">{work.seller.firstName} {work.seller.lastName}</p>
+                  <div className="grid gap-2">
+                    <Label htmlFor="atixClientId">{t('details.atixClient')}</Label>
+                    <Select 
+                      value={editedWork.atixClientId || ''} 
+                      onValueChange={(value) => setEditedWork({ ...editedWork, atixClientId: value || null })}
+                    >
+                      <SelectTrigger id="atixClientId">
+                        <SelectValue placeholder={t('common:messages.notSet')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {atixClients.map((client: any) => (
+                          <SelectItem key={client.id} value={client.id}>
+                            {client.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                </div>}
-              {work.atixClient && <div className="flex items-center gap-3">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <Label className="text-muted-foreground text-xs">{t('details.atixClient')}</Label>
-                    <p className="text-sm font-medium">{work.atixClient.name}</p>
+                  <div className="grid gap-2">
+                    <Label htmlFor="finalClientId">{t('details.finalClient')}</Label>
+                    <Select 
+                      value={editedWork.finalClientId || ''} 
+                      onValueChange={(value) => setEditedWork({ ...editedWork, finalClientId: value || null })}
+                    >
+                      <SelectTrigger id="finalClientId">
+                        <SelectValue placeholder={t('common:messages.notSet')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {finalClients.map((client: any) => (
+                          <SelectItem key={client.id} value={client.id}>
+                            {client.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                </div>}
-              {work.finalClient && <div className="flex items-center gap-3">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <Label className="text-muted-foreground text-xs">{t('details.finalClient')}</Label>
-                    <p className="text-sm font-medium">{work.finalClient.name}</p>
+                  <div className="flex items-center gap-3">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <Label className="text-muted-foreground text-xs">{t('details.createdAt')}</Label>
+                      <p className="text-sm">{formatDateTime(work.createdAt, t('common:messages.notSet'))}</p>
+                    </div>
                   </div>
-                </div>}
-              <div className="flex items-center gap-3">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <Label className="text-muted-foreground text-xs">{t('details.createdAt')}</Label>
-                  <p className="text-sm">{formatDateTime(work.createdAt, t('common:messages.notSet'))}</p>
-                </div>
-              </div>
+                </>
+              ) : (
+                <>
+                  {work.plant && <div className="flex items-center gap-3">
+                      <Factory className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <Label className="text-muted-foreground text-xs">{t('details.plant')}</Label>
+                        <p className="text-sm font-medium">{work.plant.name}</p>
+                      </div>
+                    </div>}
+                  {work.plant && work.nasSubDirectory && <div className="flex items-center gap-3">
+                      <Factory className="h-4 w-4 text-muted-foreground" />
+                      <div className="flex-1">
+                        <Label className="text-muted-foreground text-xs">{t('details.directory')}</Label>
+                        <p className="text-sm font-mono break-all">{getFullDirectory()}</p>
+                      </div>
+                    </div>}
+                  {work.seller && <div className="flex items-center gap-3">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <Label className="text-muted-foreground text-xs">{t('details.seller')}</Label>
+                        <p className="text-sm font-medium">{work.seller.firstName} {work.seller.lastName}</p>
+                      </div>
+                    </div>}
+                  {work.atixClient && <div className="flex items-center gap-3">
+                      <Building2 className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <Label className="text-muted-foreground text-xs">{t('details.atixClient')}</Label>
+                        <p className="text-sm font-medium">{work.atixClient.name}</p>
+                      </div>
+                    </div>}
+                  {work.finalClient && <div className="flex items-center gap-3">
+                      <Building2 className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <Label className="text-muted-foreground text-xs">{t('details.finalClient')}</Label>
+                        <p className="text-sm font-medium">{work.finalClient.name}</p>
+                      </div>
+                    </div>}
+                  <div className="flex items-center gap-3">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <Label className="text-muted-foreground text-xs">{t('details.createdAt')}</Label>
+                      <p className="text-sm">{formatDateTime(work.createdAt, t('common:messages.notSet'))}</p>
+                    </div>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 
