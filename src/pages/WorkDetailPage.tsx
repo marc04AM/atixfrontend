@@ -779,6 +779,13 @@ export default function WorkDetailPage() {
                 })} />
                   </div>
                   <div className="grid gap-2">
+                    <Label htmlFor="expectedStartDate">{t('details.expectedStart')}</Label>
+                    <Input id="expectedStartDate" type="date" value={editedWork.expectedStartDate || ''} onChange={e => setEditedWork({
+                  ...editedWork,
+                  expectedStartDate: e.target.value
+                })} />
+                  </div>
+                  <div className="grid gap-2">
                     <Label htmlFor="electrical">{t('details.electricalProgress')}</Label>
                     <Input id="electrical" type="number" min="0" max="100" value={editedWork.electricalSchemaProgression} onChange={e => setEditedWork({
                   ...editedWork,
