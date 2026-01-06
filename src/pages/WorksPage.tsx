@@ -688,10 +688,10 @@ function WorksList({
                     />
                   </div>
                   <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
-                    {expectedStartDateLabel && (
+                    {work.orderNumber && (
                       <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        <span>{expectedStartDateLabel}</span>
+                        <Briefcase className="h-3 w-3" />
+                        <span>{work.orderNumber}</span>
                       </div>
                     )}
                     {clientName && (
@@ -710,6 +710,12 @@ function WorksList({
                       <div className="flex items-center gap-1">
                         <User className="h-3 w-3" />
                         <span>{technicianNames}</span>
+                      </div>
+                    )}
+                    {expectedStartDateLabel && (
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        <span>{expectedStartDateLabel}</span>
                       </div>
                     )}
                   </div>
