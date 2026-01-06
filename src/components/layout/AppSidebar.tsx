@@ -39,8 +39,8 @@ export function AppSidebar() {
 
   const mainNavItems = [
     { title: t('menu.dashboard'), url: '/', icon: LayoutDashboard },
-    { title: t('menu.tickets'), url: '/tickets', icon: Ticket },
     { title: t('menu.works'), url: '/works', icon: Briefcase },
+    { title: t('menu.tickets'), url: '/tickets', icon: Ticket },
   ];
 
   const managementItems = [
