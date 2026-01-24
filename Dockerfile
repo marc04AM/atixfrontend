@@ -14,10 +14,10 @@ COPY . .
 
 # Build arguments
 ARG NODE_ENV=production
-ARG VITE_API_URL=/api
+ARG VITE_API_BASE_URL=/api
 
 # Build the application with environment variables
-RUN VITE_API_URL=$VITE_API_URL npm run build
+RUN VITE_API_BASE_URL=$VITE_API_BASE_URL npm run build
 
 # Stage 2: Production
 FROM nginx:alpine
