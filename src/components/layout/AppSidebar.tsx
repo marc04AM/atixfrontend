@@ -40,12 +40,12 @@ export function AppSidebar() {
   const mainNavItems = [
     { title: t('menu.dashboard'), url: '/', icon: LayoutDashboard },
     { title: t('menu.works'), url: '/works', icon: Briefcase },
+    { title: t('menu.plants'), url: '/plants', icon: Factory },
     { title: t('menu.tickets'), url: '/tickets', icon: Ticket },
   ];
 
   const managementItems = [
     { title: t('menu.clients'), url: '/clients', icon: Building2 },
-    { title: t('menu.plants'), url: '/plants', icon: Factory },
     { title: t('menu.worksiteReferences'), url: '/worksite-references', icon: Wrench },
     { title: t('menu.users'), url: '/users', icon: Users, adminOnly: true },
   ];
