@@ -47,12 +47,6 @@ export function initSentry() {
 
     // Filtering
     beforeSend(event, hint) {
-      // Don't send errors in demo mode
-      const isDemoMode = localStorage.getItem('authToken')?.includes('demo-token');
-      if (isDemoMode) {
-        return null;
-      }
-
       // Filter out network errors that are already handled by the UI
       const error = hint.originalException;
       if (error instanceof Error) {
