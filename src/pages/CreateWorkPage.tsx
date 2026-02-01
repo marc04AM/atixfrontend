@@ -26,6 +26,7 @@ import { Client, Plant, SellerUser } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { useCreateWork, useClients, usePlants, useUsersByType, useCreateClient, useCreatePlant } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { workSchema, ValidationErrors, WorkFormData } from '@/lib/validations';
 
 export default function CreateWorkPage() {
   const navigate = useNavigate();
@@ -63,6 +64,7 @@ export default function CreateWorkPage() {
     finalClientId: '',
     plantId: '',
   });
+  const [formErrors, setFormErrors] = useState<ValidationErrors<WorkFormData>>({});
 
   // Add client dialog
   const [isAddClientOpen, setIsAddClientOpen] = useState(false);
@@ -152,15 +154,26 @@ export default function CreateWorkPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate required fields (only name, bidNumber, orderNumber, orderDate are required)
-    if (!formData.name || !formData.bidNumber || !formData.orderNumber || !formData.orderDate) {
+    const result = workSchema.safeParse(formData);
+    
+    if (!result.success) {
+      const errors: ValidationErrors<WorkFormData> = {};
+      result.error.errors.forEach((error) => {
+        const path = error.path[0] as keyof WorkFormData;
+        if (path && !errors[path]) {
+          errors[path] = error.message;
+        }
+      });
+      setFormErrors(errors);
       toast({
         title: t('messages.validationErrorTitle'),
-        description: t('messages.validationErrorDescription'),
+        description: t('validation:form.hasErrors'),
         variant: 'destructive',
       });
       return;
     }
+
+    setFormErrors({});
 
     // Prepare data for API
     const workData: any = {
@@ -235,8 +248,11 @@ export default function CreateWorkPage() {
                   placeholder={t('form.namePlaceholder')}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
+                  className={formErrors.name ? 'border-destructive' : ''}
                 />
+                {formErrors.name && (
+                  <p className="text-sm text-destructive">{formErrors.name}</p>
+                )}
               </div>
               
               <div className="grid grid-cols-2 gap-4">
@@ -247,8 +263,11 @@ export default function CreateWorkPage() {
                     placeholder={t('form.bidNumberPlaceholder')}
                     value={formData.bidNumber}
                     onChange={(e) => setFormData({ ...formData, bidNumber: e.target.value })}
-                    required
+                    className={formErrors.bidNumber ? 'border-destructive' : ''}
                   />
+                  {formErrors.bidNumber && (
+                    <p className="text-sm text-destructive">{formErrors.bidNumber}</p>
+                  )}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="orderNumber">{t('form.orderNumberLabel')} *</Label>
@@ -257,8 +276,11 @@ export default function CreateWorkPage() {
                     placeholder={t('form.orderNumberPlaceholder')}
                     value={formData.orderNumber}
                     onChange={(e) => setFormData({ ...formData, orderNumber: e.target.value })}
-                    required
+                    className={formErrors.orderNumber ? 'border-destructive' : ''}
                   />
+                  {formErrors.orderNumber && (
+                    <p className="text-sm text-destructive">{formErrors.orderNumber}</p>
+                  )}
                 </div>
               </div>
 
@@ -270,8 +292,11 @@ export default function CreateWorkPage() {
                     type="date"
                     value={formData.orderDate}
                     onChange={(e) => setFormData({ ...formData, orderDate: e.target.value })}
-                    required
+                    className={formErrors.orderDate ? 'border-destructive' : ''}
                   />
+                  {formErrors.orderDate && (
+                    <p className="text-sm text-destructive">{formErrors.orderDate}</p>
+                  )}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="expectedStartDate">{t('form.expectedStartDateLabel')}</Label>

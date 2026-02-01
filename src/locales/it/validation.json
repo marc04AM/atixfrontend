@@ -7,20 +7,21 @@
   "password": {
     "required": "La password è obbligatoria",
     "minLength": "La password deve contenere almeno {{min}} caratteri",
+    "maxLength": "La password deve contenere al massimo {{max}} caratteri",
     "mismatch": "Le password non coincidono"
   },
   "name": {
     "required": "Il nome è obbligatorio",
-    "minLength": "Il nome deve contenere almeno {{min}} caratteri",
-    "maxLength": "Il nome deve contenere al massimo {{max}} caratteri"
+    "minLength": "Deve contenere almeno {{min}} caratteri",
+    "maxLength": "Deve contenere al massimo {{max}} caratteri"
   },
   "phone": {
-    "invalid": "Numero di telefono non valido"
+    "invalid": "Formato numero di telefono non valido"
   },
   "number": {
     "min": "Il valore deve essere almeno {{min}}",
     "max": "Il valore deve essere al massimo {{max}}",
-    "positive": "Il valore deve essere positivo"
+    "positive": "Il valore deve essere maggiore di 0"
   },
   "string": {
     "minLength": "Deve contenere almeno {{min}} caratteri",
@@ -29,5 +30,8 @@
   "date": {
     "invalid": "Data non valida",
     "required": "La data è obbligatoria"
+  },
+  "form": {
+    "hasErrors": "Correggi gli errori prima di inviare"
   }
 }

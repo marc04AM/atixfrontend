@@ -46,6 +46,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
 import { useTranslation } from 'react-i18next';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { ticketSchema, ValidationErrors, TicketFormData } from '@/lib/validations';
 
 const PAGE_SIZE = 10;
 
@@ -83,6 +84,7 @@ export default function TicketsPage() {
     senderEmail: '',
     description: '',
   });
+  const [formErrors, setFormErrors] = useState<ValidationErrors<TicketFormData>>({});
 
   // Build API params
   const baseParams = useMemo(() => {
@@ -232,6 +234,34 @@ export default function TicketsPage() {
   );
 
   const handleCreateTicket = () => {
+    const dataToValidate = {
+      name: newTicket.name,
+      description: newTicket.description,
+      senderEmail: newTicket.senderEmail || undefined,
+      status: 'OPEN' as const,
+    };
+    
+    const result = ticketSchema.safeParse(dataToValidate);
+    
+    if (!result.success) {
+      const errors: ValidationErrors<TicketFormData> = {};
+      result.error.errors.forEach((error) => {
+        const path = error.path[0] as keyof TicketFormData;
+        if (path && !errors[path]) {
+          errors[path] = error.message;
+        }
+      });
+      setFormErrors(errors);
+      toast({
+        title: t('common:titles.validationError'),
+        description: t('validation:form.hasErrors'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setFormErrors({});
+
     createTicket.mutate({
       ...newTicket,
       status: 'OPEN',
@@ -243,6 +273,7 @@ export default function TicketsPage() {
         });
         setIsCreateOpen(false);
         setNewTicket({ name: '', senderEmail: '', description: '' });
+        setFormErrors({});
       },
       onError: (error: any) => {
         toast({
@@ -286,13 +317,17 @@ export default function TicketsPage() {
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="ticket-name">{t('form.nameLabel')}</Label>
+                <Label htmlFor="ticket-name">{t('form.nameLabel')} *</Label>
                 <Input
                   id="ticket-name"
                   placeholder={t('form.namePlaceholder')}
                   value={newTicket.name}
                   onChange={(e) => setNewTicket({ ...newTicket, name: e.target.value })}
+                  className={formErrors.name ? 'border-destructive' : ''}
                 />
+                {formErrors.name && (
+                  <p className="text-sm text-destructive">{formErrors.name}</p>
+                )}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="sender-email">{t('form.senderEmailLabel')}</Label>
@@ -302,24 +337,32 @@ export default function TicketsPage() {
                   placeholder={t('form.senderEmailPlaceholder')}
                   value={newTicket.senderEmail}
                   onChange={(e) => setNewTicket({ ...newTicket, senderEmail: e.target.value })}
+                  className={formErrors.senderEmail ? 'border-destructive' : ''}
                 />
+                {formErrors.senderEmail && (
+                  <p className="text-sm text-destructive">{formErrors.senderEmail}</p>
+                )}
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="description">{t('form.descriptionLabel')}</Label>
+                <Label htmlFor="description">{t('form.descriptionLabel')} *</Label>
                 <Textarea
                   id="description"
                   placeholder={t('form.descriptionPlaceholder')}
                   rows={4}
                   value={newTicket.description}
                   onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
+                  className={formErrors.description ? 'border-destructive' : ''}
                 />
+                {formErrors.description && (
+                  <p className="text-sm text-destructive">{formErrors.description}</p>
+                )}
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
                 {t('form.cancel', { ns: 'common' })}
               </Button>
-              <Button onClick={handleCreateTicket} disabled={!newTicket.name || !newTicket.description}>
+              <Button onClick={handleCreateTicket}>
                 {t('form.createButton')}
               </Button>
             </DialogFooter>

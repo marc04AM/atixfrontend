@@ -7,20 +7,21 @@
   "password": {
     "required": "Password is required",
     "minLength": "Password must be at least {{min}} characters",
+    "maxLength": "Password must be at most {{max}} characters",
     "mismatch": "Passwords do not match"
   },
   "name": {
     "required": "Name is required",
-    "minLength": "Name must be at least {{min}} characters",
-    "maxLength": "Name must be at most {{max}} characters"
+    "minLength": "Must be at least {{min}} characters",
+    "maxLength": "Must be at most {{max}} characters"
   },
   "phone": {
-    "invalid": "Invalid phone number"
+    "invalid": "Invalid phone number format"
   },
   "number": {
     "min": "Value must be at least {{min}}",
     "max": "Value must be at most {{max}}",
-    "positive": "Value must be positive"
+    "positive": "Value must be greater than 0"
   },
   "string": {
     "minLength": "Must be at least {{min}} characters",
@@ -29,5 +30,8 @@
   "date": {
     "invalid": "Invalid date",
     "required": "Date is required"
+  },
+  "form": {
+    "hasErrors": "Please fix the errors before submitting"
   }
 }
