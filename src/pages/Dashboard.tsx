@@ -11,7 +11,7 @@ import { useDashboard } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
 import { useTranslation } from 'react-i18next';
-import { StatusBadge, getWorkStatus } from '@/components/ui/status-badge';
+import { StatusBadge, getWorkStatusBadgeKey } from '@/components/ui/status-badge';
 
 // Chart colors - orange palette
 const WORK_COLORS = ['#f97316', '#fb923c', '#fdba74', '#fed7aa'];
@@ -245,12 +245,9 @@ export default function Dashboard() {
                   </div>
                   <div className="flex gap-2">
                     <StatusBadge
-                      status={getWorkStatus(work)}
+                      status={work.status}
                       type="work"
-                      label={tWorks(`badges.${
-                        work.invoiced ? 'invoiced' :
-                        work.completed ? 'completed' : 'inProgress'
-                      }`)}
+                      label={tWorks(`badges.${getWorkStatusBadgeKey(work.status)}`)}
                     />
                   </div>
                 </div>

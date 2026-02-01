@@ -38,7 +38,7 @@ import { Client, Plant, Work } from '@/types';
 import { useWorks, useClients, usePlants, useUsersByType, useTickets } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
-import { StatusBadge, getWorkStatus } from '@/components/ui/status-badge';
+import { StatusBadge, getWorkStatusBadgeKey } from '@/components/ui/status-badge';
 
 const PAGE_SIZE = 10;
 
@@ -49,7 +49,7 @@ interface WorkFilters {
   plantId: string;
   ticketId: string;
   technicianId: string;
-  invoiced: string;
+  status: string;
   orderDateFrom: string;
   orderDateTo: string;
   expectedStartDateFrom: string;
@@ -112,7 +112,7 @@ export default function WorksPage() {
   const navigate = useNavigate();
   const { t } = useTranslation('works');
 
-  const [activeTab, setActiveTab] = useState('open');
+  const [activeTab, setActiveTab] = useState('scheduled');
   const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -123,7 +123,7 @@ export default function WorksPage() {
     plantId: '',
     ticketId: '',
     technicianId: '',
-    invoiced: '',
+    status: '',
     orderDateFrom: '',
     orderDateTo: '',
     expectedStartDateFrom: '',
@@ -147,12 +147,21 @@ export default function WorksPage() {
     return p;
   }, [filters]);
 
-  const listParams = useMemo(() => ({
-    ...baseParams,
-    completed: activeTab === 'closed',
-    page: currentPage,
-    size: PAGE_SIZE,
-  }), [baseParams, activeTab, currentPage]);
+  const listParams = useMemo(() => {
+    const p: Record<string, any> = {
+      ...baseParams,
+      page: currentPage,
+      size: PAGE_SIZE,
+    };
+    if (activeTab === 'scheduled') {
+      p.statuses = ['SCHEDULED'];
+    } else if (activeTab === 'open') {
+      p.statuses = ['IN_PROGRESS'];
+    } else {
+      p.statuses = ['CLOSED', 'INVOICED'];
+    }
+    return p;
+  }, [baseParams, activeTab, currentPage]);
 
   const countParams = useMemo(() => ({
     ...baseParams,
@@ -160,18 +169,24 @@ export default function WorksPage() {
     size: 1,
   }), [baseParams]);
 
+  const scheduledCountParams = useMemo(() => ({
+    ...countParams,
+    statuses: ['SCHEDULED'],
+  }), [countParams]);
+
   const openCountParams = useMemo(() => ({
     ...countParams,
-    completed: false,
+    statuses: ['IN_PROGRESS'],
   }), [countParams]);
 
   const closedCountParams = useMemo(() => ({
     ...countParams,
-    completed: true,
+    statuses: ['CLOSED', 'INVOICED'],
   }), [countParams]);
 
   // Fetch data
   const { data: worksData, isLoading: worksLoading, error: worksError } = useWorks(listParams);
+  const { data: scheduledWorksData } = useWorks(scheduledCountParams);
   const { data: openWorksData } = useWorks(openCountParams);
   const { data: closedWorksData } = useWorks(closedCountParams);
   const { data: clientsData } = useClients(0, 100);
@@ -223,7 +238,7 @@ export default function WorksPage() {
       plantId: '',
       ticketId: '',
       technicianId: '',
-      invoiced: '',
+      status: '',
       orderDateFrom: '',
       orderDateTo: '',
       expectedStartDateFrom: '',
@@ -238,6 +253,7 @@ export default function WorksPage() {
 
   const hasActiveFilters = Object.values(filters).some(v => v !== '') || searchQuery !== '';
 
+  const scheduledWorksCount = scheduledWorksData?.totalElements || 0;
   const openWorksCount = openWorksData?.totalElements || 0;
   const closedWorksCount = closedWorksData?.totalElements || 0;
   const totalPages = worksData?.totalPages || 0;
@@ -285,6 +301,9 @@ export default function WorksPage() {
       <Tabs value={activeTab} onValueChange={handleTabChange}>
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <TabsList>
+            <TabsTrigger value="scheduled">
+              {t('tabs.scheduled')} ({scheduledWorksCount})
+            </TabsTrigger>
             <TabsTrigger value="open">
               {t('tabs.open')} ({openWorksCount})
             </TabsTrigger>
@@ -416,17 +435,19 @@ export default function WorksPage() {
                   </Select>
                 </div>
 
-                {/* Invoiced */}
+                {/* Status */}
                 <div>
-                  <Label className="mb-2 block text-sm">{t('filters.invoiced')}</Label>
-                  <Select value={filters.invoiced || "__all__"} onValueChange={(v) => setFilters({...filters, invoiced: v === "__all__" ? "" : v})}>
+                  <Label className="mb-2 block text-sm">{t('filters.status')}</Label>
+                  <Select value={filters.status || "__all__"} onValueChange={(v) => setFilters({...filters, status: v === "__all__" ? "" : v})}>
                     <SelectTrigger>
                       <SelectValue placeholder={t('filters.all')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__all__">{t('filters.all')}</SelectItem>
-                      <SelectItem value="true">{t('filters.invoicedYes')}</SelectItem>
-                      <SelectItem value="false">{t('filters.invoicedNo')}</SelectItem>
+                      <SelectItem value="SCHEDULED">{t('filters.statusScheduled')}</SelectItem>
+                      <SelectItem value="IN_PROGRESS">{t('filters.statusInProgress')}</SelectItem>
+                      <SelectItem value="CLOSED">{t('filters.statusClosed')}</SelectItem>
+                      <SelectItem value="INVOICED">{t('filters.statusInvoiced')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -514,6 +535,23 @@ export default function WorksPage() {
         )}
 
         {/* Works List */}
+        <TabsContent value="scheduled" className="mt-4 space-y-4">
+          <WorksList
+            works={filteredWorks}
+            navigate={navigate}
+            clientsById={clientsById}
+            plantsById={plantsById}
+          />
+          {totalPages > 1 && (
+            <WorksPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              pageSize={PAGE_SIZE}
+              onPageChange={setCurrentPage}
+            />
+          )}
+        </TabsContent>
         <TabsContent value="open" className="mt-4 space-y-4">
           <WorksList
             works={filteredWorks}
@@ -679,12 +717,9 @@ function WorksList({
                     </Badge>
                     <h3 className="font-medium">{work.name}</h3>
                     <StatusBadge
-                      status={getWorkStatus(work)}
+                      status={work.status}
                       type="work"
-                      label={t(`badges.${
-                        work.invoiced ? 'invoiced' :
-                        work.completed ? 'completed' : 'inProgress'
-                      }`)}
+                      label={t(`badges.${getWorkStatusBadgeKey(work.status)}`)}
                     />
                   </div>
                   <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">

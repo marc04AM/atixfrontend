@@ -2,7 +2,7 @@
 export type UserRole = 'ADMIN' | 'OWNER' | 'USER';
 export type UserType = 'TECHNICIAN' | 'ADMINISTRATION' | 'SELLER';
 export type ClientType = 'ATIX' | 'FINAL';
-export type WorkStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'INVOICED';
+export type WorkStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'CLOSED' | 'INVOICED';
 export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
 export type AttachmentType = 'PHOTO' | 'PDF' | 'DOC' | 'OTHER';
 export type AttachmentTargetType = 'WORK' | 'PLANT' | 'TICKET' | 'REPORT';
@@ -73,11 +73,9 @@ export interface Work {
   electricalSchemaProgression: number;
   programmingProgression: number;
   expectedStartDate?: string;
-  completed: boolean;
-  completedAt?: string;
+  status: WorkStatus;
+  statusChangedAt?: string;
   createdAt: string;
-  invoiced: boolean;
-  invoicedAt?: string;
   nasSubDirectory: string;
   relatedPlantNasDirectory?: string;
   expectedOfficeHours: number;

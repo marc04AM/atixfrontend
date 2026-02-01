@@ -22,7 +22,7 @@ interface StatusConfig {
 }
 
 const workStatusConfig: Record<WorkStatus, StatusConfig> = {
-  PENDING: {
+  SCHEDULED: {
     icon: AlertCircle,
     variant: 'outline',
     className: 'border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-700'
@@ -32,7 +32,7 @@ const workStatusConfig: Record<WorkStatus, StatusConfig> = {
     variant: 'outline',
     className: 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-700'
   },
-  COMPLETED: {
+  CLOSED: {
     icon: CheckCircle2,
     variant: 'outline',
     className: 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-700'
@@ -103,9 +103,13 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   );
 };
 
-// Helper function per ottenere lo status dei work
-export const getWorkStatus = (work: { completed?: boolean; invoiced?: boolean }): WorkStatus => {
-  if (work.invoiced) return 'INVOICED';
-  if (work.completed) return 'COMPLETED';
-  return 'IN_PROGRESS';
+// Map work status to i18n badge key
+export const getWorkStatusBadgeKey = (status: WorkStatus): string => {
+  const map: Record<WorkStatus, string> = {
+    SCHEDULED: 'scheduled',
+    IN_PROGRESS: 'inProgress',
+    CLOSED: 'closed',
+    INVOICED: 'invoiced',
+  };
+  return map[status] || 'scheduled';
 };
