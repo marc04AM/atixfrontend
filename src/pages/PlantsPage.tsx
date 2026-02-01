@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Plant } from '@/types';
 import { usePlants, useCreatePlant } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { plantSchema, ValidationErrors, PlantFormData } from '@/lib/validations';
 
 export default function PlantsPage() {
   const { toast } = useToast();
@@ -28,6 +29,7 @@ export default function PlantsPage() {
     pswPlatform: 'Niagara1995',
     pswStation: 'Atixbnt5555',
   });
+  const [formErrors, setFormErrors] = useState<ValidationErrors<PlantFormData>>({});
 
   // Fetch plants
   const { data: plantsData, isLoading, error } = usePlants(0, 100);
@@ -40,18 +42,31 @@ export default function PlantsPage() {
   );
 
   const handleCreatePlant = () => {
-    if (!newPlant.name.trim()) {
+    const result = plantSchema.safeParse(newPlant);
+    
+    if (!result.success) {
+      const errors: ValidationErrors<PlantFormData> = {};
+      result.error.errors.forEach((error) => {
+        const path = error.path[0] as keyof PlantFormData;
+        if (path && !errors[path]) {
+          errors[path] = error.message;
+        }
+      });
+      setFormErrors(errors);
       toast({
         title: t('common:titles.validationError'),
-        description: t('messages.nameRequired'),
+        description: t('validation:form.hasErrors'),
         variant: 'destructive',
       });
       return;
     }
 
+    setFormErrors({});
+
     createPlant.mutate(newPlant, {
       onSuccess: () => {
         setNewPlant({ name: '', notes: '', nasDirectory: '', pswPhrase: 'Atixbnt5555', pswPlatform: 'Niagara1995', pswStation: 'Atixbnt5555' });
+        setFormErrors({});
         setIsCreateOpen(false);
         toast({
           title: t('common:titles.success'),
@@ -81,15 +96,6 @@ export default function PlantsPage() {
     </div>
   );
 
-  const handleSaveComplete = () => {
-    setNewPlant({ name: '', notes: '', nasDirectory: '', pswPhrase: '', pswPlatform: '', pswStation: '' });
-    setIsCreateOpen(false);
-    toast({
-      title: t('common:titles.success'),
-      description: t('messages.createSuccessDescription'),
-    });
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -111,13 +117,17 @@ export default function PlantsPage() {
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="name">{t('form.nameLabel')}</Label>
+                <Label htmlFor="name">{t('form.nameLabel')} *</Label>
                 <Input
                   id="name"
                   value={newPlant.name}
                   onChange={(e) => setNewPlant({ ...newPlant, name: e.target.value })}
                   placeholder={t('form.namePlaceholder')}
+                  className={formErrors.name ? 'border-destructive' : ''}
                 />
+                {formErrors.name && (
+                  <p className="text-sm text-destructive">{formErrors.name}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="notes">{t('form.notesLabel')}</Label>
@@ -129,38 +139,54 @@ export default function PlantsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="nasDirectory">{t('form.nasDirectoryLabel')}</Label>
+                <Label htmlFor="nasDirectory">{t('form.nasDirectoryLabel')} *</Label>
                 <Input
                   id="nasDirectory"
                   value={newPlant.nasDirectory}
                   onChange={(e) => setNewPlant({ ...newPlant, nasDirectory: e.target.value })}
                   placeholder={t('form.nasDirectoryPlaceholder')}
+                  className={formErrors.nasDirectory ? 'border-destructive' : ''}
                 />
+                {formErrors.nasDirectory && (
+                  <p className="text-sm text-destructive">{formErrors.nasDirectory}</p>
+                )}
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-2">
-                  <Label htmlFor="pswPhrase">{t('form.pswPhraseLabel')}</Label>
+                  <Label htmlFor="pswPhrase">{t('form.pswPhraseLabel')} *</Label>
                   <Input
                     id="pswPhrase"
                     value={newPlant.pswPhrase}
                     onChange={(e) => setNewPlant({ ...newPlant, pswPhrase: e.target.value })}
+                    className={formErrors.pswPhrase ? 'border-destructive' : ''}
                   />
+                  {formErrors.pswPhrase && (
+                    <p className="text-sm text-destructive">{formErrors.pswPhrase}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="pswPlatform">{t('form.pswPlatformLabel')}</Label>
+                  <Label htmlFor="pswPlatform">{t('form.pswPlatformLabel')} *</Label>
                   <Input
                     id="pswPlatform"
                     value={newPlant.pswPlatform}
                     onChange={(e) => setNewPlant({ ...newPlant, pswPlatform: e.target.value })}
+                    className={formErrors.pswPlatform ? 'border-destructive' : ''}
                   />
+                  {formErrors.pswPlatform && (
+                    <p className="text-sm text-destructive">{formErrors.pswPlatform}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="pswStation">{t('form.pswStationLabel')}</Label>
+                  <Label htmlFor="pswStation">{t('form.pswStationLabel')} *</Label>
                   <Input
                     id="pswStation"
                     value={newPlant.pswStation}
                     onChange={(e) => setNewPlant({ ...newPlant, pswStation: e.target.value })}
+                    className={formErrors.pswStation ? 'border-destructive' : ''}
                   />
+                  {formErrors.pswStation && (
+                    <p className="text-sm text-destructive">{formErrors.pswStation}</p>
+                  )}
                 </div>
               </div>
             </div>

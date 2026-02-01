@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Client, ClientType } from '@/types';
 import { useClients, useCreateClient } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { clientSchema, ValidationErrors, ClientFormData } from '@/lib/validations';
 
 export default function ClientsPage() {
   const { toast } = useToast();
@@ -22,6 +23,7 @@ export default function ClientsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newClient, setNewClient] = useState({ name: '', type: 'ATIX' as ClientType });
+  const [formErrors, setFormErrors] = useState<ValidationErrors<ClientFormData>>({});
 
   // Fetch clients
   const { data: clientsData, isLoading, error } = useClients(0, 100);
@@ -33,14 +35,26 @@ export default function ClientsPage() {
   );
 
   const handleCreateClient = () => {
-    if (!newClient.name.trim()) {
+    const result = clientSchema.safeParse(newClient);
+    
+    if (!result.success) {
+      const errors: ValidationErrors<ClientFormData> = {};
+      result.error.errors.forEach((error) => {
+        const path = error.path[0] as keyof ClientFormData;
+        if (path && !errors[path]) {
+          errors[path] = error.message;
+        }
+      });
+      setFormErrors(errors);
       toast({
         title: t('common:titles.validationError'),
-        description: t('messages.nameRequired'),
+        description: t('validation:form.hasErrors'),
         variant: 'destructive',
       });
       return;
     }
+
+    setFormErrors({});
 
     createClient.mutate({
       name: newClient.name,
@@ -48,6 +62,7 @@ export default function ClientsPage() {
     }, {
       onSuccess: () => {
         setNewClient({ name: '', type: 'ATIX' });
+        setFormErrors({});
         setIsCreateOpen(false);
         toast({
           title: t('common:titles.success'),
@@ -101,21 +116,25 @@ export default function ClientsPage() {
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="name">{t('form.nameLabel')}</Label>
+                <Label htmlFor="name">{t('form.nameLabel')} *</Label>
                 <Input
                   id="name"
                   value={newClient.name}
                   onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
                   placeholder={t('form.namePlaceholder')}
+                  className={formErrors.name ? 'border-destructive' : ''}
                 />
+                {formErrors.name && (
+                  <p className="text-sm text-destructive">{formErrors.name}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="type">{t('form.typeLabel')}</Label>
+                <Label htmlFor="type">{t('form.typeLabel')} *</Label>
                 <Select
                   value={newClient.type}
                   onValueChange={(value: ClientType) => setNewClient({ ...newClient, type: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={formErrors.type ? 'border-destructive' : ''}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

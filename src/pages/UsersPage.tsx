@@ -47,6 +47,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { UserRole, UserType } from '@/types';
 import { useUsers, useCreateUser, useUpdateUser, useDeleteUser } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { userSchema, validateForm, ValidationErrors, UserFormData } from '@/lib/validations';
 
 interface UserData {
   id: string;
@@ -81,6 +82,7 @@ export default function UsersPage() {
     role: 'USER' as UserRole,
     type: 'TECHNICIAN' as UserType,
   });
+  const [formErrors, setFormErrors] = useState<ValidationErrors<UserFormData>>({});
 
   // Filter users based on search
   const filteredUsers = users.filter((user) => {
@@ -105,14 +107,26 @@ export default function UsersPage() {
   );
 
   const handleCreateUser = () => {
-    if (!newUser.firstName || !newUser.lastName || !newUser.email || !newUser.password) {
+    const result = userSchema.safeParse(newUser);
+    
+    if (!result.success) {
+      const errors: ValidationErrors<UserFormData> = {};
+      result.error.errors.forEach((error) => {
+        const path = error.path[0] as keyof UserFormData;
+        if (path && !errors[path]) {
+          errors[path] = error.message;
+        }
+      });
+      setFormErrors(errors);
       toast({
         title: t('common:titles.validationError'),
-        description: t('messages.validationRequired'),
+        description: t('validation:form.hasErrors'),
         variant: 'destructive',
       });
       return;
     }
+    
+    setFormErrors({});
 
     createUser.mutate(newUser, {
       onSuccess: () => {
@@ -130,6 +144,7 @@ export default function UsersPage() {
           role: 'USER',
           type: 'TECHNICIAN',
         });
+        setFormErrors({});
         setIsCreateDialogOpen(false);
       },
       onError: (error: any) => {
@@ -259,7 +274,11 @@ export default function UsersPage() {
                     value={newUser.firstName}
                     onChange={(e) => setNewUser({ ...newUser, firstName: e.target.value })}
                     placeholder={t('form.firstNamePlaceholder')}
+                    className={formErrors.firstName ? 'border-destructive' : ''}
                   />
+                  {formErrors.firstName && (
+                    <p className="text-sm text-destructive">{formErrors.firstName}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">{t('form.lastNameLabel')} *</Label>
@@ -268,7 +287,11 @@ export default function UsersPage() {
                     value={newUser.lastName}
                     onChange={(e) => setNewUser({ ...newUser, lastName: e.target.value })}
                     placeholder={t('form.lastNamePlaceholder')}
+                    className={formErrors.lastName ? 'border-destructive' : ''}
                   />
+                  {formErrors.lastName && (
+                    <p className="text-sm text-destructive">{formErrors.lastName}</p>
+                  )}
                 </div>
               </div>
               <div className="space-y-2">
@@ -279,7 +302,11 @@ export default function UsersPage() {
                   value={newUser.email}
                   onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                   placeholder={t('form.emailPlaceholder')}
+                  className={formErrors.email ? 'border-destructive' : ''}
                 />
+                {formErrors.email && (
+                  <p className="text-sm text-destructive">{formErrors.email}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">{t('form.passwordLabel')} *</Label>
@@ -289,7 +316,11 @@ export default function UsersPage() {
                   value={newUser.password}
                   onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
                   placeholder={t('form.passwordPlaceholder')}
+                  className={formErrors.password ? 'border-destructive' : ''}
                 />
+                {formErrors.password && (
+                  <p className="text-sm text-destructive">{formErrors.password}</p>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -298,7 +329,7 @@ export default function UsersPage() {
                     value={newUser.role}
                     onValueChange={(value: UserRole) => setNewUser({ ...newUser, role: value })}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={formErrors.role ? 'border-destructive' : ''}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -314,7 +345,7 @@ export default function UsersPage() {
                     value={newUser.type}
                     onValueChange={(value: UserType) => setNewUser({ ...newUser, type: value })}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={formErrors.type ? 'border-destructive' : ''}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
