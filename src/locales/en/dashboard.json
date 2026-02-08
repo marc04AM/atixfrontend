@@ -7,7 +7,13 @@
     "pending": "Pending",
     "completed": "Completed",
     "works": "works",
-    "tickets": "tickets"
+    "tickets": "tickets",
+    "statuses": {
+      "open": "Open",
+      "in_progress": "In Progress",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    }
   },
   "alerts": {
     "ticketsNeedAttention": "You have <strong>{{open}} open</strong> and <strong>{{inProgress}} in-progress</strong> tickets that need attention."
