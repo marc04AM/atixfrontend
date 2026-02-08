@@ -5,7 +5,7 @@ import {
   Ticket,
   AlertCircle
 } from 'lucide-react';
-import { TicketStatus, WorkStatus } from '@/types';
+
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useDashboard } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -42,21 +42,15 @@ export default function Dashboard() {
   const openTickets = data.ticketStatusCounts?.find((t: any) => t.status === 'OPEN')?.count || 0;
   const inProgressTickets = data.ticketStatusCounts?.find((t: any) => t.status === 'IN_PROGRESS')?.count || 0;
 
-  const ticketChartData = (data.ticketStatusCounts || []).map((t: any) => ({
-    name: t.status.replace('_', ' '),
-    value: t.count,
+  const ticketChartData = (data.ticketStatusCounts || []).map((item: any) => ({
+    name: t(`charts.ticketStatuses.${item.status.toLowerCase()}`, { defaultValue: item.status.replace('_', ' ') }),
+    value: item.count,
   }));
 
-  // Build work chart data from completed and pending counts
-  const workChartData = [
-    { name: t('charts.pending'), value: data.pendingWorkCount || 0 },
-    { name: t('charts.completed'), value: data.completedWorkCount || 0 },
-  ];
-
-  // Localize ticket chart labels
-  const ticketChartDataLocalized = ticketChartData.map((item: { name: string; value: number }) => ({
-    ...item,
-    name: t(`charts.statuses.${item.name.toLowerCase().replace(' ', '_')}`, { defaultValue: item.name }),
+  // Build work chart data from per-status counts
+  const workChartData = (data.workStatusCounts || []).map((item: any) => ({
+    name: t(`charts.workStatuses.${item.status.toLowerCase()}`, { defaultValue: item.status.replace('_', ' ') }),
+    value: item.count,
   }));
 
   return (
@@ -157,7 +151,7 @@ export default function Dashboard() {
                     ))}
                   </defs>
                   <Pie
-                    data={ticketChartDataLocalized}
+                    data={ticketChartData}
                     cx="50%"
                     cy="42%"
                     innerRadius={45}
@@ -167,9 +161,9 @@ export default function Dashboard() {
                     stroke="hsl(var(--background))"
                     strokeWidth={2}
                   >
-                    {ticketChartData.map((_, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
+                    {ticketChartData.map((_: any, index: number) => (
+                      <Cell
+                        key={`cell-${index}`}
                         fill={`url(#ticketGradient-${index})`}
                         style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
                       />
@@ -185,13 +179,13 @@ export default function Dashboard() {
                     }}
                     formatter={(value: number, name: string) => [`${value} ${t('charts.tickets')}`, name]}
                   />
-                  <Legend 
+                  <Legend
                     verticalAlign="bottom"
                     iconType="circle"
                     iconSize={10}
                     wrapperStyle={{ paddingTop: '16px' }}
                     formatter={(value) => {
-                      const item = ticketChartDataLocalized.find((d: { name: string; value: number }) => d.name === value);
+                      const item = ticketChartData.find((d: { name: string; value: number }) => d.name === value);
                       return <span className="text-sm text-foreground">{value}: <strong>{item?.value || 0}</strong></span>;
                     }}
                   />

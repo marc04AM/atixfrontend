@@ -164,6 +164,7 @@ export interface DashboardSummary {
   plantCount: number;
   completedWorkCount: number;
   pendingWorkCount: number;
+  workStatusCounts: { status: WorkStatus; count: number }[];
   ticketStatusCounts: { status: TicketStatus; count: number }[];
   recentWorks: Work[];
   recentTickets: Ticket[];

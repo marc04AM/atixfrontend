@@ -354,24 +354,27 @@ export const dashboardApi = {
       const query = `
         query {
           dashboardSummary(limit: ${limit}) {
-            clientCount
-            plantCount
-            completedWorkCount
-            pendingWorkCount
-            ticketStatusCounts {
+            clientsCount
+            plantsCount
+            completedWorksCount
+            pendingWorksCount
+            worksByStatus {
               status
               count
             }
-            recentWorks {
-              id
-              name
-              orderDate
+            ticketsByStatus {
               status
+              count
             }
-            recentTickets {
+            lastWorks {
               id
               name
-              senderEmail
+              status
+              createdAt
+            }
+            lastTickets {
+              id
+              name
               status
               createdAt
             }
@@ -384,9 +387,19 @@ export const dashboardApi = {
         body: JSON.stringify({ query }),
       });
 
-      // Handle GraphQL response
+      // Handle GraphQL response - map backend field names to frontend conventions
       if (response?.data?.dashboardSummary) {
-        return response.data.dashboardSummary;
+        const s = response.data.dashboardSummary;
+        return {
+          clientCount: s.clientsCount,
+          plantCount: s.plantsCount,
+          completedWorkCount: s.completedWorksCount,
+          pendingWorkCount: s.pendingWorksCount,
+          workStatusCounts: s.worksByStatus,
+          ticketStatusCounts: s.ticketsByStatus,
+          recentWorks: s.lastWorks.map((w: any) => ({ ...w, orderDate: w.createdAt })),
+          recentTickets: s.lastTickets,
+        };
       }
     } catch (graphqlError) {
       console.warn('GraphQL dashboard endpoint not available, using REST endpoints');
@@ -407,6 +420,17 @@ export const dashboardApi = {
       // Calculate counts
       const completedWorks = works.filter((w: any) => w.status === 'CLOSED' || w.status === 'INVOICED');
       const pendingWorks = works.filter((w: any) => w.status === 'SCHEDULED' || w.status === 'IN_PROGRESS');
+
+      // Count works by status
+      const workStatusCounts = works.reduce((acc: any[], work: any) => {
+        const existing = acc.find((w) => w.status === work.status);
+        if (existing) {
+          existing.count++;
+        } else {
+          acc.push({ status: work.status, count: 1 });
+        }
+        return acc;
+      }, []);
 
       // Count tickets by status
       const ticketStatusCounts = tickets.reduce((acc: any[], ticket: any) => {
@@ -434,6 +458,7 @@ export const dashboardApi = {
         plantCount: plantsRes.totalElements || 0,
         completedWorkCount: completedWorks.length,
         pendingWorkCount: pendingWorks.length,
+        workStatusCounts,
         ticketStatusCounts,
         recentWorks,
         recentTickets,
@@ -446,6 +471,7 @@ export const dashboardApi = {
         plantCount: 0,
         completedWorkCount: 0,
         pendingWorkCount: 0,
+        workStatusCounts: [],
         ticketStatusCounts: [],
         recentWorks: [],
         recentTickets: [],

@@ -115,7 +115,7 @@
     "bidNumberPlaceholder": "OFF-2024-001",
     "orderNumberLabel": "Numero ordine",
     "orderNumberPlaceholder": "ORD-2024-001",
-    "expectedStartDateLabel": "Data inizio prevista",
+    "expectedStartDateLabel": "Data avviamento prevista",
     "nasSubDirectoryLabel": "Sottodirectory NAS",
     "nasSubDirectoryPlaceholder": "/progetti/nome-lavoro",
     "expectedOfficeHoursLabel": "Ore ufficio previste",

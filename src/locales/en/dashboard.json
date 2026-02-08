@@ -8,11 +8,17 @@
     "completed": "Completed",
     "works": "works",
     "tickets": "tickets",
-    "statuses": {
+    "ticketStatuses": {
       "open": "Open",
       "in_progress": "In Progress",
       "resolved": "Resolved",
       "closed": "Closed"
+    },
+    "workStatuses": {
+      "scheduled": "Scheduled",
+      "in_progress": "In Progress",
+      "closed": "Closed",
+      "invoiced": "Invoiced"
     }
   },
   "alerts": {
