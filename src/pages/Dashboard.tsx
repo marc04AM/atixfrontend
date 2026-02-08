@@ -49,9 +49,15 @@ export default function Dashboard() {
 
   // Build work chart data from completed and pending counts
   const workChartData = [
-    { name: 'Pending', value: data.pendingWorkCount || 0 },
-    { name: 'Completed', value: data.completedWorkCount || 0 },
+    { name: t('charts.pending'), value: data.pendingWorkCount || 0 },
+    { name: t('charts.completed'), value: data.completedWorkCount || 0 },
   ];
+
+  // Localize ticket chart labels
+  const ticketChartDataLocalized = ticketChartData.map((item: { name: string; value: number }) => ({
+    ...item,
+    name: t(`charts.statuses.${item.name.toLowerCase().replace(' ', '_')}`, { defaultValue: item.name }),
+  }));
 
   return (
     <div className="space-y-6">
@@ -151,7 +157,7 @@ export default function Dashboard() {
                     ))}
                   </defs>
                   <Pie
-                    data={ticketChartData}
+                    data={ticketChartDataLocalized}
                     cx="50%"
                     cy="42%"
                     innerRadius={45}
@@ -184,8 +190,8 @@ export default function Dashboard() {
                     iconType="circle"
                     iconSize={10}
                     wrapperStyle={{ paddingTop: '16px' }}
-                    formatter={(value, entry) => {
-                      const item = ticketChartData.find(d => d.name === value);
+                    formatter={(value) => {
+                      const item = ticketChartDataLocalized.find((d: { name: string; value: number }) => d.name === value);
                       return <span className="text-sm text-foreground">{value}: <strong>{item?.value || 0}</strong></span>;
                     }}
                   />
