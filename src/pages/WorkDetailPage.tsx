@@ -796,13 +796,6 @@ export default function WorkDetailPage() {
                 })} />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="expectedStartDate">{t('details.expectedStart')}</Label>
-                    <Input id="expectedStartDate" type="date" value={editedWork.expectedStartDate || ''} onChange={e => setEditedWork({
-                  ...editedWork,
-                  expectedStartDate: e.target.value
-                })} />
-                  </div>
-                  <div className="grid gap-2">
                     <Label htmlFor="electrical">{t('details.electricalProgress')}</Label>
                     <Input id="electrical" type="number" min="0" max="100" value={editedWork.electricalSchemaProgression} onChange={e => setEditedWork({
                   ...editedWork,
@@ -830,6 +823,13 @@ export default function WorkDetailPage() {
                   expectedPlantHours: Number(e.target.value)
                 })} />
                   </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="expectedStartDate">{t('details.expectedStart')}</Label>
+                    <Input id="expectedStartDate" type="date" value={editedWork.expectedStartDate || ''} onChange={e => setEditedWork({
+                  ...editedWork,
+                  expectedStartDate: e.target.value
+                })} />
+                  </div>
                   <div className="grid gap-2 md:col-span-2">
                     <Label htmlFor="description">{t('details.description')}</Label>
                     <Textarea id="description" rows={6} value={editedWork.description || ''} onChange={e => setEditedWork({
@@ -850,10 +850,6 @@ export default function WorkDetailPage() {
                     <div>
                       <Label className="text-muted-foreground text-xs">{t('details.orderDate')}</Label>
                       <p>{formatDate(work.orderDate, t('common:messages.notSet'))}</p>
-                    </div>
-                    <div>
-                      <Label className="text-muted-foreground text-xs">{t('details.expectedStart')}</Label>
-                      <p>{formatDate(work.expectedStartDate, t('common:messages.notSet'))}</p>
                     </div>
                   </div>
 
@@ -892,6 +888,13 @@ export default function WorkDetailPage() {
                       <Label className="text-muted-foreground text-xs">{t('details.expectedPlantHours')}</Label>
                       <p>{work.expectedPlantHours} {t('units.hours')}</p>
                     </div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div>
+                    <Label className="text-muted-foreground text-xs">{t('details.expectedStart')}</Label>
+                    <p>{formatDate(work.expectedStartDate, t('common:messages.notSet'))}</p>
                   </div>
                 </div>}
             </CardContent>

@@ -4,14 +4,14 @@
   "createButton": "Crea Lavoro",
   "searchPlaceholder": "Cerca lavori...",
   "tabs": {
-    "scheduled": "Programmati",
+    "scheduled": "Non assegnati",
     "open": "Aperti",
     "closed": "Chiusi"
   },
   "filters": {
     "all": "Tutti",
     "status": "Stato",
-    "statusScheduled": "Programmato",
+    "statusScheduled": "Non assegnato",
     "statusInProgress": "In corso",
     "statusClosed": "Chiuso",
     "statusInvoiced": "Fatturato",
@@ -44,7 +44,7 @@
     "actions": "Azioni"
   },
   "badges": {
-    "scheduled": "Programmato",
+    "scheduled": "Non assegnato",
     "inProgress": "In corso",
     "closed": "Chiuso",
     "invoiced": "Fatturato"
@@ -80,7 +80,7 @@
     "updatedAt": "Aggiornato il",
     "bidNumber": "Numero offerta",
     "orderNumber": "Numero ordine",
-    "expectedStart": "Inizio previsto",
+    "expectedStart": "Data avviamento previsto",
     "description": "Descrizione",
     "electricalProgress": "Avanzamento elettrico (%)",
     "programmingProgress": "Avanzamento programmazione (%)",
@@ -182,8 +182,8 @@
   "dialogs": {
     "deleteTitle": "Elimina lavoro",
     "deleteDescription": "Sei sicuro di voler eliminare questo lavoro? Questa azione non può essere annullata.",
-    "startWorkTitle": "Avvia lavoro",
-    "startWorkDescription": "Sei sicuro di voler avviare questo lavoro? Lo stato cambierà in In corso.",
+    "startWorkTitle": "Prendi in carico lavoro",
+    "startWorkDescription": "Sei sicuro di voler prendere in carico questo lavoro? Lo stato cambierà in In corso.",
     "markClosedTitle": "Chiudi lavoro",
     "markClosedDescription": "Sei sicuro di voler chiudere questo lavoro?",
     "markInvoicedTitle": "Segna come fatturato",
@@ -222,7 +222,7 @@
   "actions": {
     "edit": "Modifica",
     "delete": "Elimina",
-    "startWork": "Avvia lavoro",
+    "startWork": "Presa in carico",
     "closeWork": "Chiudi lavoro",
     "markInvoiced": "Segna fatturato",
     "saveChanges": "Salva modifiche",
