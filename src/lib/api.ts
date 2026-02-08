@@ -246,7 +246,11 @@ export const worksApi = {
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
-          searchParams.append(key, String(value));
+          if (Array.isArray(value)) {
+            value.forEach((v) => searchParams.append(key, String(v)));
+          } else {
+            searchParams.append(key, String(value));
+          }
         }
       });
     }
@@ -263,12 +267,19 @@ export const worksApi = {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
+  start: (id: string) =>
+    apiRequest<any>(`/works/${id}/start`, { method: 'PATCH' }),
   close: (id: string) =>
     apiRequest<any>(`/works/${id}/close`, { method: 'PATCH' }),
   invoice: (id: string) =>
     apiRequest<any>(`/works/${id}/invoice`, { method: 'PATCH' }),
   reopen: (id: string) =>
     apiRequest<any>(`/works/${id}/reopen`, { method: 'PATCH' }),
+  forceStatus: (id: string, status: string) =>
+    apiRequest<any>(`/works/${id}/force-status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
   assignTechnician: (id: string, technicianId: string) =>
     apiRequest<any>(`/works/${id}/assign-technician`, {
       method: 'POST',
@@ -319,14 +330,14 @@ export const ticketsApi = {
 export const workReportsApi = {
   getByWorkId: (workId: string) =>
     apiRequest<any>(`/work-reports/work/${workId}`),
-  createEntry: (data: { workId: string; description: string; hours: number; technicianId?: string }) =>
+  createEntry: (data: { workId: string; description: string; hours: number; date?: string; technicianId?: string }) =>
     apiRequest<any>('/work-reports/entries', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
   getEntries: (workId: string) =>
     apiRequest<any[]>(`/work-reports/entries/work/${workId}`),
-  updateEntry: (id: string, data: { description?: string; hours?: number }) =>
+  updateEntry: (id: string, data: { description?: string; hours?: number; date?: string }) =>
     apiRequest<any>(`/work-reports/entries/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
@@ -355,8 +366,7 @@ export const dashboardApi = {
               id
               name
               orderDate
-              completed
-              invoiced
+              status
             }
             recentTickets {
               id
@@ -395,8 +405,8 @@ export const dashboardApi = {
       const tickets = ticketsRes.content || [];
 
       // Calculate counts
-      const completedWorks = works.filter((w: any) => w.completed);
-      const pendingWorks = works.filter((w: any) => !w.completed);
+      const completedWorks = works.filter((w: any) => w.status === 'CLOSED' || w.status === 'INVOICED');
+      const pendingWorks = works.filter((w: any) => w.status === 'SCHEDULED' || w.status === 'IN_PROGRESS');
 
       // Count tickets by status
       const ticketStatusCounts = tickets.reduce((acc: any[], ticket: any) => {

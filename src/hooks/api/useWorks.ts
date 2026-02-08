@@ -60,6 +60,19 @@ export function useUpdateWork() {
   });
 }
 
+// Start work mutation (SCHEDULED → IN_PROGRESS)
+export function useStartWork() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => worksApi.start(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: worksKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: worksKeys.lists() });
+    },
+  });
+}
+
 // Close work mutation
 export function useCloseWork() {
   const queryClient = useQueryClient();
@@ -93,6 +106,19 @@ export function useReopenWork() {
   return useMutation({
     mutationFn: (id: string) => worksApi.reopen(id),
     onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: worksKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: worksKeys.lists() });
+    },
+  });
+}
+
+// Force work status mutation (OWNER only)
+export function useForceWorkStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) => worksApi.forceStatus(id, status),
+    onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: worksKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: worksKeys.lists() });
     },

@@ -14,15 +14,15 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus, Phone, Mail } from 'lucide-react';
+import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus, Phone, Mail, PlayCircle, AlertCircle } from 'lucide-react';
 import { Work, WorkReportEntry, User as UserType, WorkStatus } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
-import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useReopenWork, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference, usePlants, useClients } from '@/hooks/api';
+import { useWork, useUpdateWork, useStartWork, useCloseWork, useInvoiceWork, useReopenWork, useForceWorkStatus, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference, usePlants, useClients } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate, formatDateTime } from '@/lib/date';
-import { StatusBadge, getWorkStatus } from '@/components/ui/status-badge';
+import { StatusBadge, getWorkStatusBadgeKey } from '@/components/ui/status-badge';
 
 type AssignedTechnicianSummary = {
   id: string;
@@ -90,9 +90,11 @@ export default function WorkDetailPage() {
 
   // Mutations
   const updateWork = useUpdateWork();
+  const startWork = useStartWork();
   const closeWork = useCloseWork();
   const invoiceWork = useInvoiceWork();
   const reopenWork = useReopenWork();
+  const forceWorkStatus = useForceWorkStatus();
   const deleteWork = useDeleteWork();
   const assignTechnician = useAssignTechnician();
   const unassignTechnician = useUnassignTechnician();
@@ -192,55 +194,49 @@ export default function WorkDetailPage() {
     const workDir = work.nasSubDirectory || '';
     return plantDir + workDir;
   };
-  const handleStatusChange = (status: WorkStatus) => {
-    if (status === 'IN_PROGRESS' && (work.completed || work.invoiced)) {
-      // Reopen work
+  const handleStatusChange = (newStatus: WorkStatus) => {
+    const currentStatus = work.status;
+    if (newStatus === currentStatus) return;
+
+    const onError = (error: any) => {
+      const is409 = error.message?.includes('conflict') || error.message?.includes('Conflict');
+      toast({
+        title: is409 ? t('messages.invalidTransitionTitle') : t('common:titles.error'),
+        description: is409 ? t('messages.invalidTransitionDescription') : error.message,
+        variant: 'destructive'
+      });
+    };
+
+    if (newStatus === 'IN_PROGRESS' && currentStatus === 'SCHEDULED') {
+      startWork.mutate(work.id, {
+        onSuccess: () => toast({ title: t('messages.startedTitle'), description: t('messages.startedDescription') }),
+        onError,
+      });
+    } else if (newStatus === 'IN_PROGRESS' && (currentStatus === 'CLOSED')) {
       reopenWork.mutate(work.id, {
-        onSuccess: () => {
-          toast({
-            title: t('messages.reopenedTitle'),
-            description: t('messages.reopenedDescription')
-          });
-        },
-        onError: (error: any) => {
-          toast({
-            title: t('common:titles.error'),
-            description: error.message,
-            variant: 'destructive'
-          });
-        }
+        onSuccess: () => toast({ title: t('messages.reopenedTitle'), description: t('messages.reopenedDescription') }),
+        onError,
       });
-    } else if (status === 'COMPLETED' && !work.completed) {
+    } else if (newStatus === 'CLOSED' && currentStatus === 'IN_PROGRESS') {
       closeWork.mutate(work.id, {
-        onSuccess: () => {
-          toast({
-            title: t('messages.completedTitle'),
-            description: t('messages.completedDescription')
-          });
-        },
-        onError: (error: any) => {
-          toast({
-            title: t('common:titles.error'),
-            description: error.message,
-            variant: 'destructive'
-          });
-        }
+        onSuccess: () => toast({ title: t('messages.closedTitle'), description: t('messages.closedDescription') }),
+        onError,
       });
-    } else if (status === 'INVOICED' && !work.invoiced) {
+    } else if (newStatus === 'INVOICED' && currentStatus === 'CLOSED') {
       invoiceWork.mutate(work.id, {
-        onSuccess: () => {
-          toast({
-            title: t('messages.invoicedTitle'),
-            description: t('messages.invoicedDescription')
-          });
-        },
-        onError: (error: any) => {
-          toast({
-            title: t('common:titles.error'),
-            description: error.message,
-            variant: 'destructive'
-          });
-        }
+        onSuccess: () => toast({ title: t('messages.invoicedTitle'), description: t('messages.invoicedDescription') }),
+        onError,
+      });
+    } else if (isOwner()) {
+      forceWorkStatus.mutate({ id: work.id, status: newStatus }, {
+        onSuccess: () => toast({ title: t('messages.forceStatusTitle'), description: t('messages.forceStatusDescription') }),
+        onError,
+      });
+    } else {
+      toast({
+        title: t('messages.invalidTransitionTitle'),
+        description: t('messages.invalidTransitionDescription'),
+        variant: 'destructive'
       });
     }
   };
@@ -351,37 +347,33 @@ export default function WorkDetailPage() {
       }
     });
   };
-  const handleMarkComplete = () => {
-    closeWork.mutate(work.id, {
+  const handleStartWork = () => {
+    startWork.mutate(work.id, {
       onSuccess: () => {
-        toast({
-          title: t('messages.completedTitle'),
-          description: t('messages.completedDescription')
-        });
+        toast({ title: t('messages.startedTitle'), description: t('messages.startedDescription') });
       },
       onError: (error: any) => {
-        toast({
-          title: t('common:titles.error'),
-          description: error.message,
-          variant: 'destructive'
-        });
+        toast({ title: t('common:titles.error'), description: error.message, variant: 'destructive' });
+      }
+    });
+  };
+  const handleCloseWork = () => {
+    closeWork.mutate(work.id, {
+      onSuccess: () => {
+        toast({ title: t('messages.closedTitle'), description: t('messages.closedDescription') });
+      },
+      onError: (error: any) => {
+        toast({ title: t('common:titles.error'), description: error.message, variant: 'destructive' });
       }
     });
   };
   const handleMarkInvoiced = () => {
     invoiceWork.mutate(work.id, {
       onSuccess: () => {
-        toast({
-          title: t('messages.invoicedTitle'),
-          description: t('messages.invoicedDescription')
-        });
+        toast({ title: t('messages.invoicedTitle'), description: t('messages.invoicedDescription') });
       },
       onError: (error: any) => {
-        toast({
-          title: t('common:titles.error'),
-          description: error.message,
-          variant: 'destructive'
-        });
+        toast({ title: t('common:titles.error'), description: error.message, variant: 'destructive' });
       }
     });
   };
@@ -619,21 +611,27 @@ export default function WorkDetailPage() {
               {getWorkIndex()}
             </Badge>
             {isEditing ? (
-              <Select value={getWorkStatus(work)} onValueChange={value => handleStatusChange(value as WorkStatus)}>
-                <SelectTrigger className="w-[160px]">
+              <Select value={work.status} onValueChange={value => handleStatusChange(value as WorkStatus)}>
+                <SelectTrigger className="w-[180px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="SCHEDULED">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="h-3 w-3" />
+                      {t('badges.scheduled')}
+                    </div>
+                  </SelectItem>
                   <SelectItem value="IN_PROGRESS">
                     <div className="flex items-center gap-2">
                       <Clock className="h-3 w-3" />
                       {t('badges.inProgress')}
                     </div>
                   </SelectItem>
-                  <SelectItem value="COMPLETED">
+                  <SelectItem value="CLOSED">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="h-3 w-3" />
-                      {t('badges.completed')}
+                      {t('badges.closed')}
                     </div>
                   </SelectItem>
                   <SelectItem value="INVOICED">
@@ -646,12 +644,9 @@ export default function WorkDetailPage() {
               </Select>
             ) : (
               <StatusBadge
-                status={getWorkStatus(work)}
+                status={work.status}
                 type="work"
-                label={t(`badges.${
-                  work.invoiced ? 'invoiced' :
-                  work.completed ? 'completed' : 'inProgress'
-                }`)}
+                label={t(`badges.${getWorkStatusBadgeKey(work.status)}`)}
               />
             )}
           </div>
@@ -659,29 +654,51 @@ export default function WorkDetailPage() {
         </div>
         <div className="flex gap-2 flex-wrap">
           {!isEditing ? <>
-              {!work.completed && (
+              {work.status === 'SCHEDULED' && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button>
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
-                      {t('actions.markCompleted')}
+                      <PlayCircle className="h-4 w-4 mr-2" />
+                      {t('actions.startWork')}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>{t('dialogs.markCompletedTitle')}</AlertDialogTitle>
-                      <AlertDialogDescription>{t('dialogs.markCompletedDescription')}</AlertDialogDescription>
+                      <AlertDialogTitle>{t('dialogs.startWorkTitle')}</AlertDialogTitle>
+                      <AlertDialogDescription>{t('dialogs.startWorkDescription')}</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleMarkComplete}>
+                      <AlertDialogAction onClick={handleStartWork}>
                         {t('common:actions.confirm')}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
               )}
-              {work.completed && !work.invoiced && (
+              {work.status === 'IN_PROGRESS' && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button>
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      {t('actions.closeWork')}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t('dialogs.markClosedTitle')}</AlertDialogTitle>
+                      <AlertDialogDescription>{t('dialogs.markClosedDescription')}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleCloseWork}>
+                        {t('common:actions.confirm')}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+              {work.status === 'CLOSED' && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button>
