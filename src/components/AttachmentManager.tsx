@@ -147,8 +147,26 @@ export default function AttachmentManager({
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+    <Card
+      className={cn(
+        "relative transition-all",
+        !readOnly && "cursor-default"
+      )}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {/* Drag Overlay */}
+      {isDragOver && !readOnly && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg border-2 border-dashed border-primary bg-primary/10 backdrop-blur-sm">
+          <div className="text-center">
+            <Upload className="h-10 w-10 mx-auto mb-2 text-primary" />
+            <p className="text-sm font-medium text-primary">{t('dropHere')}</p>
+          </div>
+        </div>
+      )}
+
+      <CardHeader className="flex flex-row items-center justify-between pb-3">
         <CardTitle className="text-lg">{t('title')}</CardTitle>
         {!readOnly && (
           <div className="relative">
@@ -167,34 +185,19 @@ export default function AttachmentManager({
           </div>
         )}
       </CardHeader>
-      <CardContent>
-        {/* Drop Zone */}
-        {!readOnly && (
-          <div
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            className={cn(
-              "border-2 border-dashed rounded-lg p-6 mb-4 text-center transition-colors",
-              isDragOver 
-                ? "border-primary bg-primary/5" 
-                : "border-muted-foreground/25 hover:border-muted-foreground/50",
-              uploadMutation.isPending && "opacity-50 pointer-events-none"
-            )}
-          >
-            <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+      <CardContent className="pt-0">
+        {attachments.length === 0 ? (
+          <div className={cn(
+            "py-8 text-center rounded-lg border border-dashed border-muted-foreground/25",
+            !readOnly && "hover:border-muted-foreground/40 transition-colors"
+          )}>
+            <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground/50" />
             <p className="text-sm text-muted-foreground">
-              {isDragOver ? t('dropHere') : t('dropZone')}
+              {readOnly ? t('noAttachments') : t('dropZone')}
             </p>
           </div>
-        )}
-
-        {attachments.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            {t('noAttachments')}
-          </p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {attachments.map((attachment: Attachment) => {
               const Icon = getAttachmentIcon(attachment.type);
               const isImage = attachment.type === 'PHOTO';
