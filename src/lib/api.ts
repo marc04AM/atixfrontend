@@ -3,6 +3,7 @@
 
 import { PaginatedResponse } from '@/types';
 import * as Sentry from '@sentry/react';
+import i18n from '@/lib/i18n';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
 
@@ -42,43 +43,46 @@ export const apiRequest = async <T>(
 
     // Sanitize error messages - only allow safe, user-friendly messages
     const sanitizeErrorMessage = (error: any, status: number): string => {
+      const translateError = (key: string, fallback: string) =>
+        i18n.t(`common:errors.${key}`, { defaultValue: fallback });
+
       // Whitelist of safe error messages that can be shown to users
-      const safeMessages: Record<string, boolean> = {
-        'Invalid credentials': true,
-        'Email already exists': true,
-        'Validation failed': true,
-        'Resource not found': true,
-        'Session expired': true,
+      const safeMessages: Record<string, string> = {
+        'Invalid credentials': 'invalidCredentials',
+        'Email already exists': 'emailExists',
+        'Validation failed': 'validationFailed',
+        'Resource not found': 'notFound',
+        'Session expired': 'sessionExpired',
       };
 
-      // If the error message is in our safe list, allow it
+      // If the error message is in our safe list, return the localized message
       if (error?.message && safeMessages[error.message]) {
-        return error.message;
+        return translateError(safeMessages[error.message], error.message);
       }
 
       // Otherwise, return generic messages based on status code
       switch (status) {
         case 400:
-          return 'Invalid request. Please check your input.';
+          return translateError('invalidRequest', 'Invalid request. Please check your input.');
         case 401:
-          return 'Authentication required';
+          return translateError('unauthorized', 'Authentication required');
         case 403:
-          return 'You do not have permission to perform this action';
+          return translateError('forbidden', 'You do not have permission to perform this action');
         case 404:
-          return 'The requested resource was not found';
+          return translateError('notFound', 'The requested resource was not found');
         case 409:
-          return 'A conflict occurred. Please refresh and try again.';
+          return translateError('conflict', 'A conflict occurred. Please refresh and try again.');
         case 422:
-          return 'The provided data is invalid';
+          return translateError('invalidData', 'The provided data is invalid');
         case 429:
-          return 'Too many requests. Please wait and try again.';
+          return translateError('tooManyRequests', 'Too many requests. Please wait and try again.');
         case 500:
         case 502:
         case 503:
         case 504:
-          return 'A server error occurred. Please try again later.';
+          return translateError('serverError', 'A server error occurred. Please try again later.');
         default:
-          return 'An unexpected error occurred. Please try again.';
+          return translateError('unexpectedError', 'An unexpected error occurred. Please try again.');
       }
     };
 

@@ -75,6 +75,15 @@
     "unauthorized": "Unauthorized",
     "forbidden": "Access denied",
     "notFound": "Resource not found",
-    "serverError": "Server error"
+    "serverError": "Server error",
+    "invalidCredentials": "Invalid credentials",
+    "emailExists": "Email already exists",
+    "validationFailed": "Validation failed",
+    "sessionExpired": "Session expired",
+    "invalidRequest": "Invalid request. Please check your input.",
+    "conflict": "A conflict occurred. Please refresh and try again.",
+    "invalidData": "The provided data is invalid",
+    "tooManyRequests": "Too many requests. Please wait and try again.",
+    "unexpectedError": "An unexpected error occurred. Please try again."
   }
 }
