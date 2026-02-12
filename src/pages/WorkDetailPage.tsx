@@ -178,7 +178,7 @@ export default function WorkDetailPage() {
   const isAssigned = currentUser
     ? assignedTechnicians.some((assignment) => assignment.technicianId === currentUser.id)
     : false;
-  const canDelete = isOwner();
+  const canDelete = isOwner() || currentUser?.type === 'TECHNICIAN';
   const canManageAssignments = isAdmin() || isOwner();
   const availableTechnicians = technicians.filter((t: any) => !assignedTechnicianIds.includes(t.id));
 
