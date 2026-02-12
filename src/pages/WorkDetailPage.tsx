@@ -18,7 +18,7 @@ import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, 
 import { Work, WorkReportEntry, User as UserType, WorkStatus } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
-import { useWork, useUpdateWork, useStartWork, useCloseWork, useInvoiceWork, useReopenWork, useForceWorkStatus, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference, usePlants, useClients } from '@/hooks/api';
+import { useWork, useUpdateWork, useStartWork, useCloseWork, useInvoiceWork, useReopenWork, useForceWorkStatus, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useDeleteReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference, usePlants, useClients } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate, formatDateTime } from '@/lib/date';
@@ -99,6 +99,7 @@ export default function WorkDetailPage() {
   const assignTechnician = useAssignTechnician();
   const unassignTechnician = useUnassignTechnician();
   const createReportEntry = useCreateReportEntry();
+  const deleteReportEntry = useDeleteReportEntry();
   const addReference = useAddReference();
   const removeReference = useRemoveReference();
   const createWorksiteReference = useCreateWorksiteReference();
@@ -296,9 +297,32 @@ export default function WorkDetailPage() {
     });
   };
   const handleDeleteEntry = (entryId: string) => {
-    toast({
-      title: t('messages.entryDeletedTitle'),
-      description: t('messages.entryDeletedDescription')
+    if (!work?.id && !id) {
+      toast({
+        title: t('common:titles.error'),
+        description: t('messages.errorDetails'),
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    deleteReportEntry.mutate({
+      id: entryId,
+      workId: work?.id || id!
+    }, {
+      onSuccess: () => {
+        toast({
+          title: t('messages.entryDeletedTitle'),
+          description: t('messages.entryDeletedDescription')
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          title: t('common:titles.error'),
+          description: error.message,
+          variant: 'destructive'
+        });
+      }
     });
   };
   const handleAssignMyself = () => {
