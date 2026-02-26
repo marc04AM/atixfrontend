@@ -32,7 +32,7 @@
     "description": "Descrizione",
     "notes": "Note",
     "nasDirectory": "Directory NAS",
-    "pswPhrase": "Frase PSW",
+    "pswPhrase": "System Passphrase",
     "pswPlatform": "PSW Piattaforma",
     "pswStation": "PSW Stazione",
     "createdAt": "Creato il",
@@ -67,7 +67,7 @@
     "notesPlaceholder": "Note aggiuntive",
     "nasDirectoryLabel": "Directory NAS",
     "nasDirectoryPlaceholder": "/nas/percorso",
-    "pswPhraseLabel": "Frase PSW",
+    "pswPhraseLabel": "System Passphrase",
     "pswPlatformLabel": "PSW Piattaforma",
     "pswStationLabel": "PSW Stazione"
   },

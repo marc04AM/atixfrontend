@@ -112,7 +112,8 @@ export default function WorksPage() {
   const navigate = useNavigate();
   const { t } = useTranslation('works');
 
-  const [activeTab, setActiveTab] = useState('scheduled');
+  // F4: default tab is 'open' (aperti), order: aperti → chiusi → non assegnati
+  const [activeTab, setActiveTab] = useState('open');
   const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -147,11 +148,13 @@ export default function WorksPage() {
     return p;
   }, [filters]);
 
+  // F1: sort works from newest to oldest by creation date
   const listParams = useMemo(() => {
     const p: Record<string, any> = {
       ...baseParams,
       page: currentPage,
       size: PAGE_SIZE,
+      sort: 'createdAt,desc',
     };
     if (activeTab === 'scheduled') {
       p.statuses = ['SCHEDULED'];
@@ -300,15 +303,16 @@ export default function WorksPage() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={handleTabChange}>
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          {/* F4: tab order is aperti → chiusi → non assegnati */}
           <TabsList>
-            <TabsTrigger value="scheduled">
-              {t('tabs.scheduled')} ({scheduledWorksCount})
-            </TabsTrigger>
             <TabsTrigger value="open">
               {t('tabs.open')} ({openWorksCount})
             </TabsTrigger>
             <TabsTrigger value="closed">
               {t('tabs.closed')} ({closedWorksCount})
+            </TabsTrigger>
+            <TabsTrigger value="scheduled">
+              {t('tabs.scheduled')} ({scheduledWorksCount})
             </TabsTrigger>
           </TabsList>
 
@@ -534,24 +538,7 @@ export default function WorksPage() {
           </Card>
         )}
 
-        {/* Works List */}
-        <TabsContent value="scheduled" className="mt-4 space-y-4">
-          <WorksList
-            works={filteredWorks}
-            navigate={navigate}
-            clientsById={clientsById}
-            plantsById={plantsById}
-          />
-          {totalPages > 1 && (
-            <WorksPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalElements={totalElements}
-              pageSize={PAGE_SIZE}
-              onPageChange={setCurrentPage}
-            />
-          )}
-        </TabsContent>
+        {/* F4: Works List – tab order: aperti → chiusi → non assegnati */}
         <TabsContent value="open" className="mt-4 space-y-4">
           <WorksList
             works={filteredWorks}
@@ -570,6 +557,23 @@ export default function WorksPage() {
           )}
         </TabsContent>
         <TabsContent value="closed" className="mt-4 space-y-4">
+          <WorksList
+            works={filteredWorks}
+            navigate={navigate}
+            clientsById={clientsById}
+            plantsById={plantsById}
+          />
+          {totalPages > 1 && (
+            <WorksPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              pageSize={PAGE_SIZE}
+              onPageChange={setCurrentPage}
+            />
+          )}
+        </TabsContent>
+        <TabsContent value="scheduled" className="mt-4 space-y-4">
           <WorksList
             works={filteredWorks}
             navigate={navigate}
@@ -722,6 +726,7 @@ function WorksList({
                       label={t(`badges.${getWorkStatusBadgeKey(work.status)}`)}
                     />
                   </div>
+                  {/* F3: order number → atix client → plant → technician → start date */}
                   <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
                     {work.orderNumber && (
                       <div className="flex items-center gap-1">

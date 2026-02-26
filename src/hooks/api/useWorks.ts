@@ -15,12 +15,14 @@ export const worksKeys = {
   detail: (id: WorkKeyId) => [...worksKeys.details(), normalizeWorkId(id)] as const,
 };
 
-// Fetch all works with filters
-export function useWorks(params?: Record<string, any>) {
+// Fetch all works with filters.
+// F9: pass null as params to disable the query (used when a conditional fetch is not needed).
+export function useWorks(params?: Record<string, any> | null) {
   return useQuery<PaginatedResponse<Work>>({
-    queryKey: worksKeys.list(params),
-    queryFn: () => worksApi.getAll(params),
+    queryKey: worksKeys.list(params ?? undefined),
+    queryFn: () => worksApi.getAll(params ?? undefined),
     placeholderData: keepPreviousData,
+    enabled: params !== null,
   });
 }
 

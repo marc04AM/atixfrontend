@@ -6,7 +6,8 @@ export type WorkStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'CLOSED' | 'INVOICED';
 export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
 export type AttachmentType = 'PHOTO' | 'PDF' | 'DOC' | 'OTHER';
 export type AttachmentTargetType = 'WORK' | 'PLANT' | 'TICKET' | 'REPORT';
-export type WorksiteReferenceRole = 'PLUMBER' | 'ELECTRICIAN';
+// F6: added MAINTENANCE (manutentore) and OTHER (altro)
+export type WorksiteReferenceRole = 'PLUMBER' | 'ELECTRICIAN' | 'MAINTENANCE' | 'OTHER';
 
 // User types
 export interface User {

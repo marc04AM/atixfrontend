@@ -1,3 +1,4 @@
+// B2: removed Wrench import (no longer needed after removing worksite references from sidebar)
 import {
   LayoutDashboard,
   Ticket,
@@ -5,7 +6,6 @@ import {
   Users,
   Building2,
   Factory,
-  Wrench,
   Settings,
   LogOut,
   User,
@@ -44,9 +44,9 @@ export function AppSidebar() {
     { title: t('menu.tickets'), url: '/tickets', icon: Ticket },
   ];
 
+  // B2: removed worksite references entry from management items
   const managementItems = [
     { title: t('menu.clients'), url: '/clients', icon: Building2 },
-    { title: t('menu.worksiteReferences'), url: '/worksite-references', icon: Wrench },
     { title: t('menu.users'), url: '/users', icon: Users, adminOnly: true },
   ];
 

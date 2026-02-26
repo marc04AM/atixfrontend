@@ -25,7 +25,7 @@
     "orderDateTo": "Data ordine a",
     "expectedStartFrom": "Data avviamento previsto dal",
     "expectedStartTo": "Data avviamento previsto al",
-    "name": "Nome",
+    "name": "Nome lavoro",
     "bidNumber": "Numero offerta",
     "orderNumber": "Numero ordine",
     "clear": "Pulisci filtri"
@@ -213,7 +213,7 @@
       "notesPlaceholder": "Note aggiuntive",
       "nasDirectoryLabel": "Directory NAS",
       "nasDirectoryPlaceholder": "/nas/nome-impianto",
-      "pswPhraseLabel": "Frase password",
+      "pswPhraseLabel": "System Passphrase",
       "pswPlatformLabel": "Password piattaforma",
       "pswStationLabel": "Password stazione",
       "addButton": "Aggiungi impianto"

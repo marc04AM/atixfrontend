@@ -7,7 +7,8 @@ import {
 } from 'lucide-react';
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { useDashboard } from '@/hooks/api';
+import { useDashboard, useWorks } from '@/hooks/api';
+import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +22,18 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { data, isLoading, error } = useDashboard();
   const { t } = useTranslation('dashboard');
+  const { user: currentUser } = useAuth();
+
+  // F9: when logged in as TECHNICIAN, show only works assigned to that user
+  const isTechnician = currentUser?.type === 'TECHNICIAN';
+  const { data: technicianWorksData } = useWorks(
+    isTechnician && currentUser?.id
+      ? { technicianId: currentUser.id, page: 0, size: 5, sort: 'createdAt,desc' }
+      : null
+  );
+  const recentWorksToShow = isTechnician && technicianWorksData?.content
+    ? technicianWorksData.content
+    : data?.recentWorks ?? [];
   const { t: tTickets } = useTranslation('tickets');
   const { t: tWorks } = useTranslation('works');
 
@@ -231,7 +244,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {data.recentWorks.map((work) => (
+              {recentWorksToShow.map((work) => (
                 <div
                   key={work.id}
                   className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"

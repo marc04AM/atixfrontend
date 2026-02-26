@@ -207,8 +207,9 @@ export const usersApi = {
 
 // Clients API
 export const clientsApi = {
+  // F2: sort clients alphabetically by name
   getAll: (page = 0, size = 20) =>
-    apiRequest<any>(`/clients?page=${page}&size=${size}`),
+    apiRequest<any>(`/clients?page=${page}&size=${size}&sort=name,asc`),
   getById: (id: string) => apiRequest<any>(`/clients/${id}`),
   create: (data: { name: string; type: string }) =>
     apiRequest<any>('/clients', {

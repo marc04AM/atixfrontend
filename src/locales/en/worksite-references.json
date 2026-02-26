@@ -11,11 +11,12 @@
     "actions": "Actions"
   },
   "roles": {
-    "PLUMBER": "Plumber",
-    "ELECTRICIAN": "Electrician",
+    "PLUMBER": "Hydraulic Installer",
+    "ELECTRICIAN": "Electrical Installer",
     "CARPENTER": "Carpenter",
     "MASON": "Mason",
     "PAINTER": "Painter",
+    "MAINTENANCE": "Maintenance",
     "OTHER": "Other"
   },
   "stats": {

@@ -25,7 +25,7 @@
     "orderDateTo": "Order Date To",
     "expectedStartFrom": "Expected Start From",
     "expectedStartTo": "Expected Start To",
-    "name": "Name",
+    "name": "Work Name",
     "bidNumber": "Bid Number",
     "orderNumber": "Order Number",
     "clear": "Clear filters"
@@ -213,7 +213,7 @@
       "notesPlaceholder": "Additional notes",
       "nasDirectoryLabel": "NAS Directory",
       "nasDirectoryPlaceholder": "/nas/plant-name",
-      "pswPhraseLabel": "Password Phrase",
+      "pswPhraseLabel": "System Passphrase",
       "pswPlatformLabel": "Platform PWD",
       "pswStationLabel": "Station PWD",
       "addButton": "Add Plant"
