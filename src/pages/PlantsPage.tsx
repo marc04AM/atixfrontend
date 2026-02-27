@@ -110,7 +110,7 @@ export default function PlantsPage() {
               {t('createButton')}
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-xl">
             <DialogHeader>
               <DialogTitle>{t('form.createTitle')}</DialogTitle>
               <DialogDescription>{t('form.createDescription')}</DialogDescription>

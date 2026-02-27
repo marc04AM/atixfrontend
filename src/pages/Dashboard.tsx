@@ -100,8 +100,8 @@ export default function Dashboard() {
                   </defs>
                   <Pie
                     data={workChartData}
-                    cx="50%"
-                    cy="42%"
+                    cx="35%"
+                    cy="50%"
                     innerRadius={45}
                     outerRadius={75}
                     paddingAngle={4}
@@ -110,8 +110,8 @@ export default function Dashboard() {
                     strokeWidth={2}
                   >
                     {workChartData.map((_, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
+                      <Cell
+                        key={`cell-${index}`}
                         fill={`url(#workGradient-${index})`}
                         style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
                       />
@@ -127,14 +127,16 @@ export default function Dashboard() {
                     }}
                     formatter={(value: number, name: string) => [`${value} ${t('charts.works')}`, name]}
                   />
-                  <Legend 
-                    verticalAlign="bottom"
+                  <Legend
+                    layout="vertical"
+                    verticalAlign="middle"
+                    align="right"
                     iconType="circle"
-                    iconSize={10}
-                    wrapperStyle={{ paddingTop: '16px' }}
+                    iconSize={8}
+                    wrapperStyle={{ fontSize: '11px', paddingLeft: '8px' }}
                     formatter={(value, entry) => {
                       const item = workChartData.find(d => d.name === value);
-                      return <span className="text-sm text-foreground">{value}: <strong>{item?.value || 0}</strong></span>;
+                      return <span style={{ color: 'hsl(var(--foreground))' }}>{value}: <strong>{item?.value || 0}</strong></span>;
                     }}
                   />
                 </PieChart>
@@ -165,8 +167,8 @@ export default function Dashboard() {
                   </defs>
                   <Pie
                     data={ticketChartData}
-                    cx="50%"
-                    cy="42%"
+                    cx="35%"
+                    cy="50%"
                     innerRadius={45}
                     outerRadius={75}
                     paddingAngle={4}
@@ -193,13 +195,15 @@ export default function Dashboard() {
                     formatter={(value: number, name: string) => [`${value} ${t('charts.tickets')}`, name]}
                   />
                   <Legend
-                    verticalAlign="bottom"
+                    layout="vertical"
+                    verticalAlign="middle"
+                    align="right"
                     iconType="circle"
-                    iconSize={10}
-                    wrapperStyle={{ paddingTop: '16px' }}
+                    iconSize={8}
+                    wrapperStyle={{ fontSize: '11px', paddingLeft: '8px' }}
                     formatter={(value) => {
                       const item = ticketChartData.find((d: { name: string; value: number }) => d.name === value);
-                      return <span className="text-sm text-foreground">{value}: <strong>{item?.value || 0}</strong></span>;
+                      return <span style={{ color: 'hsl(var(--foreground))' }}>{value}: <strong>{item?.value || 0}</strong></span>;
                     }}
                   />
                 </PieChart>
