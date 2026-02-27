@@ -147,7 +147,9 @@
     "tableDescription": "Descrizione",
     "tableTechnician": "Tecnico",
     "tableDate": "Data",
-    "tableHours": "Ore"
+    "tableHours": "Ore",
+    "editEntryTitle": "Modifica voce report",
+    "editEntryDescription": "Modifica la descrizione, le ore o la data della voce."
   },
   "assignments": {
     "title": "Tecnici assegnati",
@@ -254,6 +256,8 @@
     "invalidTransitionDescription": "Questa transizione di stato non è consentita.",
     "entryAddedTitle": "Voce aggiunta",
     "entryAddedDescription": "La voce di report è stata aggiunta.",
+    "entryUpdatedTitle": "Voce aggiornata",
+    "entryUpdatedDescription": "La voce di report è stata aggiornata.",
     "entryDeletedTitle": "Voce eliminata",
     "entryDeletedDescription": "La voce di report è stata eliminata.",
     "assignedTitle": "Assegnato",

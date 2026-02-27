@@ -147,7 +147,9 @@
     "tableDescription": "Description",
     "tableTechnician": "Technician",
     "tableDate": "Date",
-    "tableHours": "Hours"
+    "tableHours": "Hours",
+    "editEntryTitle": "Edit Report Entry",
+    "editEntryDescription": "Update the description, hours, or date of this entry."
   },
   "assignments": {
     "title": "Assigned Technicians",
@@ -254,6 +256,8 @@
     "invalidTransitionDescription": "This status transition is not allowed.",
     "entryAddedTitle": "Entry Added",
     "entryAddedDescription": "Work report entry has been added.",
+    "entryUpdatedTitle": "Entry Updated",
+    "entryUpdatedDescription": "Work report entry has been updated.",
     "entryDeletedTitle": "Entry Deleted",
     "entryDeletedDescription": "Work report entry has been deleted.",
     "assignedTitle": "Assigned",

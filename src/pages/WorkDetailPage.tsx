@@ -14,11 +14,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus, Phone, Mail, PlayCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus, Phone, Mail, PlayCircle, AlertCircle, Pencil } from 'lucide-react';
 import { Work, WorkReportEntry, User as UserType, WorkStatus, WorksiteReferenceRole } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
-import { useWork, useUpdateWork, useStartWork, useCloseWork, useInvoiceWork, useReopenWork, useForceWorkStatus, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useDeleteReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference, usePlants, useClients } from '@/hooks/api';
+import { useWork, useUpdateWork, useStartWork, useCloseWork, useInvoiceWork, useReopenWork, useForceWorkStatus, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useUpdateReportEntry, useDeleteReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference, usePlants, useClients } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate, formatDateTime } from '@/lib/date';
@@ -99,6 +99,7 @@ export default function WorkDetailPage() {
   const assignTechnician = useAssignTechnician();
   const unassignTechnician = useUnassignTechnician();
   const createReportEntry = useCreateReportEntry();
+  const updateReportEntry = useUpdateReportEntry();
   const deleteReportEntry = useDeleteReportEntry();
   const addReference = useAddReference();
   const removeReference = useRemoveReference();
@@ -142,6 +143,10 @@ export default function WorkDetailPage() {
     date: '',
     technicianId: ''
   });
+
+  // Edit entry dialog
+  const [isEditEntryOpen, setIsEditEntryOpen] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<{ id: string; description: string; hours: number; date: string } | null>(null);
 
   // Assign technician dialog
   const [isAssignOpen, setIsAssignOpen] = useState(false);
@@ -296,6 +301,35 @@ export default function WorkDetailPage() {
       }
     });
   };
+  const handleUpdateEntry = () => {
+    if (!editingEntry) return;
+    updateReportEntry.mutate({
+      id: editingEntry.id,
+      workId: work.id,
+      data: {
+        description: editingEntry.description,
+        hours: editingEntry.hours,
+        ...(editingEntry.date ? { date: editingEntry.date } : {})
+      }
+    }, {
+      onSuccess: () => {
+        setIsEditEntryOpen(false);
+        setEditingEntry(null);
+        toast({
+          title: t('messages.entryUpdatedTitle'),
+          description: t('messages.entryUpdatedDescription')
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          title: t('common:titles.error'),
+          description: error.message,
+          variant: 'destructive'
+        });
+      }
+    });
+  };
+
   const handleDeleteEntry = (entryId: string) => {
     if (!work?.id && !id) {
       toast({
@@ -1119,13 +1153,47 @@ export default function WorkDetailPage() {
                     <Button variant="outline" onClick={() => setIsAddEntryOpen(false)}>
                       {t('common:actions.cancel')}
                     </Button>
-                    <Button onClick={handleAddEntry} disabled={!newEntry.description || newEntry.hours <= 0}>
+                    <Button onClick={handleAddEntry} disabled={!newEntry.description || newEntry.hours < 0}>
                       {t('report.addEntry')}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
             </CardHeader>
+
+            {/* Edit Entry Dialog */}
+            <Dialog open={isEditEntryOpen} onOpenChange={(open) => { setIsEditEntryOpen(open); if (!open) setEditingEntry(null); }}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{t('report.editEntryTitle')}</DialogTitle>
+                  <DialogDescription>{t('report.editEntryDescription')}</DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-entry-description">{t('report.descriptionLabel')}</Label>
+                    <Textarea id="edit-entry-description" placeholder={t('report.descriptionPlaceholder')} value={editingEntry?.description ?? ''} onChange={e => setEditingEntry(prev => prev ? { ...prev, description: e.target.value } : prev)} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-entry-hours">{t('report.hoursLabel')}</Label>
+                    <Input id="edit-entry-hours" type="number" step="0.5" min="0" value={editingEntry?.hours ?? 0} onChange={e => setEditingEntry(prev => prev ? { ...prev, hours: Number(e.target.value) } : prev)} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-entry-date">{t('report.dateLabel')}</Label>
+                    <Input id="edit-entry-date" type="date" value={editingEntry?.date ?? ''} onChange={e => setEditingEntry(prev => prev ? { ...prev, date: e.target.value } : prev)} />
+                    <p className="text-xs text-muted-foreground">{t('report.dateHelper')}</p>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => { setIsEditEntryOpen(false); setEditingEntry(null); }}>
+                    {t('common:actions.cancel')}
+                  </Button>
+                  <Button onClick={handleUpdateEntry} disabled={!editingEntry?.description || (editingEntry?.hours ?? 0) < 0}>
+                    {t('common:actions.save')}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
             <CardContent>
               {reportEntries.length === 0 ? <p className="text-muted-foreground text-center py-6">
                   {t('report.empty')}
@@ -1146,9 +1214,14 @@ export default function WorkDetailPage() {
                         <TableCell className="hidden sm:table-cell">{formatDate(entry.date, t('common:messages.notSet'))}</TableCell>
                         <TableCell className="text-right font-medium">{entry.hours}</TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDeleteEntry(entry.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingEntry({ id: entry.id, description: entry.description, hours: entry.hours, date: entry.date || '' }); setIsEditEntryOpen(true); }}>
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDeleteEntry(entry.id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>)}
                   </TableBody>
