@@ -15,7 +15,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus, Phone, Mail, PlayCircle, AlertCircle } from 'lucide-react';
-import { Work, WorkReportEntry, User as UserType, WorkStatus } from '@/types';
+import { Work, WorkReportEntry, User as UserType, WorkStatus, WorksiteReferenceRole } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
 import { useWork, useUpdateWork, useStartWork, useCloseWork, useInvoiceWork, useReopenWork, useForceWorkStatus, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useDeleteReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference, usePlants, useClients } from '@/hooks/api';
@@ -150,7 +150,7 @@ export default function WorkDetailPage() {
   // Add worksite reference dialog
   const [isAddReferenceOpen, setIsAddReferenceOpen] = useState(false);
   const [selectedReference, setSelectedReference] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'PLUMBER' | 'ELECTRICIAN'>('PLUMBER');
+  const [selectedRole, setSelectedRole] = useState<WorksiteReferenceRole>('PLUMBER');
   const [isCreatingNewReference, setIsCreatingNewReference] = useState(false);
   const [newReferenceName, setNewReferenceName] = useState('');
   const [newReferencePhone, setNewReferencePhone] = useState('');
@@ -1411,6 +1411,8 @@ export default function WorkDetailPage() {
                           <SelectContent>
                             <SelectItem value="PLUMBER">{t('worksite-references:roles.PLUMBER')}</SelectItem>
                             <SelectItem value="ELECTRICIAN">{t('worksite-references:roles.ELECTRICIAN')}</SelectItem>
+                            <SelectItem value="MAINTENANCE">{t('worksite-references:roles.MAINTENANCE')}</SelectItem>
+                            <SelectItem value="OTHER">{t('worksite-references:roles.OTHER')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
