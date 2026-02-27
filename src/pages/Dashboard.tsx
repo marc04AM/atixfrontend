@@ -29,11 +29,11 @@ export default function Dashboard() {
   const isTechnician = currentUser?.type === 'TECHNICIAN';
   const { data: technicianWorksData } = useWorks(
     isTechnician && currentUser?.id
-      ? { technicianId: currentUser.id, page: 0, size: 5, sort: 'createdAt,desc' }
+      ? { technicianId: currentUser.id, status: 'IN_PROGRESS', page: 0, size: 100, sort: 'createdAt,desc' }
       : null
   );
   const recentWorksToShow = isTechnician && technicianWorksData?.content
-    ? technicianWorksData.content.filter(w => w.status === 'IN_PROGRESS')
+    ? technicianWorksData.content
     : data?.recentWorks ?? [];
   const isMobile = useIsMobile();
   const { t: tTickets } = useTranslation('tickets');
