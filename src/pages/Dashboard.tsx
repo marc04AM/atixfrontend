@@ -89,7 +89,7 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className={isMobile ? 'h-[320px]' : 'h-[280px]'}>
+            <div className={isMobile ? 'h-[250px]' : 'h-[280px]'}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <defs>
@@ -102,10 +102,10 @@ export default function Dashboard() {
                   </defs>
                   <Pie
                     data={workChartData}
-                    cx={isMobile ? '50%' : '35%'}
-                    cy={isMobile ? '40%' : '50%'}
-                    innerRadius={45}
-                    outerRadius={75}
+                    cx="50%"
+                    cy={isMobile ? '45%' : '50%'}
+                    innerRadius={isMobile ? 40 : 45}
+                    outerRadius={isMobile ? 65 : 75}
                     paddingAngle={4}
                     dataKey="value"
                     stroke="hsl(var(--background))"
@@ -130,12 +130,12 @@ export default function Dashboard() {
                     formatter={(value: number, name: string) => [`${value} ${t('charts.works')}`, name]}
                   />
                   <Legend
-                    layout="vertical"
+                    layout={isMobile ? 'horizontal' : 'vertical'}
                     verticalAlign={isMobile ? 'bottom' : 'middle'}
                     align={isMobile ? 'center' : 'right'}
                     iconType="circle"
                     iconSize={8}
-                    wrapperStyle={isMobile ? { fontSize: '11px', paddingTop: '8px' } : { fontSize: '11px', paddingLeft: '8px' }}
+                    wrapperStyle={isMobile ? { fontSize: '11px', paddingTop: '4px' } : { fontSize: '11px', paddingLeft: '8px' }}
                     formatter={(value) => {
                       const item = workChartData.find(d => d.name === value);
                       return <span style={{ color: 'hsl(var(--foreground))' }}>{value}: <strong>{item?.value || 0}</strong></span>;
@@ -156,7 +156,7 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className={isMobile ? 'h-[320px]' : 'h-[280px]'}>
+            <div className={isMobile ? 'h-[250px]' : 'h-[280px]'}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <defs>
@@ -169,10 +169,10 @@ export default function Dashboard() {
                   </defs>
                   <Pie
                     data={ticketChartData}
-                    cx={isMobile ? '50%' : '35%'}
-                    cy={isMobile ? '40%' : '50%'}
-                    innerRadius={45}
-                    outerRadius={75}
+                    cx="50%"
+                    cy={isMobile ? '45%' : '50%'}
+                    innerRadius={isMobile ? 40 : 45}
+                    outerRadius={isMobile ? 65 : 75}
                     paddingAngle={4}
                     dataKey="value"
                     stroke="hsl(var(--background))"
@@ -197,12 +197,12 @@ export default function Dashboard() {
                     formatter={(value: number, name: string) => [`${value} ${t('charts.tickets')}`, name]}
                   />
                   <Legend
-                    layout="vertical"
+                    layout={isMobile ? 'horizontal' : 'vertical'}
                     verticalAlign={isMobile ? 'bottom' : 'middle'}
                     align={isMobile ? 'center' : 'right'}
                     iconType="circle"
                     iconSize={8}
-                    wrapperStyle={isMobile ? { fontSize: '11px', paddingTop: '8px' } : { fontSize: '11px', paddingLeft: '8px' }}
+                    wrapperStyle={isMobile ? { fontSize: '11px', paddingTop: '4px' } : { fontSize: '11px', paddingLeft: '8px' }}
                     formatter={(value) => {
                       const item = ticketChartData.find((d: { name: string; value: number }) => d.name === value);
                       return <span style={{ color: 'hsl(var(--foreground))' }}>{value}: <strong>{item?.value || 0}</strong></span>;
