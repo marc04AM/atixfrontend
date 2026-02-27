@@ -9,6 +9,7 @@ import {
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useDashboard, useWorks } from '@/hooks/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
 import { useTranslation } from 'react-i18next';
@@ -34,6 +35,7 @@ export default function Dashboard() {
   const recentWorksToShow = isTechnician && technicianWorksData?.content
     ? technicianWorksData.content.filter(w => w.status === 'IN_PROGRESS')
     : data?.recentWorks ?? [];
+  const isMobile = useIsMobile();
   const { t: tTickets } = useTranslation('tickets');
   const { t: tWorks } = useTranslation('works');
 
@@ -87,7 +89,7 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="h-[280px]">
+            <div className={isMobile ? 'h-[320px]' : 'h-[280px]'}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <defs>
@@ -100,8 +102,8 @@ export default function Dashboard() {
                   </defs>
                   <Pie
                     data={workChartData}
-                    cx="35%"
-                    cy="50%"
+                    cx={isMobile ? '50%' : '35%'}
+                    cy={isMobile ? '40%' : '50%'}
                     innerRadius={45}
                     outerRadius={75}
                     paddingAngle={4}
@@ -129,12 +131,12 @@ export default function Dashboard() {
                   />
                   <Legend
                     layout="vertical"
-                    verticalAlign="middle"
-                    align="right"
+                    verticalAlign={isMobile ? 'bottom' : 'middle'}
+                    align={isMobile ? 'center' : 'right'}
                     iconType="circle"
                     iconSize={8}
-                    wrapperStyle={{ fontSize: '11px', paddingLeft: '8px' }}
-                    formatter={(value, entry) => {
+                    wrapperStyle={isMobile ? { fontSize: '11px', paddingTop: '8px' } : { fontSize: '11px', paddingLeft: '8px' }}
+                    formatter={(value) => {
                       const item = workChartData.find(d => d.name === value);
                       return <span style={{ color: 'hsl(var(--foreground))' }}>{value}: <strong>{item?.value || 0}</strong></span>;
                     }}
@@ -154,7 +156,7 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="h-[280px]">
+            <div className={isMobile ? 'h-[320px]' : 'h-[280px]'}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <defs>
@@ -167,8 +169,8 @@ export default function Dashboard() {
                   </defs>
                   <Pie
                     data={ticketChartData}
-                    cx="35%"
-                    cy="50%"
+                    cx={isMobile ? '50%' : '35%'}
+                    cy={isMobile ? '40%' : '50%'}
                     innerRadius={45}
                     outerRadius={75}
                     paddingAngle={4}
@@ -196,11 +198,11 @@ export default function Dashboard() {
                   />
                   <Legend
                     layout="vertical"
-                    verticalAlign="middle"
-                    align="right"
+                    verticalAlign={isMobile ? 'bottom' : 'middle'}
+                    align={isMobile ? 'center' : 'right'}
                     iconType="circle"
                     iconSize={8}
-                    wrapperStyle={{ fontSize: '11px', paddingLeft: '8px' }}
+                    wrapperStyle={isMobile ? { fontSize: '11px', paddingTop: '8px' } : { fontSize: '11px', paddingLeft: '8px' }}
                     formatter={(value) => {
                       const item = ticketChartData.find((d: { name: string; value: number }) => d.name === value);
                       return <span style={{ color: 'hsl(var(--foreground))' }}>{value}: <strong>{item?.value || 0}</strong></span>;
