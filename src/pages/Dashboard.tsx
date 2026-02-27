@@ -32,7 +32,7 @@ export default function Dashboard() {
       : null
   );
   const recentWorksToShow = isTechnician && technicianWorksData?.content
-    ? technicianWorksData.content
+    ? technicianWorksData.content.filter(w => w.status === 'IN_PROGRESS')
     : data?.recentWorks ?? [];
   const { t: tTickets } = useTranslation('tickets');
   const { t: tWorks } = useTranslation('works');
@@ -237,7 +237,14 @@ export default function Dashboard() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
               <Briefcase className="h-5 w-5 text-primary" />
-              <CardTitle>{t('recentWorks.title')}</CardTitle>
+              <CardTitle className="flex items-baseline gap-2">
+                {t('recentWorks.title')}
+                {isTechnician && currentUser && (
+                  <span className="text-sm font-normal text-muted-foreground">
+                    — {currentUser.firstName} {currentUser.lastName}
+                  </span>
+                )}
+              </CardTitle>
             </div>
             <button
               onClick={() => navigate('/works')}
