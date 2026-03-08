@@ -147,6 +147,7 @@ export interface Attachment {
   id: string;
   url: string;
   publicId: string;
+  originalFilename?: string;
   resourceType: string;
   type: AttachmentType;
   uploadedAt: string;

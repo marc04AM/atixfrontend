@@ -37,6 +37,7 @@ export default function AttachmentManager({
   const { t } = useTranslation('attachments');
   const { toast } = useToast();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewPdf, setPreviewPdf] = useState<Attachment | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
   // Fetch attachments from API
@@ -115,7 +116,7 @@ export default function AttachmentManager({
   const handleDownload = (attachment: Attachment) => {
     const link = document.createElement('a');
     link.href = attachment.url;
-    link.download = attachment.publicId;
+    link.download = attachment.originalFilename ?? attachment.url.split('/').pop() ?? attachment.publicId;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -124,6 +125,8 @@ export default function AttachmentManager({
   const handlePreview = (attachment: Attachment) => {
     if (attachment.type === 'PHOTO') {
       setPreviewImage(attachment.url);
+    } else if (attachment.type === 'PDF') {
+      setPreviewPdf(attachment);
     } else {
       handleDownload(attachment);
     }
@@ -225,7 +228,7 @@ export default function AttachmentManager({
                     >
                       <Icon className="h-8 w-8 text-muted-foreground mb-2" />
                       <p className="text-xs text-muted-foreground text-center truncate w-full">
-                        {attachment.publicId}
+                        {attachment.originalFilename ?? attachment.url.split('/').pop()}
                       </p>
                     </div>
                   )}
@@ -275,6 +278,29 @@ export default function AttachmentManager({
               alt="Preview"
               className="w-full h-auto max-h-[70vh] object-contain"
             />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* PDF Preview Dialog */}
+      <Dialog open={!!previewPdf} onOpenChange={() => setPreviewPdf(null)}>
+        <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>{previewPdf?.originalFilename ?? previewPdf?.url.split('/').pop()}</DialogTitle>
+          </DialogHeader>
+          {previewPdf && (
+            <object
+              data={previewPdf.url}
+              type="application/pdf"
+              className="flex-1 w-full rounded"
+            >
+              <p className="p-4 text-center text-muted-foreground">
+                Il browser non supporta la visualizzazione PDF.{' '}
+                <a href={previewPdf.url} target="_blank" rel="noopener noreferrer" className="underline">
+                  Apri in una nuova scheda
+                </a>
+              </p>
+            </object>
           )}
         </DialogContent>
       </Dialog>
