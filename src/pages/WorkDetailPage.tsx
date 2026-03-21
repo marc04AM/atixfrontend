@@ -631,26 +631,13 @@ export default function WorkDetailPage() {
     const match = allWorksiteReferences.find((ref: any) => String(ref.id) === String(referenceId));
     return match?.telephone || '';
   };
-  const resolveReportEntryTechnician = (entry: any) => {
-    const directFirstName = entry?.technician?.firstName
-      || entry?.technicianFirstName
-      || entry?.user?.firstName;
-    const directLastName = entry?.technician?.lastName
-      || entry?.technicianLastName
-      || entry?.user?.lastName;
-    const directName = [directFirstName, directLastName].filter(Boolean).join(' ').trim();
-    if (directName) return directName;
-
-    if (entry?.technicianName) return entry.technicianName;
+  const resolveReportEntryUser = (entry: any) => {
     if (entry?.userName) return entry.userName;
 
-    const technicianId = entry?.technicianId
-      ?? entry?.technician?.id
-      ?? entry?.user?.id
-      ?? entry?.userId;
-    if (!technicianId) return t('common:messages.notSet');
+    const userId = entry?.userId ?? entry?.user?.id;
+    if (!userId) return t('common:messages.notSet');
 
-    const match = technicians.find((tech) => String(tech.id) === String(technicianId));
+    const match = technicians.find((tech) => String(tech.id) === String(userId));
     return match ? `${match.firstName} ${match.lastName}`.trim() : t('common:messages.notSet');
   };
   const totalHours = reportEntries.reduce((sum: number, e: any) => sum + e.hours, 0);
@@ -1194,7 +1181,7 @@ export default function WorkDetailPage() {
                   <TableBody>
                     {reportEntries.map(entry => <TableRow key={entry.id}>
                         <TableCell>{entry.description}</TableCell>
-                        <TableCell>{resolveReportEntryTechnician(entry)}</TableCell>
+                        <TableCell>{resolveReportEntryUser(entry)}</TableCell>
                         <TableCell className="hidden sm:table-cell">{formatDate(entry.date, t('common:messages.notSet'))}</TableCell>
                         <TableCell className="text-right font-medium">{entry.hours}</TableCell>
                         <TableCell>

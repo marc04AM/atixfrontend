@@ -146,7 +146,7 @@
     "dateHelper": "Optional. If not specified, today's date will be used.",
     "empty": "No report entries yet. Add your first entry to start tracking.",
     "tableDescription": "Description",
-    "tableTechnician": "Technician",
+    "tableTechnician": "User",
     "tableDate": "Date",
     "tableHours": "Hours",
     "editEntryTitle": "Edit Report Entry",

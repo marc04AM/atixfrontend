@@ -146,7 +146,7 @@
     "dateHelper": "Opzionale. Se non specificata verrà usata la data odierna.",
     "empty": "Nessuna voce di report. Aggiungi la prima voce per iniziare.",
     "tableDescription": "Descrizione",
-    "tableTechnician": "Tecnico",
+    "tableTechnician": "Utente",
     "tableDate": "Data",
     "tableHours": "Ore",
     "editEntryTitle": "Modifica voce report",

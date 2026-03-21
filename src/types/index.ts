@@ -111,8 +111,8 @@ export interface WorkReportEntry {
   description: string;
   hours: number;
   date: string;
-  technicianId?: string;
-  technician?: User;
+  userId?: string;
+  userName?: string;
   report?: WorkReport;
 }
 
