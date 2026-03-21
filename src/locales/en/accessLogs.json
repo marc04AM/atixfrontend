@@ -23,6 +23,7 @@
     "outcome": "Outcome",
     "duration": "Duration"
   },
+  "deletedUser": "Deleted user",
   "failureReasons": {
     "USER_NOT_FOUND": "User not found",
     "INVALID_PASSWORD": "Invalid password"

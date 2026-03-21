@@ -665,7 +665,7 @@ export default function WorkDetailPage() {
             <h1 className="text-2xl font-bold tracking-tight">
               {isEditing ? t('form.editTitle') : work.name}
             </h1>
-            <Badge variant="outline" className="font-mono text-xs">
+            <Badge className="bg-primary text-primary-foreground font-mono text-sm font-bold">
               {getWorkIndex()}
             </Badge>
             {isEditing ? (

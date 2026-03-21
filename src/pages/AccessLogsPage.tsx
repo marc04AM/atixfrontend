@@ -187,7 +187,7 @@ export default function AccessLogsPage() {
                           {formatTimestamp(log.timestamp)}
                         </TableCell>
                         <TableCell className="text-sm">
-                          {log.userFullName ?? <span className="text-muted-foreground">—</span>}
+                          {log.userFullName ?? <span className="text-muted-foreground italic">{t('deletedUser')}</span>}
                         </TableCell>
                         <TableCell className="text-sm">{log.email}</TableCell>
                         <TableCell className="text-sm hidden md:table-cell font-mono">
