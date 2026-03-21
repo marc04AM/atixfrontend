@@ -107,6 +107,7 @@ export default function TicketsPage() {
     ...baseParams,
     page: currentPage,
     size: PAGE_SIZE,
+    sort: 'createdAt,desc',
   }), [baseParams, currentPage, activeTab]);
 
   const countBaseParams = useMemo(() => {
