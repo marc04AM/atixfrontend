@@ -654,7 +654,7 @@ export default function WorkDetailPage() {
     return match ? `${match.firstName} ${match.lastName}`.trim() : t('common:messages.notSet');
   };
   const totalHours = reportEntries.reduce((sum: number, e: any) => sum + e.hours, 0);
-  return <div className="space-y-6">
+  return <div className="space-y-6 min-w-0 overflow-x-hidden">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate('/works')}>
