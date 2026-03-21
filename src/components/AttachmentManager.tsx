@@ -4,6 +4,16 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useAttachments, useUploadAttachment, useDeleteAttachment } from '@/hooks/api/useAttachments';
@@ -37,7 +47,9 @@ export default function AttachmentManager({
   const { t } = useTranslation('attachments');
   const { toast } = useToast();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewPdf, setPreviewPdf] = useState<Attachment | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [deleteAttachmentId, setDeleteAttachmentId] = useState<string | null>(null);
 
   // Fetch attachments from API
   const { data, isLoading } = useAttachments(targetType, targetId);
@@ -49,9 +61,21 @@ export default function AttachmentManager({
   // Delete mutation
   const deleteMutation = useDeleteAttachment();
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
   const uploadFiles = useCallback(async (files: FileList | File[]) => {
     const fileArray = Array.from(files);
     if (fileArray.length === 0) return;
+
+    const oversized = fileArray.filter(f => f.size > MAX_FILE_SIZE);
+    if (oversized.length > 0) {
+      toast({
+        title: t('common:titles.error'),
+        description: t('messages.fileTooLarge', { maxSize: '10MB' }),
+        variant: 'destructive',
+      });
+      return;
+    }
 
     try {
       for (const file of fileArray) {
@@ -115,7 +139,7 @@ export default function AttachmentManager({
   const handleDownload = (attachment: Attachment) => {
     const link = document.createElement('a');
     link.href = attachment.url;
-    link.download = attachment.publicId;
+    link.download = attachment.originalFilename ?? attachment.url.split('/').pop() ?? attachment.publicId;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -124,6 +148,8 @@ export default function AttachmentManager({
   const handlePreview = (attachment: Attachment) => {
     if (attachment.type === 'PHOTO') {
       setPreviewImage(attachment.url);
+    } else if (attachment.type === 'PDF') {
+      setPreviewPdf(attachment);
     } else {
       handleDownload(attachment);
     }
@@ -225,41 +251,42 @@ export default function AttachmentManager({
                     >
                       <Icon className="h-8 w-8 text-muted-foreground mb-2" />
                       <p className="text-xs text-muted-foreground text-center truncate w-full">
-                        {attachment.publicId}
+                        {attachment.originalFilename ?? attachment.url.split('/').pop()}
                       </p>
                     </div>
                   )}
-                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {!readOnly && (
                     <Button
-                      variant="secondary"
+                      variant="destructive"
                       size="icon"
-                      className="h-6 w-6"
+                      className="absolute top-2 left-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                      disabled={deleteMutation.isPending}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDownload(attachment);
+                        setDeleteAttachmentId(attachment.id);
                       }}
                     >
-                      <Download className="h-3 w-3" />
+                      <Trash2 className="h-3 w-3" />
                     </Button>
-                    {!readOnly && (
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        className="h-6 w-6"
-                        disabled={deleteMutation.isPending}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(attachment.id);
-                        }}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    )}
-                  </div>
+                  )}
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDownload(attachment);
+                    }}
+                  >
+                    <Download className="h-3 w-3" />
+                  </Button>
                 </div>
               );
             })}
           </div>
+        )}
+        {!readOnly && (
+          <p className="text-xs text-muted-foreground/60 mt-2">{t('maxFileSize', { maxSize: '10MB' })}</p>
         )}
       </CardContent>
 
@@ -278,6 +305,55 @@ export default function AttachmentManager({
           )}
         </DialogContent>
       </Dialog>
+
+      {/* PDF Preview Dialog */}
+      <Dialog open={!!previewPdf} onOpenChange={() => setPreviewPdf(null)}>
+        <DialogContent className="max-w-[90vw] h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>{previewPdf?.originalFilename ?? previewPdf?.url.split('/').pop()}</DialogTitle>
+          </DialogHeader>
+          {previewPdf && (
+            <>
+              <div className="flex-1 w-full overflow-hidden">
+                <iframe
+                  src={previewPdf.url}
+                  title={previewPdf?.originalFilename ?? 'PDF Preview'}
+                  className="w-full h-full min-h-[70vh] rounded border-0"
+                  style={{ display: 'block' }}
+                />
+              </div>
+              <div className="pt-2 text-center text-sm text-muted-foreground">
+                <a href={previewPdf.url} target="_blank" rel="noopener noreferrer" className="underline">
+                  Apri in una nuova scheda
+                </a>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteAttachmentId} onOpenChange={() => setDeleteAttachmentId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('deleteConfirm.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('deleteConfirm.description')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('deleteConfirm.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deleteAttachmentId) {
+                  handleDelete(deleteAttachmentId);
+                  setDeleteAttachmentId(null);
+                }
+              }}
+            >
+              {t('deleteConfirm.confirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

@@ -11,11 +11,12 @@
     "actions": "Azioni"
   },
   "roles": {
-    "PLUMBER": "Idraulico",
-    "ELECTRICIAN": "Elettricista",
+    "PLUMBER": "Impiantista idraulico",
+    "ELECTRICIAN": "Impiantista elettrico",
     "CARPENTER": "Falegname",
     "MASON": "Muratore",
     "PAINTER": "Pittore",
+    "MAINTENANCE": "Manutentore",
     "OTHER": "Altro"
   },
   "stats": {

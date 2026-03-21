@@ -75,6 +75,15 @@
     "unauthorized": "Non autorizzato",
     "forbidden": "Accesso negato",
     "notFound": "Risorsa non trovata",
-    "serverError": "Errore del server"
+    "serverError": "Errore del server",
+    "invalidCredentials": "Credenziali non valide",
+    "emailExists": "Email già esistente",
+    "validationFailed": "Validazione non riuscita",
+    "sessionExpired": "Sessione scaduta",
+    "invalidRequest": "Richiesta non valida. Controlla i dati inseriti.",
+    "conflict": "Conflitto di dati. Aggiorna e riprova.",
+    "invalidData": "I dati forniti non sono validi",
+    "tooManyRequests": "Troppe richieste. Attendi e riprova.",
+    "unexpectedError": "Si è verificato un errore imprevisto. Riprova più tardi."
   }
 }

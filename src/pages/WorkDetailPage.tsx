@@ -14,15 +14,15 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus, Phone, Mail } from 'lucide-react';
-import { Work, WorkReportEntry, User as UserType, WorkStatus } from '@/types';
+import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, Factory, User, Calendar, Plus, Trash2, UserPlus, Phone, Mail, PlayCircle, AlertCircle, Pencil } from 'lucide-react';
+import { Work, WorkReportEntry, User as UserType, WorkStatus, WorksiteReferenceRole } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
-import { useWork, useUpdateWork, useCloseWork, useInvoiceWork, useReopenWork, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference, usePlants, useClients } from '@/hooks/api';
+import { useWork, useUpdateWork, useStartWork, useCloseWork, useInvoiceWork, useReopenWork, useForceWorkStatus, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useUpdateReportEntry, useDeleteReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference, usePlants, useClients } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate, formatDateTime } from '@/lib/date';
-import { StatusBadge, getWorkStatus } from '@/components/ui/status-badge';
+import { StatusBadge, getWorkStatusBadgeKey } from '@/components/ui/status-badge';
 
 type AssignedTechnicianSummary = {
   id: string;
@@ -90,13 +90,17 @@ export default function WorkDetailPage() {
 
   // Mutations
   const updateWork = useUpdateWork();
+  const startWork = useStartWork();
   const closeWork = useCloseWork();
   const invoiceWork = useInvoiceWork();
   const reopenWork = useReopenWork();
+  const forceWorkStatus = useForceWorkStatus();
   const deleteWork = useDeleteWork();
   const assignTechnician = useAssignTechnician();
   const unassignTechnician = useUnassignTechnician();
   const createReportEntry = useCreateReportEntry();
+  const updateReportEntry = useUpdateReportEntry();
+  const deleteReportEntry = useDeleteReportEntry();
   const addReference = useAddReference();
   const removeReference = useRemoveReference();
   const createWorksiteReference = useCreateWorksiteReference();
@@ -140,6 +144,10 @@ export default function WorkDetailPage() {
     technicianId: ''
   });
 
+  // Edit entry dialog
+  const [isEditEntryOpen, setIsEditEntryOpen] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<{ id: string; description: string; hours: number; date: string } | null>(null);
+
   // Assign technician dialog
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [selectedTechnician, setSelectedTechnician] = useState('');
@@ -147,7 +155,7 @@ export default function WorkDetailPage() {
   // Add worksite reference dialog
   const [isAddReferenceOpen, setIsAddReferenceOpen] = useState(false);
   const [selectedReference, setSelectedReference] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'PLUMBER' | 'ELECTRICIAN'>('PLUMBER');
+  const [selectedRole, setSelectedRole] = useState<WorksiteReferenceRole>('PLUMBER');
   const [isCreatingNewReference, setIsCreatingNewReference] = useState(false);
   const [newReferenceName, setNewReferenceName] = useState('');
   const [newReferencePhone, setNewReferencePhone] = useState('');
@@ -175,7 +183,7 @@ export default function WorkDetailPage() {
   const isAssigned = currentUser
     ? assignedTechnicians.some((assignment) => assignment.technicianId === currentUser.id)
     : false;
-  const canDelete = isOwner();
+  const canDelete = isOwner() || currentUser?.type === 'TECHNICIAN';
   const canManageAssignments = isAdmin() || isOwner();
   const availableTechnicians = technicians.filter((t: any) => !assignedTechnicianIds.includes(t.id));
 
@@ -192,55 +200,49 @@ export default function WorkDetailPage() {
     const workDir = work.nasSubDirectory || '';
     return plantDir + workDir;
   };
-  const handleStatusChange = (status: WorkStatus) => {
-    if (status === 'IN_PROGRESS' && (work.completed || work.invoiced)) {
-      // Reopen work
+  const handleStatusChange = (newStatus: WorkStatus) => {
+    const currentStatus = work.status;
+    if (newStatus === currentStatus) return;
+
+    const onError = (error: any) => {
+      const is409 = error.message?.includes('conflict') || error.message?.includes('Conflict');
+      toast({
+        title: is409 ? t('messages.invalidTransitionTitle') : t('common:titles.error'),
+        description: is409 ? t('messages.invalidTransitionDescription') : error.message,
+        variant: 'destructive'
+      });
+    };
+
+    if (newStatus === 'IN_PROGRESS' && currentStatus === 'SCHEDULED') {
+      startWork.mutate(work.id, {
+        onSuccess: () => toast({ title: t('messages.startedTitle'), description: t('messages.startedDescription') }),
+        onError,
+      });
+    } else if (newStatus === 'IN_PROGRESS' && (currentStatus === 'CLOSED')) {
       reopenWork.mutate(work.id, {
-        onSuccess: () => {
-          toast({
-            title: t('messages.reopenedTitle'),
-            description: t('messages.reopenedDescription')
-          });
-        },
-        onError: (error: any) => {
-          toast({
-            title: t('common:titles.error'),
-            description: error.message,
-            variant: 'destructive'
-          });
-        }
+        onSuccess: () => toast({ title: t('messages.reopenedTitle'), description: t('messages.reopenedDescription') }),
+        onError,
       });
-    } else if (status === 'COMPLETED' && !work.completed) {
+    } else if (newStatus === 'CLOSED' && currentStatus === 'IN_PROGRESS') {
       closeWork.mutate(work.id, {
-        onSuccess: () => {
-          toast({
-            title: t('messages.completedTitle'),
-            description: t('messages.completedDescription')
-          });
-        },
-        onError: (error: any) => {
-          toast({
-            title: t('common:titles.error'),
-            description: error.message,
-            variant: 'destructive'
-          });
-        }
+        onSuccess: () => toast({ title: t('messages.closedTitle'), description: t('messages.closedDescription') }),
+        onError,
       });
-    } else if (status === 'INVOICED' && !work.invoiced) {
+    } else if (newStatus === 'INVOICED' && currentStatus === 'CLOSED') {
       invoiceWork.mutate(work.id, {
-        onSuccess: () => {
-          toast({
-            title: t('messages.invoicedTitle'),
-            description: t('messages.invoicedDescription')
-          });
-        },
-        onError: (error: any) => {
-          toast({
-            title: t('common:titles.error'),
-            description: error.message,
-            variant: 'destructive'
-          });
-        }
+        onSuccess: () => toast({ title: t('messages.invoicedTitle'), description: t('messages.invoicedDescription') }),
+        onError,
+      });
+    } else if (isOwner()) {
+      forceWorkStatus.mutate({ id: work.id, status: newStatus }, {
+        onSuccess: () => toast({ title: t('messages.forceStatusTitle'), description: t('messages.forceStatusDescription') }),
+        onError,
+      });
+    } else {
+      toast({
+        title: t('messages.invalidTransitionTitle'),
+        description: t('messages.invalidTransitionDescription'),
+        variant: 'destructive'
       });
     }
   };
@@ -299,10 +301,62 @@ export default function WorkDetailPage() {
       }
     });
   };
+  const handleUpdateEntry = () => {
+    if (!editingEntry) return;
+    updateReportEntry.mutate({
+      id: editingEntry.id,
+      workId: work.id,
+      data: {
+        description: editingEntry.description,
+        hours: editingEntry.hours,
+        ...(editingEntry.date ? { date: editingEntry.date } : {})
+      }
+    }, {
+      onSuccess: () => {
+        setIsEditEntryOpen(false);
+        setEditingEntry(null);
+        toast({
+          title: t('messages.entryUpdatedTitle'),
+          description: t('messages.entryUpdatedDescription')
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          title: t('common:titles.error'),
+          description: error.message,
+          variant: 'destructive'
+        });
+      }
+    });
+  };
+
   const handleDeleteEntry = (entryId: string) => {
-    toast({
-      title: t('messages.entryDeletedTitle'),
-      description: t('messages.entryDeletedDescription')
+    if (!work?.id && !id) {
+      toast({
+        title: t('common:titles.error'),
+        description: t('messages.errorDetails'),
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    deleteReportEntry.mutate({
+      id: entryId,
+      workId: work?.id || id!
+    }, {
+      onSuccess: () => {
+        toast({
+          title: t('messages.entryDeletedTitle'),
+          description: t('messages.entryDeletedDescription')
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          title: t('common:titles.error'),
+          description: error.message,
+          variant: 'destructive'
+        });
+      }
     });
   };
   const handleAssignMyself = () => {
@@ -351,37 +405,33 @@ export default function WorkDetailPage() {
       }
     });
   };
-  const handleMarkComplete = () => {
-    closeWork.mutate(work.id, {
+  const handleStartWork = () => {
+    startWork.mutate(work.id, {
       onSuccess: () => {
-        toast({
-          title: t('messages.completedTitle'),
-          description: t('messages.completedDescription')
-        });
+        toast({ title: t('messages.startedTitle'), description: t('messages.startedDescription') });
       },
       onError: (error: any) => {
-        toast({
-          title: t('common:titles.error'),
-          description: error.message,
-          variant: 'destructive'
-        });
+        toast({ title: t('common:titles.error'), description: error.message, variant: 'destructive' });
+      }
+    });
+  };
+  const handleCloseWork = () => {
+    closeWork.mutate(work.id, {
+      onSuccess: () => {
+        toast({ title: t('messages.closedTitle'), description: t('messages.closedDescription') });
+      },
+      onError: (error: any) => {
+        toast({ title: t('common:titles.error'), description: error.message, variant: 'destructive' });
       }
     });
   };
   const handleMarkInvoiced = () => {
     invoiceWork.mutate(work.id, {
       onSuccess: () => {
-        toast({
-          title: t('messages.invoicedTitle'),
-          description: t('messages.invoicedDescription')
-        });
+        toast({ title: t('messages.invoicedTitle'), description: t('messages.invoicedDescription') });
       },
       onError: (error: any) => {
-        toast({
-          title: t('common:titles.error'),
-          description: error.message,
-          variant: 'destructive'
-        });
+        toast({ title: t('common:titles.error'), description: error.message, variant: 'destructive' });
       }
     });
   };
@@ -619,21 +669,27 @@ export default function WorkDetailPage() {
               {getWorkIndex()}
             </Badge>
             {isEditing ? (
-              <Select value={getWorkStatus(work)} onValueChange={value => handleStatusChange(value as WorkStatus)}>
-                <SelectTrigger className="w-[160px]">
+              <Select value={work.status} onValueChange={value => handleStatusChange(value as WorkStatus)}>
+                <SelectTrigger className="w-[180px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="SCHEDULED">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="h-3 w-3" />
+                      {t('badges.scheduled')}
+                    </div>
+                  </SelectItem>
                   <SelectItem value="IN_PROGRESS">
                     <div className="flex items-center gap-2">
                       <Clock className="h-3 w-3" />
                       {t('badges.inProgress')}
                     </div>
                   </SelectItem>
-                  <SelectItem value="COMPLETED">
+                  <SelectItem value="CLOSED">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="h-3 w-3" />
-                      {t('badges.completed')}
+                      {t('badges.closed')}
                     </div>
                   </SelectItem>
                   <SelectItem value="INVOICED">
@@ -646,12 +702,9 @@ export default function WorkDetailPage() {
               </Select>
             ) : (
               <StatusBadge
-                status={getWorkStatus(work)}
+                status={work.status}
                 type="work"
-                label={t(`badges.${
-                  work.invoiced ? 'invoiced' :
-                  work.completed ? 'completed' : 'inProgress'
-                }`)}
+                label={t(`badges.${getWorkStatusBadgeKey(work.status)}`)}
               />
             )}
           </div>
@@ -659,29 +712,51 @@ export default function WorkDetailPage() {
         </div>
         <div className="flex gap-2 flex-wrap">
           {!isEditing ? <>
-              {!work.completed && (
+              {work.status === 'SCHEDULED' && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button>
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
-                      {t('actions.markCompleted')}
+                      <PlayCircle className="h-4 w-4 mr-2" />
+                      {t('actions.startWork')}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>{t('dialogs.markCompletedTitle')}</AlertDialogTitle>
-                      <AlertDialogDescription>{t('dialogs.markCompletedDescription')}</AlertDialogDescription>
+                      <AlertDialogTitle>{t('dialogs.startWorkTitle')}</AlertDialogTitle>
+                      <AlertDialogDescription>{t('dialogs.startWorkDescription')}</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleMarkComplete}>
+                      <AlertDialogAction onClick={handleStartWork}>
                         {t('common:actions.confirm')}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
               )}
-              {work.completed && !work.invoiced && (
+              {work.status === 'IN_PROGRESS' && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button>
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      {t('actions.closeWork')}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t('dialogs.markClosedTitle')}</AlertDialogTitle>
+                      <AlertDialogDescription>{t('dialogs.markClosedDescription')}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleCloseWork}>
+                        {t('common:actions.confirm')}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+              {work.status === 'CLOSED' && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button>
@@ -779,13 +854,6 @@ export default function WorkDetailPage() {
                 })} />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="expectedStartDate">{t('details.expectedStart')}</Label>
-                    <Input id="expectedStartDate" type="date" value={editedWork.expectedStartDate || ''} onChange={e => setEditedWork({
-                  ...editedWork,
-                  expectedStartDate: e.target.value
-                })} />
-                  </div>
-                  <div className="grid gap-2">
                     <Label htmlFor="electrical">{t('details.electricalProgress')}</Label>
                     <Input id="electrical" type="number" min="0" max="100" value={editedWork.electricalSchemaProgression} onChange={e => setEditedWork({
                   ...editedWork,
@@ -801,16 +869,23 @@ export default function WorkDetailPage() {
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="officeHours">{t('details.expectedOfficeHours')}</Label>
-                    <Input id="officeHours" type="number" value={editedWork.expectedOfficeHours} onChange={e => setEditedWork({
+                    <Input id="officeHours" type="number" step="0.5" value={editedWork.expectedOfficeHours} onChange={e => setEditedWork({
                   ...editedWork,
                   expectedOfficeHours: Number(e.target.value)
                 })} />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="plantHours">{t('details.expectedPlantHours')}</Label>
-                    <Input id="plantHours" type="number" value={editedWork.expectedPlantHours} onChange={e => setEditedWork({
+                    <Input id="plantHours" type="number" step="0.5" value={editedWork.expectedPlantHours} onChange={e => setEditedWork({
                   ...editedWork,
                   expectedPlantHours: Number(e.target.value)
+                })} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="expectedStartDate">{t('details.expectedStart')}</Label>
+                    <Input id="expectedStartDate" type="date" value={editedWork.expectedStartDate || ''} onChange={e => setEditedWork({
+                  ...editedWork,
+                  expectedStartDate: e.target.value
                 })} />
                   </div>
                   <div className="grid gap-2 md:col-span-2">
@@ -833,10 +908,6 @@ export default function WorkDetailPage() {
                     <div>
                       <Label className="text-muted-foreground text-xs">{t('details.orderDate')}</Label>
                       <p>{formatDate(work.orderDate, t('common:messages.notSet'))}</p>
-                    </div>
-                    <div>
-                      <Label className="text-muted-foreground text-xs">{t('details.expectedStart')}</Label>
-                      <p>{formatDate(work.expectedStartDate, t('common:messages.notSet'))}</p>
                     </div>
                   </div>
 
@@ -876,6 +947,13 @@ export default function WorkDetailPage() {
                       <p>{work.expectedPlantHours} {t('units.hours')}</p>
                     </div>
                   </div>
+                  
+                  <Separator />
+                  
+                  <div>
+                    <Label className="text-muted-foreground text-xs">{t('details.expectedStart')}</Label>
+                    <p>{formatDate(work.expectedStartDate, t('common:messages.notSet'))}</p>
+                  </div>
                 </div>}
             </CardContent>
           </Card>
@@ -905,15 +983,6 @@ export default function WorkDetailPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="nasSubDirectory">{t('details.nasSubDirectory')}</Label>
-                    <Input
-                      id="nasSubDirectory"
-                      value={editedWork.nasSubDirectory || ''}
-                      onChange={(e) => setEditedWork({ ...editedWork, nasSubDirectory: e.target.value })}
-                      placeholder={t('details.nasSubDirectoryPlaceholder')}
-                    />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="sellerId">{t('details.seller')}</Label>
@@ -984,13 +1053,6 @@ export default function WorkDetailPage() {
                       <div>
                         <Label className="text-muted-foreground text-xs">{t('details.plant')}</Label>
                         <p className="text-sm font-medium">{work.plant.name}</p>
-                      </div>
-                    </div>}
-                  {work.plant && work.nasSubDirectory && <div className="flex items-center gap-3">
-                      <Factory className="h-4 w-4 text-muted-foreground" />
-                      <div className="flex-1">
-                        <Label className="text-muted-foreground text-xs">{t('details.directory')}</Label>
-                        <p className="text-sm font-mono break-all">{getFullDirectory()}</p>
                       </div>
                     </div>}
                   {work.seller && <div className="flex items-center gap-3">
@@ -1075,13 +1137,47 @@ export default function WorkDetailPage() {
                     <Button variant="outline" onClick={() => setIsAddEntryOpen(false)}>
                       {t('common:actions.cancel')}
                     </Button>
-                    <Button onClick={handleAddEntry} disabled={!newEntry.description || newEntry.hours <= 0}>
+                    <Button onClick={handleAddEntry} disabled={!newEntry.description || newEntry.hours < 0}>
                       {t('report.addEntry')}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
             </CardHeader>
+
+            {/* Edit Entry Dialog */}
+            <Dialog open={isEditEntryOpen} onOpenChange={(open) => { setIsEditEntryOpen(open); if (!open) setEditingEntry(null); }}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{t('report.editEntryTitle')}</DialogTitle>
+                  <DialogDescription>{t('report.editEntryDescription')}</DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-entry-description">{t('report.descriptionLabel')}</Label>
+                    <Textarea id="edit-entry-description" placeholder={t('report.descriptionPlaceholder')} value={editingEntry?.description ?? ''} onChange={e => setEditingEntry(prev => prev ? { ...prev, description: e.target.value } : prev)} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-entry-hours">{t('report.hoursLabel')}</Label>
+                    <Input id="edit-entry-hours" type="number" step="0.5" min="0" value={editingEntry?.hours ?? 0} onChange={e => setEditingEntry(prev => prev ? { ...prev, hours: Number(e.target.value) } : prev)} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-entry-date">{t('report.dateLabel')}</Label>
+                    <Input id="edit-entry-date" type="date" value={editingEntry?.date ?? ''} onChange={e => setEditingEntry(prev => prev ? { ...prev, date: e.target.value } : prev)} />
+                    <p className="text-xs text-muted-foreground">{t('report.dateHelper')}</p>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => { setIsEditEntryOpen(false); setEditingEntry(null); }}>
+                    {t('common:actions.cancel')}
+                  </Button>
+                  <Button onClick={handleUpdateEntry} disabled={!editingEntry?.description || (editingEntry?.hours ?? 0) < 0}>
+                    {t('common:actions.save')}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
             <CardContent>
               {reportEntries.length === 0 ? <p className="text-muted-foreground text-center py-6">
                   {t('report.empty')}
@@ -1102,9 +1198,14 @@ export default function WorkDetailPage() {
                         <TableCell className="hidden sm:table-cell">{formatDate(entry.date, t('common:messages.notSet'))}</TableCell>
                         <TableCell className="text-right font-medium">{entry.hours}</TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDeleteEntry(entry.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingEntry({ id: entry.id, description: entry.description, hours: entry.hours, date: entry.date || '' }); setIsEditEntryOpen(true); }}>
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDeleteEntry(entry.id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>)}
                   </TableBody>
@@ -1367,6 +1468,8 @@ export default function WorkDetailPage() {
                           <SelectContent>
                             <SelectItem value="PLUMBER">{t('worksite-references:roles.PLUMBER')}</SelectItem>
                             <SelectItem value="ELECTRICIAN">{t('worksite-references:roles.ELECTRICIAN')}</SelectItem>
+                            <SelectItem value="MAINTENANCE">{t('worksite-references:roles.MAINTENANCE')}</SelectItem>
+                            <SelectItem value="OTHER">{t('worksite-references:roles.OTHER')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>

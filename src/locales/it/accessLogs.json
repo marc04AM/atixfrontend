@@ -1,0 +1,41 @@
+{
+  "title": "Log Accessi",
+  "subtitle": "Cronologia dei tentativi di accesso e delle sessioni",
+  "success": "Successo",
+  "failure": "Fallito",
+  "noResults": "Nessun log di accesso trovato",
+  "accessDenied": {
+    "title": "Accesso Negato",
+    "description": "Non hai i permessi per visualizzare i log di accesso. Questa sezione è riservata agli owner."
+  },
+  "filters": {
+    "title": "Filtri",
+    "emailPlaceholder": "Filtra per email...",
+    "outcome": "Esito",
+    "all": "Tutti"
+  },
+  "columns": {
+    "timestamp": "Data / Ora",
+    "user": "Utente",
+    "email": "Email",
+    "ipAddress": "Indirizzo IP",
+    "userAgent": "Browser / Dispositivo",
+    "outcome": "Esito",
+    "duration": "Durata"
+  },
+  "failureReasons": {
+    "USER_NOT_FOUND": "Utente non trovato",
+    "INVALID_PASSWORD": "Password errata"
+  },
+  "pagination": {
+    "showing": "Visualizzando {{start}}–{{end}} di {{total}}"
+  },
+  "duration": {
+    "active": "Attivo",
+    "lessThanMinute": "< 1 min",
+    "minutes": "{{count}} min",
+    "hours": "{{count}} h",
+    "hoursAndMinutes": "{{hours}} h {{minutes}} min",
+    "expired": "scaduto"
+  }
+}

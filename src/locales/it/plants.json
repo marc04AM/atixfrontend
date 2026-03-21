@@ -1,6 +1,6 @@
 {
   "title": "Impianti",
-  "subtitle": "Gestisci impianti e stabilimenti",
+  "subtitle": "Gestione impianti",
   "createButton": "Crea Impianto",
   "searchPlaceholder": "Cerca impianti...",
   "columns": {
@@ -32,7 +32,7 @@
     "description": "Descrizione",
     "notes": "Note",
     "nasDirectory": "Directory NAS",
-    "pswPhrase": "Frase PSW",
+    "pswPhrase": "System Passphrase",
     "pswPlatform": "PSW Piattaforma",
     "pswStation": "PSW Stazione",
     "createdAt": "Creato il",
@@ -66,8 +66,8 @@
     "notesLabel": "Note",
     "notesPlaceholder": "Note aggiuntive",
     "nasDirectoryLabel": "Directory NAS",
-    "nasDirectoryPlaceholder": "/nas/percorso",
-    "pswPhraseLabel": "Frase PSW",
+    "nasDirectoryPlaceholder": "/YYYY/00X",
+    "pswPhraseLabel": "System Passphrase",
     "pswPlatformLabel": "PSW Piattaforma",
     "pswStationLabel": "PSW Stazione"
   },

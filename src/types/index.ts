@@ -2,11 +2,12 @@
 export type UserRole = 'ADMIN' | 'OWNER' | 'USER';
 export type UserType = 'TECHNICIAN' | 'ADMINISTRATION' | 'SELLER';
 export type ClientType = 'ATIX' | 'FINAL';
-export type WorkStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'INVOICED';
+export type WorkStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'CLOSED' | 'INVOICED';
 export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
 export type AttachmentType = 'PHOTO' | 'PDF' | 'DOC' | 'OTHER';
 export type AttachmentTargetType = 'WORK' | 'PLANT' | 'TICKET' | 'REPORT';
-export type WorksiteReferenceRole = 'PLUMBER' | 'ELECTRICIAN';
+// F6: added MAINTENANCE (manutentore) and OTHER (altro)
+export type WorksiteReferenceRole = 'PLUMBER' | 'ELECTRICIAN' | 'MAINTENANCE' | 'OTHER';
 
 // User types
 export interface User {
@@ -73,11 +74,9 @@ export interface Work {
   electricalSchemaProgression: number;
   programmingProgression: number;
   expectedStartDate?: string;
-  completed: boolean;
-  completedAt?: string;
+  status: WorkStatus;
+  statusChangedAt?: string;
   createdAt: string;
-  invoiced: boolean;
-  invoicedAt?: string;
   nasSubDirectory: string;
   relatedPlantNasDirectory?: string;
   expectedOfficeHours: number;
@@ -148,6 +147,7 @@ export interface Attachment {
   id: string;
   url: string;
   publicId: string;
+  originalFilename?: string;
   resourceType: string;
   type: AttachmentType;
   uploadedAt: string;
@@ -166,6 +166,7 @@ export interface DashboardSummary {
   plantCount: number;
   completedWorkCount: number;
   pendingWorkCount: number;
+  workStatusCounts: { status: WorkStatus; count: number }[];
   ticketStatusCounts: { status: TicketStatus; count: number }[];
   recentWorks: Work[];
   recentTickets: Ticket[];
@@ -178,4 +179,19 @@ export interface PaginatedResponse<T> {
   totalPages: number;
   size: number;
   number: number;
+}
+
+export interface AccessLog {
+  id: string;
+  userId: string | null;
+  userFullName: string | null;
+  email: string;
+  timestamp: string;
+  ipAddress: string;
+  userAgent: string;
+  success: boolean;
+  failureReason: string | null;
+  sessionId: string | null;
+  logoutTimestamp: string | null;
+  jwtExpiresAt: string | null;
 }

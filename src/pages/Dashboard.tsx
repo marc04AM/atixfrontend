@@ -5,13 +5,14 @@ import {
   Ticket,
   AlertCircle
 } from 'lucide-react';
-import { TicketStatus, WorkStatus } from '@/types';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { useDashboard } from '@/hooks/api';
+
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { useDashboard, useWorks } from '@/hooks/api';
+import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
 import { useTranslation } from 'react-i18next';
-import { StatusBadge, getWorkStatus } from '@/components/ui/status-badge';
+import { StatusBadge, getWorkStatusBadgeKey } from '@/components/ui/status-badge';
 
 // Chart colors - orange palette
 const WORK_COLORS = ['#f97316', '#fb923c', '#fdba74', '#fed7aa'];
@@ -21,6 +22,18 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { data, isLoading, error } = useDashboard();
   const { t } = useTranslation('dashboard');
+  const { user: currentUser } = useAuth();
+
+  // F9: when logged in as TECHNICIAN, show only works assigned to that user
+  const isTechnician = currentUser?.type === 'TECHNICIAN';
+  const { data: technicianWorksData } = useWorks(
+    isTechnician && currentUser?.id
+      ? { technicianId: currentUser.id, status: 'IN_PROGRESS', page: 0, size: 100, sort: 'createdAt,desc' }
+      : null
+  );
+  const recentWorksToShow = isTechnician && technicianWorksData?.content
+    ? technicianWorksData.content
+    : data?.recentWorks ?? [];
   const { t: tTickets } = useTranslation('tickets');
   const { t: tWorks } = useTranslation('works');
 
@@ -42,21 +55,15 @@ export default function Dashboard() {
   const openTickets = data.ticketStatusCounts?.find((t: any) => t.status === 'OPEN')?.count || 0;
   const inProgressTickets = data.ticketStatusCounts?.find((t: any) => t.status === 'IN_PROGRESS')?.count || 0;
 
-  const ticketChartData = (data.ticketStatusCounts || []).map((t: any) => ({
-    name: t.status.replace('_', ' '),
-    value: t.count,
+  const ticketChartData = (data.ticketStatusCounts || []).map((item: any) => ({
+    name: t(`charts.ticketStatuses.${item.status.toLowerCase()}`, { defaultValue: item.status.replace('_', ' ') }),
+    value: item.count,
   }));
 
-  // Build work chart data from completed and pending counts
-  const workChartData = [
-    { name: t('charts.pending'), value: data.pendingWorkCount || 0 },
-    { name: t('charts.completed'), value: data.completedWorkCount || 0 },
-  ];
-
-  // Localize ticket chart labels
-  const ticketChartDataLocalized = ticketChartData.map((item: { name: string; value: number }) => ({
-    ...item,
-    name: t(`charts.statuses.${item.name.toLowerCase().replace(' ', '_')}`, { defaultValue: item.name }),
+  // Build work chart data from per-status counts
+  const workChartData = (data.workStatusCounts || []).map((item: any) => ({
+    name: t(`charts.workStatuses.${item.status.toLowerCase()}`, { defaultValue: item.status.replace('_', ' ') }),
+    value: item.count,
   }));
 
   return (
@@ -80,58 +87,59 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="h-[280px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <defs>
-                    {WORK_COLORS.map((color, index) => (
-                      <linearGradient key={`workGradient-${index}`} id={`workGradient-${index}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={color} stopOpacity={1} />
-                        <stop offset="100%" stopColor={color} stopOpacity={0.7} />
-                      </linearGradient>
-                    ))}
-                  </defs>
-                  <Pie
-                    data={workChartData}
-                    cx="50%"
-                    cy="42%"
-                    innerRadius={45}
-                    outerRadius={75}
-                    paddingAngle={4}
-                    dataKey="value"
-                    stroke="hsl(var(--background))"
-                    strokeWidth={2}
-                  >
-                    {workChartData.map((_, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={`url(#workGradient-${index})`}
-                        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--popover))',
-                      borderColor: 'hsl(var(--border))',
-                      borderRadius: '12px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                      padding: '8px 12px'
-                    }}
-                    formatter={(value: number, name: string) => [`${value} ${t('charts.works')}`, name]}
-                  />
-                  <Legend 
-                    verticalAlign="bottom"
-                    iconType="circle"
-                    iconSize={10}
-                    wrapperStyle={{ paddingTop: '16px' }}
-                    formatter={(value, entry) => {
-                      const item = workChartData.find(d => d.name === value);
-                      return <span className="text-sm text-foreground">{value}: <strong>{item?.value || 0}</strong></span>;
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="flex flex-col lg:flex-row lg:items-center">
+              <div className="h-[200px] w-full lg:flex-1">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <defs>
+                      {WORK_COLORS.map((color, index) => (
+                        <linearGradient key={`workGradient-${index}`} id={`workGradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={color} stopOpacity={1} />
+                          <stop offset="100%" stopColor={color} stopOpacity={0.7} />
+                        </linearGradient>
+                      ))}
+                    </defs>
+                    <Pie
+                      data={workChartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={80}
+                      paddingAngle={4}
+                      dataKey="value"
+                      stroke="hsl(var(--background))"
+                      strokeWidth={2}
+                    >
+                      {workChartData.map((_, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={`url(#workGradient-${index})`}
+                          style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--popover))',
+                        borderColor: 'hsl(var(--border))',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                        padding: '8px 12px'
+                      }}
+                      formatter={(value: number, name: string) => [`${value} ${t('charts.works')}`, name]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-col gap-1.5 mt-3 items-center lg:items-start lg:mt-0 lg:ml-4 lg:mr-8 lg:shrink-0">
+                {workChartData.map((item, index) => (
+                  <div key={item.name} className="flex items-center gap-1.5">
+                    <span className="shrink-0 h-2 w-2 rounded-full" style={{ backgroundColor: WORK_COLORS[index] }} />
+                    <span className="text-xs text-muted-foreground">{item.name}:</span>
+                    <span className="text-xs font-semibold">{item.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -145,58 +153,59 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="h-[280px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <defs>
-                    {TICKET_COLORS.map((color, index) => (
-                      <linearGradient key={`ticketGradient-${index}`} id={`ticketGradient-${index}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={color} stopOpacity={1} />
-                        <stop offset="100%" stopColor={color} stopOpacity={0.7} />
-                      </linearGradient>
-                    ))}
-                  </defs>
-                  <Pie
-                    data={ticketChartDataLocalized}
-                    cx="50%"
-                    cy="42%"
-                    innerRadius={45}
-                    outerRadius={75}
-                    paddingAngle={4}
-                    dataKey="value"
-                    stroke="hsl(var(--background))"
-                    strokeWidth={2}
-                  >
-                    {ticketChartData.map((_, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={`url(#ticketGradient-${index})`}
-                        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--popover))',
-                      borderColor: 'hsl(var(--border))',
-                      borderRadius: '12px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                      padding: '8px 12px'
-                    }}
-                    formatter={(value: number, name: string) => [`${value} ${t('charts.tickets')}`, name]}
-                  />
-                  <Legend 
-                    verticalAlign="bottom"
-                    iconType="circle"
-                    iconSize={10}
-                    wrapperStyle={{ paddingTop: '16px' }}
-                    formatter={(value) => {
-                      const item = ticketChartDataLocalized.find((d: { name: string; value: number }) => d.name === value);
-                      return <span className="text-sm text-foreground">{value}: <strong>{item?.value || 0}</strong></span>;
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="flex flex-col lg:flex-row lg:items-center">
+              <div className="h-[200px] w-full lg:flex-1">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <defs>
+                      {TICKET_COLORS.map((color, index) => (
+                        <linearGradient key={`ticketGradient-${index}`} id={`ticketGradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={color} stopOpacity={1} />
+                          <stop offset="100%" stopColor={color} stopOpacity={0.7} />
+                        </linearGradient>
+                      ))}
+                    </defs>
+                    <Pie
+                      data={ticketChartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={80}
+                      paddingAngle={4}
+                      dataKey="value"
+                      stroke="hsl(var(--background))"
+                      strokeWidth={2}
+                    >
+                      {ticketChartData.map((_: any, index: number) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={`url(#ticketGradient-${index})`}
+                          style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--popover))',
+                        borderColor: 'hsl(var(--border))',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                        padding: '8px 12px'
+                      }}
+                      formatter={(value: number, name: string) => [`${value} ${t('charts.tickets')}`, name]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-col gap-1.5 mt-3 items-center lg:items-start lg:mt-0 lg:ml-4 lg:mr-6 lg:shrink-0">
+                {ticketChartData.map((item: { name: string; value: number }, index: number) => (
+                  <div key={item.name} className="flex items-center gap-1.5">
+                    <span className="shrink-0 h-2 w-2 rounded-full" style={{ backgroundColor: TICKET_COLORS[index] }} />
+                    <span className="text-xs text-muted-foreground">{item.name}:</span>
+                    <span className="text-xs font-semibold">{item.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -222,11 +231,18 @@ export default function Dashboard() {
       {/* Recent Items Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Works */}
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               <Briefcase className="h-5 w-5 text-primary" />
-              <CardTitle>{t('recentWorks.title')}</CardTitle>
+              <CardTitle className="flex items-baseline gap-2">
+                {t('recentWorks.title')}
+                {isTechnician && currentUser && (
+                  <span className="text-sm font-normal text-muted-foreground">
+                    — {currentUser.firstName} {currentUser.lastName}
+                  </span>
+                )}
+              </CardTitle>
             </div>
             <button
               onClick={() => navigate('/works')}
@@ -237,10 +253,10 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {data.recentWorks.map((work) => (
+              {recentWorksToShow.map((work) => (
                 <div
                   key={work.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg bg-card border border-border hover:bg-muted/10 cursor-pointer transition-colors"
                   onClick={() => navigate(`/works/${work.id}`)}
                 >
                   <div className="flex-1 min-w-0">
@@ -249,14 +265,11 @@ export default function Dashboard() {
                       {formatDate(work.orderDate, t('recentWorks.notSet'))}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0 ml-2">
                     <StatusBadge
-                      status={getWorkStatus(work)}
+                      status={work.status}
                       type="work"
-                      label={tWorks(`badges.${
-                        work.invoiced ? 'invoiced' :
-                        work.completed ? 'completed' : 'inProgress'
-                      }`)}
+                      label={tWorks(`badges.${getWorkStatusBadgeKey(work.status)}`)}
                     />
                   </div>
                 </div>
@@ -266,7 +279,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Recent Tickets */}
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
               <Ticket className="h-5 w-5 text-primary" />
@@ -284,7 +297,7 @@ export default function Dashboard() {
               {data.recentTickets.map((ticket) => (
                 <div
                   key={ticket.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg bg-card border border-border hover:bg-muted/10 cursor-pointer transition-colors"
                   onClick={() => navigate(`/tickets/${ticket.id}`)}
                 >
                   <div className="flex-1 min-w-0">
@@ -293,11 +306,13 @@ export default function Dashboard() {
                       {ticket.senderEmail}
                     </p>
                   </div>
-                  <StatusBadge
-                    status={ticket.status}
-                    type="ticket"
-                    label={tTickets(`statuses.${ticket.status}`)}
-                  />
+                  <div className="shrink-0 ml-2">
+                    <StatusBadge
+                      status={ticket.status}
+                      type="ticket"
+                      label={tTickets(`statuses.${ticket.status}`)}
+                    />
+                  </div>
                 </div>
               ))}
             </div>

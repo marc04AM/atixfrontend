@@ -157,7 +157,7 @@ export const ticketSchema = z.object({
 export type TicketFormData = z.infer<typeof ticketSchema>;
 
 // ============================================
-// Work Report Entry Validations (API: description required, hours > 0)
+// Work Report Entry Validations (API: description required, hours >= 0)
 // ============================================
 export const workReportEntrySchema = z.object({
   description: z
@@ -166,7 +166,7 @@ export const workReportEntrySchema = z.object({
     .min(1, { message: 'This field is required' }),
   hours: z
     .number()
-    .positive({ message: 'Value must be greater than 0' }),
+    .min(0, { message: 'Value must be 0 or greater' }),
   date: z.string().optional(),
   technicianId: z.string().optional(),
 });

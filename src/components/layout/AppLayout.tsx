@@ -40,9 +40,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full overflow-x-hidden">
         <AppSidebar />
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 min-w-0 flex flex-col overflow-x-hidden">
           <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-card px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -70,7 +70,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               </BreadcrumbList>
             </Breadcrumb>
           </header>
-          <main className="flex-1 overflow-auto p-6 bg-background">
+          <main className="flex-1 overflow-auto p-4 md:p-6 bg-background">
             {children}
           </main>
         </div>

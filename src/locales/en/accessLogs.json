@@ -1,0 +1,41 @@
+{
+  "title": "Access Logs",
+  "subtitle": "Login attempts and session history",
+  "success": "Success",
+  "failure": "Failure",
+  "noResults": "No access logs found",
+  "accessDenied": {
+    "title": "Access Denied",
+    "description": "You do not have permission to view access logs. This section is reserved for owners only."
+  },
+  "filters": {
+    "title": "Filters",
+    "emailPlaceholder": "Filter by email...",
+    "outcome": "Outcome",
+    "all": "All"
+  },
+  "columns": {
+    "timestamp": "Date / Time",
+    "user": "User",
+    "email": "Email",
+    "ipAddress": "IP Address",
+    "userAgent": "Browser / Device",
+    "outcome": "Outcome",
+    "duration": "Duration"
+  },
+  "failureReasons": {
+    "USER_NOT_FOUND": "User not found",
+    "INVALID_PASSWORD": "Invalid password"
+  },
+  "pagination": {
+    "showing": "Showing {{start}}–{{end}} of {{total}}"
+  },
+  "duration": {
+    "active": "Active",
+    "lessThanMinute": "< 1 min",
+    "minutes": "{{count}} min",
+    "hours": "{{count}} h",
+    "hoursAndMinutes": "{{hours}} h {{minutes}} min",
+    "expired": "expired"
+  }
+}

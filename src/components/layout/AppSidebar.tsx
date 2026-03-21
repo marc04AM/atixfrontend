@@ -1,3 +1,4 @@
+// B2: removed Wrench import (no longer needed after removing worksite references from sidebar)
 import {
   LayoutDashboard,
   Ticket,
@@ -5,10 +6,10 @@ import {
   Users,
   Building2,
   Factory,
-  Wrench,
   Settings,
   LogOut,
   User,
+  ShieldCheck,
 } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -30,11 +31,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { useTranslation } from 'react-i18next';
+import versions from '@/versions.json';
 
 export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout, canManageUsers } = useAuth();
+  const { user, logout, canManageUsers, isOwner } = useAuth();
   const { t } = useTranslation('navigation');
 
   const mainNavItems = [
@@ -44,10 +46,11 @@ export function AppSidebar() {
     { title: t('menu.tickets'), url: '/tickets', icon: Ticket },
   ];
 
+  // B2: removed worksite references entry from management items
   const managementItems = [
     { title: t('menu.clients'), url: '/clients', icon: Building2 },
-    { title: t('menu.worksiteReferences'), url: '/worksite-references', icon: Wrench },
     { title: t('menu.users'), url: '/users', icon: Users, adminOnly: true },
+    { title: t('menu.accessLogs'), url: '/access-logs', icon: ShieldCheck, ownerOnly: true },
   ];
 
   const isActive = (url: string) => {
@@ -106,7 +109,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {managementItems
-                .filter((item) => !item.adminOnly || canManageUsers())
+                .filter((item) => (!item.adminOnly || canManageUsers()) && (!(item as any).ownerOnly || isOwner()))
                 .map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
@@ -131,6 +134,10 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4 space-y-2">
+        <div className="flex items-center justify-between px-3">
+          <span className="text-xs text-muted-foreground">FE v{versions.frontend}</span>
+          <span className="text-xs text-muted-foreground">BE v{versions.backend}</span>
+        </div>
         <div className="flex items-center justify-between px-3">
           <span className="text-xs text-muted-foreground">{t('sidebar.language')}</span>
           <LanguageToggle />

@@ -3,6 +3,7 @@
 
 import { PaginatedResponse } from '@/types';
 import * as Sentry from '@sentry/react';
+import i18n from '@/lib/i18n';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
 
@@ -42,43 +43,46 @@ export const apiRequest = async <T>(
 
     // Sanitize error messages - only allow safe, user-friendly messages
     const sanitizeErrorMessage = (error: any, status: number): string => {
+      const translateError = (key: string, fallback: string) =>
+        i18n.t(`common:errors.${key}`, { defaultValue: fallback });
+
       // Whitelist of safe error messages that can be shown to users
-      const safeMessages: Record<string, boolean> = {
-        'Invalid credentials': true,
-        'Email already exists': true,
-        'Validation failed': true,
-        'Resource not found': true,
-        'Session expired': true,
+      const safeMessages: Record<string, string> = {
+        'Invalid credentials': 'invalidCredentials',
+        'Email already exists': 'emailExists',
+        'Validation failed': 'validationFailed',
+        'Resource not found': 'notFound',
+        'Session expired': 'sessionExpired',
       };
 
-      // If the error message is in our safe list, allow it
+      // If the error message is in our safe list, return the localized message
       if (error?.message && safeMessages[error.message]) {
-        return error.message;
+        return translateError(safeMessages[error.message], error.message);
       }
 
       // Otherwise, return generic messages based on status code
       switch (status) {
         case 400:
-          return 'Invalid request. Please check your input.';
+          return translateError('invalidRequest', 'Invalid request. Please check your input.');
         case 401:
-          return 'Authentication required';
+          return translateError('unauthorized', 'Authentication required');
         case 403:
-          return 'You do not have permission to perform this action';
+          return translateError('forbidden', 'You do not have permission to perform this action');
         case 404:
-          return 'The requested resource was not found';
+          return translateError('notFound', 'The requested resource was not found');
         case 409:
-          return 'A conflict occurred. Please refresh and try again.';
+          return translateError('conflict', 'A conflict occurred. Please refresh and try again.');
         case 422:
-          return 'The provided data is invalid';
+          return translateError('invalidData', 'The provided data is invalid');
         case 429:
-          return 'Too many requests. Please wait and try again.';
+          return translateError('tooManyRequests', 'Too many requests. Please wait and try again.');
         case 500:
         case 502:
         case 503:
         case 504:
-          return 'A server error occurred. Please try again later.';
+          return translateError('serverError', 'A server error occurred. Please try again later.');
         default:
-          return 'An unexpected error occurred. Please try again.';
+          return translateError('unexpectedError', 'An unexpected error occurred. Please try again.');
       }
     };
 
@@ -141,6 +145,7 @@ export const authApi = {
       role: string;
       id?: string;
       profileImageUrl?: string;
+      sessionId?: string;
     }>(
       '/auth/login',
       {
@@ -148,6 +153,11 @@ export const authApi = {
         body: JSON.stringify({ email, password }),
       }
     ),
+  logout: (sessionId: string) =>
+    apiRequest<void>('/auth/logout', {
+      method: 'POST',
+      body: JSON.stringify({ sessionId }),
+    }),
 };
 
 // Users API
@@ -203,8 +213,9 @@ export const usersApi = {
 
 // Clients API
 export const clientsApi = {
+  // F2: sort clients alphabetically by name
   getAll: (page = 0, size = 20) =>
-    apiRequest<any>(`/clients?page=${page}&size=${size}`),
+    apiRequest<any>(`/clients?page=${page}&size=${size}&sort=name,asc`),
   getById: (id: string) => apiRequest<any>(`/clients/${id}`),
   create: (data: { name: string; type: string }) =>
     apiRequest<any>('/clients', {
@@ -223,7 +234,7 @@ export const clientsApi = {
 // Plants API
 export const plantsApi = {
   getAll: (page = 0, size = 20) =>
-    apiRequest<any>(`/plants?page=${page}&size=${size}`),
+    apiRequest<any>(`/plants?page=${page}&size=${size}&sort=nasDirectory,desc`),
   getById: (id: string) => apiRequest<any>(`/plants/${id}`),
   create: (data: any) =>
     apiRequest<any>('/plants', {
@@ -246,7 +257,11 @@ export const worksApi = {
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
-          searchParams.append(key, String(value));
+          if (Array.isArray(value)) {
+            value.forEach((v) => searchParams.append(key, String(v)));
+          } else {
+            searchParams.append(key, String(value));
+          }
         }
       });
     }
@@ -263,12 +278,19 @@ export const worksApi = {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
+  start: (id: string) =>
+    apiRequest<any>(`/works/${id}/start`, { method: 'PATCH' }),
   close: (id: string) =>
     apiRequest<any>(`/works/${id}/close`, { method: 'PATCH' }),
   invoice: (id: string) =>
     apiRequest<any>(`/works/${id}/invoice`, { method: 'PATCH' }),
   reopen: (id: string) =>
     apiRequest<any>(`/works/${id}/reopen`, { method: 'PATCH' }),
+  forceStatus: (id: string, status: string) =>
+    apiRequest<any>(`/works/${id}/force-status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
   assignTechnician: (id: string, technicianId: string) =>
     apiRequest<any>(`/works/${id}/assign-technician`, {
       method: 'POST',
@@ -319,14 +341,14 @@ export const ticketsApi = {
 export const workReportsApi = {
   getByWorkId: (workId: string) =>
     apiRequest<any>(`/work-reports/work/${workId}`),
-  createEntry: (data: { workId: string; description: string; hours: number; technicianId?: string }) =>
+  createEntry: (data: { workId: string; description: string; hours: number; date?: string; technicianId?: string }) =>
     apiRequest<any>('/work-reports/entries', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
   getEntries: (workId: string) =>
     apiRequest<any[]>(`/work-reports/entries/work/${workId}`),
-  updateEntry: (id: string, data: { description?: string; hours?: number }) =>
+  updateEntry: (id: string, data: { description?: string; hours?: number; date?: string }) =>
     apiRequest<any>(`/work-reports/entries/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
@@ -343,25 +365,27 @@ export const dashboardApi = {
       const query = `
         query {
           dashboardSummary(limit: ${limit}) {
-            clientCount
-            plantCount
-            completedWorkCount
-            pendingWorkCount
-            ticketStatusCounts {
+            clientsCount
+            plantsCount
+            completedWorksCount
+            pendingWorksCount
+            worksByStatus {
               status
               count
             }
-            recentWorks {
-              id
-              name
-              orderDate
-              completed
-              invoiced
+            ticketsByStatus {
+              status
+              count
             }
-            recentTickets {
+            lastWorks {
               id
               name
-              senderEmail
+              status
+              createdAt
+            }
+            lastTickets {
+              id
+              name
               status
               createdAt
             }
@@ -374,9 +398,19 @@ export const dashboardApi = {
         body: JSON.stringify({ query }),
       });
 
-      // Handle GraphQL response
+      // Handle GraphQL response - map backend field names to frontend conventions
       if (response?.data?.dashboardSummary) {
-        return response.data.dashboardSummary;
+        const s = response.data.dashboardSummary;
+        return {
+          clientCount: s.clientsCount,
+          plantCount: s.plantsCount,
+          completedWorkCount: s.completedWorksCount,
+          pendingWorkCount: s.pendingWorksCount,
+          workStatusCounts: s.worksByStatus,
+          ticketStatusCounts: s.ticketsByStatus,
+          recentWorks: s.lastWorks.map((w: any) => ({ ...w, orderDate: w.createdAt })),
+          recentTickets: s.lastTickets,
+        };
       }
     } catch (graphqlError) {
       console.warn('GraphQL dashboard endpoint not available, using REST endpoints');
@@ -395,8 +429,19 @@ export const dashboardApi = {
       const tickets = ticketsRes.content || [];
 
       // Calculate counts
-      const completedWorks = works.filter((w: any) => w.completed);
-      const pendingWorks = works.filter((w: any) => !w.completed);
+      const completedWorks = works.filter((w: any) => w.status === 'CLOSED' || w.status === 'INVOICED');
+      const pendingWorks = works.filter((w: any) => w.status === 'SCHEDULED' || w.status === 'IN_PROGRESS');
+
+      // Count works by status
+      const workStatusCounts = works.reduce((acc: any[], work: any) => {
+        const existing = acc.find((w) => w.status === work.status);
+        if (existing) {
+          existing.count++;
+        } else {
+          acc.push({ status: work.status, count: 1 });
+        }
+        return acc;
+      }, []);
 
       // Count tickets by status
       const ticketStatusCounts = tickets.reduce((acc: any[], ticket: any) => {
@@ -424,6 +469,7 @@ export const dashboardApi = {
         plantCount: plantsRes.totalElements || 0,
         completedWorkCount: completedWorks.length,
         pendingWorkCount: pendingWorks.length,
+        workStatusCounts,
         ticketStatusCounts,
         recentWorks,
         recentTickets,
@@ -436,6 +482,7 @@ export const dashboardApi = {
         plantCount: 0,
         completedWorkCount: 0,
         pendingWorkCount: 0,
+        workStatusCounts: [],
         ticketStatusCounts: [],
         recentWorks: [],
         recentTickets: [],
@@ -460,6 +507,21 @@ export const worksiteReferencesApi = {
     }),
   delete: (id: string) =>
     apiRequest<void>(`/worksite-references/${id}`, { method: 'DELETE' }),
+};
+
+// Access Logs API
+export const accessLogsApi = {
+  getAll: (params?: Record<string, any>) => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          searchParams.append(key, String(value));
+        }
+      });
+    }
+    return apiRequest<any>(`/access-logs?${searchParams.toString()}`);
+  },
 };
 
 // Attachments API

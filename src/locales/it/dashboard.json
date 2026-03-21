@@ -8,11 +8,17 @@
     "completed": "Completati",
     "works": "lavori",
     "tickets": "ticket",
-    "statuses": {
-      "open": "Aperto",
+    "ticketStatuses": {
+      "open": "Aperti",
       "in_progress": "In Corso",
-      "resolved": "Risolto",
-      "closed": "Chiuso"
+      "resolved": "Risolti",
+      "closed": "Chiusi"
+    },
+    "workStatuses": {
+      "scheduled": "Non assegnati",
+      "in_progress": "In Corso",
+      "closed": "Chiusi",
+      "invoiced": "Fatturati"
     }
   },
   "alerts": {

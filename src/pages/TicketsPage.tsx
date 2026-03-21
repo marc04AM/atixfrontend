@@ -277,7 +277,7 @@ export default function TicketsPage() {
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
+          title: t('common:titles.error'),
           description: error.message,
           variant: 'destructive',
         });
