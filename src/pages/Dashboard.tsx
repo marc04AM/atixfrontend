@@ -87,57 +87,59 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="h-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <defs>
-                    {WORK_COLORS.map((color, index) => (
-                      <linearGradient key={`workGradient-${index}`} id={`workGradient-${index}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={color} stopOpacity={1} />
-                        <stop offset="100%" stopColor={color} stopOpacity={0.7} />
-                      </linearGradient>
-                    ))}
-                  </defs>
-                  <Pie
-                    data={workChartData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={4}
-                    dataKey="value"
-                    stroke="hsl(var(--background))"
-                    strokeWidth={2}
-                  >
-                    {workChartData.map((_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={`url(#workGradient-${index})`}
-                        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--popover))',
-                      borderColor: 'hsl(var(--border))',
-                      borderRadius: '12px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                      padding: '8px 12px'
-                    }}
-                    formatter={(value: number, name: string) => [`${value} ${t('charts.works')}`, name]}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
-              {workChartData.map((item, index) => (
-                <div key={item.name} className="flex items-center gap-1.5 min-w-0">
-                  <span className="shrink-0 h-2 w-2 rounded-full" style={{ backgroundColor: WORK_COLORS[index] }} />
-                  <span className="text-xs text-muted-foreground truncate">{item.name}:</span>
-                  <span className="text-xs font-semibold shrink-0">{item.value}</span>
-                </div>
-              ))}
+            <div className="flex flex-col lg:flex-row lg:items-center">
+              <div className="h-[200px] w-full lg:flex-1">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <defs>
+                      {WORK_COLORS.map((color, index) => (
+                        <linearGradient key={`workGradient-${index}`} id={`workGradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={color} stopOpacity={1} />
+                          <stop offset="100%" stopColor={color} stopOpacity={0.7} />
+                        </linearGradient>
+                      ))}
+                    </defs>
+                    <Pie
+                      data={workChartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={80}
+                      paddingAngle={4}
+                      dataKey="value"
+                      stroke="hsl(var(--background))"
+                      strokeWidth={2}
+                    >
+                      {workChartData.map((_, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={`url(#workGradient-${index})`}
+                          style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--popover))',
+                        borderColor: 'hsl(var(--border))',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                        padding: '8px 12px'
+                      }}
+                      formatter={(value: number, name: string) => [`${value} ${t('charts.works')}`, name]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-col gap-1.5 mt-3 items-center lg:items-start lg:mt-0 lg:ml-4 lg:mr-8 lg:shrink-0">
+                {workChartData.map((item, index) => (
+                  <div key={item.name} className="flex items-center gap-1.5">
+                    <span className="shrink-0 h-2 w-2 rounded-full" style={{ backgroundColor: WORK_COLORS[index] }} />
+                    <span className="text-xs text-muted-foreground">{item.name}:</span>
+                    <span className="text-xs font-semibold">{item.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -151,57 +153,59 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="h-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <defs>
-                    {TICKET_COLORS.map((color, index) => (
-                      <linearGradient key={`ticketGradient-${index}`} id={`ticketGradient-${index}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={color} stopOpacity={1} />
-                        <stop offset="100%" stopColor={color} stopOpacity={0.7} />
-                      </linearGradient>
-                    ))}
-                  </defs>
-                  <Pie
-                    data={ticketChartData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={4}
-                    dataKey="value"
-                    stroke="hsl(var(--background))"
-                    strokeWidth={2}
-                  >
-                    {ticketChartData.map((_: any, index: number) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={`url(#ticketGradient-${index})`}
-                        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--popover))',
-                      borderColor: 'hsl(var(--border))',
-                      borderRadius: '12px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                      padding: '8px 12px'
-                    }}
-                    formatter={(value: number, name: string) => [`${value} ${t('charts.tickets')}`, name]}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
-              {ticketChartData.map((item: { name: string; value: number }, index: number) => (
-                <div key={item.name} className="flex items-center gap-1.5 min-w-0">
-                  <span className="shrink-0 h-2 w-2 rounded-full" style={{ backgroundColor: TICKET_COLORS[index] }} />
-                  <span className="text-xs text-muted-foreground truncate">{item.name}:</span>
-                  <span className="text-xs font-semibold shrink-0">{item.value}</span>
-                </div>
-              ))}
+            <div className="flex flex-col lg:flex-row lg:items-center">
+              <div className="h-[200px] w-full lg:flex-1">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <defs>
+                      {TICKET_COLORS.map((color, index) => (
+                        <linearGradient key={`ticketGradient-${index}`} id={`ticketGradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={color} stopOpacity={1} />
+                          <stop offset="100%" stopColor={color} stopOpacity={0.7} />
+                        </linearGradient>
+                      ))}
+                    </defs>
+                    <Pie
+                      data={ticketChartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={80}
+                      paddingAngle={4}
+                      dataKey="value"
+                      stroke="hsl(var(--background))"
+                      strokeWidth={2}
+                    >
+                      {ticketChartData.map((_: any, index: number) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={`url(#ticketGradient-${index})`}
+                          style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--popover))',
+                        borderColor: 'hsl(var(--border))',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                        padding: '8px 12px'
+                      }}
+                      formatter={(value: number, name: string) => [`${value} ${t('charts.tickets')}`, name]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-col gap-1.5 mt-3 items-center lg:items-start lg:mt-0 lg:ml-4 lg:mr-6 lg:shrink-0">
+                {ticketChartData.map((item: { name: string; value: number }, index: number) => (
+                  <div key={item.name} className="flex items-center gap-1.5">
+                    <span className="shrink-0 h-2 w-2 rounded-full" style={{ backgroundColor: TICKET_COLORS[index] }} />
+                    <span className="text-xs text-muted-foreground">{item.name}:</span>
+                    <span className="text-xs font-semibold">{item.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
