@@ -313,20 +313,21 @@ export default function AttachmentManager({
             <DialogTitle>{previewPdf?.originalFilename ?? previewPdf?.url.split('/').pop()}</DialogTitle>
           </DialogHeader>
           {previewPdf && (
-            <div className="flex-1 w-full overflow-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
-              <object
-                data={previewPdf.url}
-                type="application/pdf"
-                className="w-full h-full min-h-[70vh] rounded"
-              >
-                <p className="p-4 text-center text-muted-foreground">
-                  Il browser non supporta la visualizzazione PDF.{' '}
-                  <a href={previewPdf.url} target="_blank" rel="noopener noreferrer" className="underline">
-                    Apri in una nuova scheda
-                  </a>
-                </p>
-              </object>
-            </div>
+            <>
+              <div className="flex-1 w-full overflow-hidden">
+                <iframe
+                  src={previewPdf.url}
+                  title={previewPdf?.originalFilename ?? 'PDF Preview'}
+                  className="w-full h-full min-h-[70vh] rounded border-0"
+                  style={{ display: 'block' }}
+                />
+              </div>
+              <div className="pt-2 text-center text-sm text-muted-foreground">
+                <a href={previewPdf.url} target="_blank" rel="noopener noreferrer" className="underline">
+                  Apri in una nuova scheda
+                </a>
+              </div>
+            </>
           )}
         </DialogContent>
       </Dialog>
