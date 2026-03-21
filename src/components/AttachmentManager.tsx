@@ -221,9 +221,6 @@ export default function AttachmentManager({
             <p className="text-sm text-muted-foreground">
               {readOnly ? t('noAttachments') : t('dropZone')}
             </p>
-            {!readOnly && (
-              <p className="text-xs text-muted-foreground/60 mt-1">{t('maxFileSize', { maxSize: '10MB' })}</p>
-            )}
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -287,6 +284,9 @@ export default function AttachmentManager({
               );
             })}
           </div>
+        )}
+        {!readOnly && (
+          <p className="text-xs text-muted-foreground/60 mt-2">{t('maxFileSize', { maxSize: '10MB' })}</p>
         )}
       </CardContent>
 

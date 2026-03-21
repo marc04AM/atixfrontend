@@ -260,7 +260,7 @@ export default function Dashboard() {
               {recentWorksToShow.map((work) => (
                 <div
                   key={work.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-white border border-border hover:bg-muted/10 cursor-pointer transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg bg-card border border-border hover:bg-muted/10 cursor-pointer transition-colors"
                   onClick={() => navigate(`/works/${work.id}`)}
                 >
                   <div className="flex-1 min-w-0">
@@ -301,7 +301,7 @@ export default function Dashboard() {
               {data.recentTickets.map((ticket) => (
                 <div
                   key={ticket.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-white border border-border hover:bg-muted/10 cursor-pointer transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg bg-card border border-border hover:bg-muted/10 cursor-pointer transition-colors"
                   onClick={() => navigate(`/tickets/${ticket.id}`)}
                 >
                   <div className="flex-1 min-w-0">

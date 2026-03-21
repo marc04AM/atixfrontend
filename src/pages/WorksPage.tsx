@@ -112,8 +112,8 @@ export default function WorksPage() {
   const navigate = useNavigate();
   const { t } = useTranslation('works');
 
-  // F4: default tab is 'open' (aperti), order: aperti → chiusi → non assegnati
-  const [activeTab, setActiveTab] = useState('open');
+  // F4: default tab is 'all', order: tutti → aperti → chiusi → non assegnati
+  const [activeTab, setActiveTab] = useState('all');
   const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -539,7 +539,24 @@ export default function WorksPage() {
           </Card>
         )}
 
-        {/* F4: Works List – tab order: aperti → chiusi → non assegnati */}
+        {/* F4: Works List – tab order: tutti → aperti → chiusi → non assegnati */}
+        <TabsContent value="all" className="mt-4 space-y-4">
+          <WorksList
+            works={filteredWorks}
+            navigate={navigate}
+            clientsById={clientsById}
+            plantsById={plantsById}
+          />
+          {totalPages > 1 && (
+            <WorksPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              pageSize={PAGE_SIZE}
+              onPageChange={setCurrentPage}
+            />
+          )}
+        </TabsContent>
         <TabsContent value="open" className="mt-4 space-y-4">
           <WorksList
             works={filteredWorks}
