@@ -4,6 +4,7 @@
   "createButton": "Crea Lavoro",
   "searchPlaceholder": "Cerca lavori...",
   "tabs": {
+    "all": "Tutti",
     "scheduled": "Non assegnati",
     "open": "Aperti",
     "closed": "Chiusi"

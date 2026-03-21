@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
@@ -116,6 +116,7 @@ export default function WorksPage() {
   const [activeTab, setActiveTab] = useState('open');
   const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<WorkFilters>({
     atixClientId: '',
@@ -133,6 +134,15 @@ export default function WorksPage() {
     bidNumber: '',
     orderNumber: '',
   });
+
+  // Debounce search query (300ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery.trim());
+      setCurrentPage(0);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Build API params from filters
   const baseParams = useMemo(() => {
@@ -156,7 +166,12 @@ export default function WorksPage() {
       size: PAGE_SIZE,
       sort: 'createdAt,desc',
     };
-    if (activeTab === 'scheduled') {
+    if (debouncedSearch) {
+      p.search = debouncedSearch;
+    }
+    if (activeTab === 'all') {
+      // No status filter
+    } else if (activeTab === 'scheduled') {
       p.statuses = ['SCHEDULED'];
     } else if (activeTab === 'open') {
       p.statuses = ['IN_PROGRESS'];
@@ -164,13 +179,18 @@ export default function WorksPage() {
       p.statuses = ['CLOSED', 'INVOICED'];
     }
     return p;
-  }, [baseParams, activeTab, currentPage]);
+  }, [baseParams, activeTab, currentPage, debouncedSearch]);
 
   const countParams = useMemo(() => ({
     ...baseParams,
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
     page: 0,
     size: 1,
-  }), [baseParams]);
+  }), [baseParams, debouncedSearch]);
+
+  const allCountParams = useMemo(() => ({
+    ...countParams,
+  }), [countParams]);
 
   const scheduledCountParams = useMemo(() => ({
     ...countParams,
@@ -189,6 +209,7 @@ export default function WorksPage() {
 
   // Fetch data
   const { data: worksData, isLoading: worksLoading, error: worksError } = useWorks(listParams);
+  const { data: allWorksData } = useWorks(allCountParams);
   const { data: scheduledWorksData } = useWorks(scheduledCountParams);
   const { data: openWorksData } = useWorks(openCountParams);
   const { data: closedWorksData } = useWorks(closedCountParams);
@@ -206,32 +227,8 @@ export default function WorksPage() {
   const tickets = ticketsData?.content || [];
   const clientsById = useMemo(() => new Map(clients.map((client) => [client.id, client])), [clients]);
   const plantsById = useMemo(() => new Map(plants.map((plant) => [plant.id, plant])), [plants]);
-  const filteredWorks = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) return works;
-
-    return works.filter((work) => {
-      const sellerName = work.seller ? `${work.seller.firstName} ${work.seller.lastName}` : '';
-      const assignmentNames = getAssignedTechnicianNames(work).join(' ');
-      const clientNames = getClientNames(work, clientsById).join(' ');
-      const plantName = getPlantName(work, plantsById);
-      const plantDirectory = getPlantDirectory(work, plantsById);
-      const fields = [
-        work.name,
-        work.bidNumber,
-        work.orderNumber,
-        clientNames,
-        plantName,
-        plantDirectory,
-        work.nasSubDirectory,
-        sellerName,
-        assignmentNames,
-        work.ticket?.name,
-      ];
-
-      return fields.some((field) => field && field.toLowerCase().includes(query));
-    });
-  }, [searchQuery, works, clientsById, plantsById]);
+  // Search is now handled server-side via the `search` API parameter
+  const filteredWorks = works;
 
   const clearFilters = () => {
     setFilters({
@@ -256,6 +253,7 @@ export default function WorksPage() {
 
   const hasActiveFilters = Object.values(filters).some(v => v !== '') || searchQuery !== '';
 
+  const allWorksCount = allWorksData?.totalElements || 0;
   const scheduledWorksCount = scheduledWorksData?.totalElements || 0;
   const openWorksCount = openWorksData?.totalElements || 0;
   const closedWorksCount = closedWorksData?.totalElements || 0;
@@ -305,6 +303,9 @@ export default function WorksPage() {
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           {/* F4: tab order is aperti → chiusi → non assegnati */}
           <TabsList>
+            <TabsTrigger value="all">
+              {t('tabs.all')} ({allWorksCount})
+            </TabsTrigger>
             <TabsTrigger value="open">
               {t('tabs.open')} ({openWorksCount})
             </TabsTrigger>
@@ -716,7 +717,7 @@ function WorksList({
               <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <Badge variant="outline" className="font-mono text-xs">
+                    <Badge className="bg-primary text-primary-foreground font-mono text-sm font-bold">
                       {getWorkIndex(work)}
                     </Badge>
                     <h3 className="font-medium">{work.name}</h3>

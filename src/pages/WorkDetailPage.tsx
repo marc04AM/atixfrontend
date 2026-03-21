@@ -869,14 +869,14 @@ export default function WorkDetailPage() {
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="officeHours">{t('details.expectedOfficeHours')}</Label>
-                    <Input id="officeHours" type="number" value={editedWork.expectedOfficeHours} onChange={e => setEditedWork({
+                    <Input id="officeHours" type="number" step="0.5" value={editedWork.expectedOfficeHours} onChange={e => setEditedWork({
                   ...editedWork,
                   expectedOfficeHours: Number(e.target.value)
                 })} />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="plantHours">{t('details.expectedPlantHours')}</Label>
-                    <Input id="plantHours" type="number" value={editedWork.expectedPlantHours} onChange={e => setEditedWork({
+                    <Input id="plantHours" type="number" step="0.5" value={editedWork.expectedPlantHours} onChange={e => setEditedWork({
                   ...editedWork,
                   expectedPlantHours: Number(e.target.value)
                 })} />
@@ -985,15 +985,6 @@ export default function WorkDetailPage() {
                     </Select>
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="nasSubDirectory">{t('details.nasSubDirectory')}</Label>
-                    <Input
-                      id="nasSubDirectory"
-                      value={editedWork.nasSubDirectory || ''}
-                      onChange={(e) => setEditedWork({ ...editedWork, nasSubDirectory: e.target.value })}
-                      placeholder={t('details.nasSubDirectoryPlaceholder')}
-                    />
-                  </div>
-                  <div className="grid gap-2">
                     <Label htmlFor="sellerId">{t('details.seller')}</Label>
                     <Select 
                       value={editedWork.sellerId || ''} 
@@ -1062,13 +1053,6 @@ export default function WorkDetailPage() {
                       <div>
                         <Label className="text-muted-foreground text-xs">{t('details.plant')}</Label>
                         <p className="text-sm font-medium">{work.plant.name}</p>
-                      </div>
-                    </div>}
-                  {work.plant && work.nasSubDirectory && <div className="flex items-center gap-3">
-                      <Factory className="h-4 w-4 text-muted-foreground" />
-                      <div className="flex-1">
-                        <Label className="text-muted-foreground text-xs">{t('details.directory')}</Label>
-                        <p className="text-sm font-mono break-all">{getFullDirectory()}</p>
                       </div>
                     </div>}
                   {work.seller && <div className="flex items-center gap-3">

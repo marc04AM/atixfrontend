@@ -6,10 +6,18 @@
   "dropHere": "Drop files here",
   "noAttachments": "No attachments yet",
   "imagePreview": "Image Preview",
+  "maxFileSize": "Max {{maxSize}} per file",
+  "deleteConfirm": {
+    "title": "Delete attachment?",
+    "description": "This action cannot be undone. The file will be permanently removed.",
+    "cancel": "Cancel",
+    "confirm": "Delete"
+  },
   "messages": {
     "uploadSuccess": "{{count}} file(s) uploaded",
     "uploadError": "Failed to upload files",
     "deleteSuccess": "Attachment removed",
-    "deleteError": "Failed to delete attachment"
+    "deleteError": "Failed to delete attachment",
+    "fileTooLarge": "File exceeds maximum size of {{maxSize}}"
   }
 }

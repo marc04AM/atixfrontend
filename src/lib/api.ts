@@ -228,7 +228,7 @@ export const clientsApi = {
 // Plants API
 export const plantsApi = {
   getAll: (page = 0, size = 20) =>
-    apiRequest<any>(`/plants?page=${page}&size=${size}`),
+    apiRequest<any>(`/plants?page=${page}&size=${size}&sort=createdAt,desc`),
   getById: (id: string) => apiRequest<any>(`/plants/${id}`),
   create: (data: any) =>
     apiRequest<any>('/plants', {

@@ -30,6 +30,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { useTranslation } from 'react-i18next';
+import versions from '@/versions.json';
 
 export function AppSidebar() {
   const location = useLocation();
@@ -131,6 +132,10 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4 space-y-2">
+        <div className="flex items-center justify-between px-3">
+          <span className="text-xs text-muted-foreground">FE v{versions.frontend}</span>
+          <span className="text-xs text-muted-foreground">BE v{versions.backend}</span>
+        </div>
         <div className="flex items-center justify-between px-3">
           <span className="text-xs text-muted-foreground">{t('sidebar.language')}</span>
           <LanguageToggle />

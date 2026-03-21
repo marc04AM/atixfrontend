@@ -4,6 +4,7 @@
   "createButton": "Create Work",
   "searchPlaceholder": "Search works...",
   "tabs": {
+    "all": "All",
     "scheduled": "Scheduled",
     "open": "Open",
     "closed": "Closed"

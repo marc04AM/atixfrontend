@@ -309,15 +309,6 @@ export default function CreateWorkPage() {
                 </div>
               </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="nasSubDirectory">{t('form.nasSubDirectoryLabel')}</Label>
-                <Input
-                  id="nasSubDirectory"
-                  placeholder={t('form.nasSubDirectoryPlaceholder')}
-                  value={formData.nasSubDirectory}
-                  onChange={(e) => setFormData({ ...formData, nasSubDirectory: e.target.value })}
-                />
-              </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
@@ -326,6 +317,7 @@ export default function CreateWorkPage() {
                     id="officeHours"
                     type="number"
                     min="0"
+                    step="0.5"
                     value={formData.expectedOfficeHours}
                     onChange={(e) => setFormData({ ...formData, expectedOfficeHours: Number(e.target.value) })}
                   />
@@ -336,6 +328,7 @@ export default function CreateWorkPage() {
                     id="plantHours"
                     type="number"
                     min="0"
+                    step="0.5"
                     value={formData.expectedPlantHours}
                     onChange={(e) => setFormData({ ...formData, expectedPlantHours: Number(e.target.value) })}
                   />
