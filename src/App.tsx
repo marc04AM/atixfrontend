@@ -27,6 +27,7 @@ const PlantDetailPage = lazy(() => import("./pages/PlantDetailPage"));
 const WorksiteReferencesPage = lazy(() => import("./pages/WorksiteReferencesPage"));
 const WorksiteReferenceDetailPage = lazy(() => import("./pages/WorksiteReferenceDetailPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const AccessLogsPage = lazy(() => import("./pages/AccessLogsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -96,6 +97,7 @@ const App = () => (
                             <Route path="/worksite-references" element={<WorksiteReferencesPage />} />
                             <Route path="/worksite-references/:id" element={<WorksiteReferenceDetailPage />} />
                             <Route path="/profile" element={<ProfilePage />} />
+                            <Route path="/access-logs" element={<AccessLogsPage />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </Suspense>

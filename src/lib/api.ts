@@ -145,6 +145,7 @@ export const authApi = {
       role: string;
       id?: string;
       profileImageUrl?: string;
+      sessionId?: string;
     }>(
       '/auth/login',
       {
@@ -152,6 +153,11 @@ export const authApi = {
         body: JSON.stringify({ email, password }),
       }
     ),
+  logout: (sessionId: string) =>
+    apiRequest<void>('/auth/logout', {
+      method: 'POST',
+      body: JSON.stringify({ sessionId }),
+    }),
 };
 
 // Users API
@@ -501,6 +507,21 @@ export const worksiteReferencesApi = {
     }),
   delete: (id: string) =>
     apiRequest<void>(`/worksite-references/${id}`, { method: 'DELETE' }),
+};
+
+// Access Logs API
+export const accessLogsApi = {
+  getAll: (params?: Record<string, any>) => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          searchParams.append(key, String(value));
+        }
+      });
+    }
+    return apiRequest<any>(`/access-logs?${searchParams.toString()}`);
+  },
 };
 
 // Attachments API

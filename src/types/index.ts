@@ -180,3 +180,18 @@ export interface PaginatedResponse<T> {
   size: number;
   number: number;
 }
+
+export interface AccessLog {
+  id: string;
+  userId: string | null;
+  userFullName: string | null;
+  email: string;
+  timestamp: string;
+  ipAddress: string;
+  userAgent: string;
+  success: boolean;
+  failureReason: string | null;
+  sessionId: string | null;
+  logoutTimestamp: string | null;
+  jwtExpiresAt: string | null;
+}

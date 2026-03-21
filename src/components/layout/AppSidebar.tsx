@@ -9,6 +9,7 @@ import {
   Settings,
   LogOut,
   User,
+  ShieldCheck,
 } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -35,7 +36,7 @@ import versions from '@/versions.json';
 export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout, canManageUsers } = useAuth();
+  const { user, logout, canManageUsers, isOwner } = useAuth();
   const { t } = useTranslation('navigation');
 
   const mainNavItems = [
@@ -49,6 +50,7 @@ export function AppSidebar() {
   const managementItems = [
     { title: t('menu.clients'), url: '/clients', icon: Building2 },
     { title: t('menu.users'), url: '/users', icon: Users, adminOnly: true },
+    { title: t('menu.accessLogs'), url: '/access-logs', icon: ShieldCheck, ownerOnly: true },
   ];
 
   const isActive = (url: string) => {
@@ -107,7 +109,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {managementItems
-                .filter((item) => !item.adminOnly || canManageUsers())
+                .filter((item) => (!item.adminOnly || canManageUsers()) && (!(item as any).ownerOnly || isOwner()))
                 .map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>

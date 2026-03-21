@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole, UserType } from '@/types';
-import { usersApi } from '@/lib/api';
+import { authApi, usersApi } from '@/lib/api';
 import { getUserIdFromToken } from '@/lib/auth';
 
 interface AuthUser {
@@ -18,7 +18,7 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (token: string, user: AuthUser) => void;
+  login: (token: string, user: AuthUser, sessionId?: string) => void;
   updateUser: (updates: Partial<AuthUser>) => void;
   logout: () => void;
   isAdmin: () => boolean;
@@ -99,9 +99,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [token, user?.id, user?.profileImageUrl]);
 
-  const login = (newToken: string, newUser: AuthUser) => {
+  const login = (newToken: string, newUser: AuthUser, sessionId?: string) => {
     localStorage.setItem('authToken', newToken);
     localStorage.setItem('authUser', JSON.stringify(newUser));
+    if (sessionId) localStorage.setItem('authSessionId', sessionId);
     setToken(newToken);
     setUser(newUser);
   };
@@ -116,8 +117,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    const sessionId = localStorage.getItem('authSessionId');
+    if (sessionId) {
+      authApi.logout(sessionId).catch(() => {});
+    }
     localStorage.removeItem('authToken');
     localStorage.removeItem('authUser');
+    localStorage.removeItem('authSessionId');
     setToken(null);
     setUser(null);
   };

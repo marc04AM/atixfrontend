@@ -78,7 +78,7 @@ const LoginPage = forwardRef<HTMLDivElement>((_, ref) => {
         lastName: response.lastName,
         role: response.role as 'ADMIN' | 'OWNER' | 'USER',
         profileImageUrl: response.profileImageUrl,
-      });
+      }, response.sessionId);
 
       try {
         const resolvedUser = userId ? await usersApi.getById(userId) : null;
