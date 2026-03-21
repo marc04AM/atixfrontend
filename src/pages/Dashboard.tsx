@@ -6,10 +6,9 @@ import {
   AlertCircle
 } from 'lucide-react';
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { useDashboard, useWorks } from '@/hooks/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +34,6 @@ export default function Dashboard() {
   const recentWorksToShow = isTechnician && technicianWorksData?.content
     ? technicianWorksData.content
     : data?.recentWorks ?? [];
-  const isMobile = useIsMobile();
   const { t: tTickets } = useTranslation('tickets');
   const { t: tWorks } = useTranslation('works');
 
@@ -89,7 +87,7 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className={isMobile ? 'h-[250px]' : 'h-[280px]'}>
+            <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <defs>
@@ -103,9 +101,9 @@ export default function Dashboard() {
                   <Pie
                     data={workChartData}
                     cx="50%"
-                    cy={isMobile ? '45%' : '50%'}
-                    innerRadius={isMobile ? 40 : 45}
-                    outerRadius={isMobile ? 65 : 75}
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
                     paddingAngle={4}
                     dataKey="value"
                     stroke="hsl(var(--background))"
@@ -129,20 +127,17 @@ export default function Dashboard() {
                     }}
                     formatter={(value: number, name: string) => [`${value} ${t('charts.works')}`, name]}
                   />
-                  <Legend
-                    layout={isMobile ? 'horizontal' : 'vertical'}
-                    verticalAlign={isMobile ? 'bottom' : 'middle'}
-                    align={isMobile ? 'center' : 'right'}
-                    iconType="circle"
-                    iconSize={8}
-                    wrapperStyle={isMobile ? { fontSize: '11px', paddingTop: '4px' } : { fontSize: '11px', paddingLeft: '8px' }}
-                    formatter={(value) => {
-                      const item = workChartData.find(d => d.name === value);
-                      return <span style={{ color: 'hsl(var(--foreground))' }}>{value}: <strong>{item?.value || 0}</strong></span>;
-                    }}
-                  />
                 </PieChart>
               </ResponsiveContainer>
+            </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
+              {workChartData.map((item, index) => (
+                <div key={item.name} className="flex items-center gap-1.5 min-w-0">
+                  <span className="shrink-0 h-2 w-2 rounded-full" style={{ backgroundColor: WORK_COLORS[index] }} />
+                  <span className="text-xs text-muted-foreground truncate">{item.name}:</span>
+                  <span className="text-xs font-semibold shrink-0">{item.value}</span>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -156,7 +151,7 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className={isMobile ? 'h-[250px]' : 'h-[280px]'}>
+            <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <defs>
@@ -170,9 +165,9 @@ export default function Dashboard() {
                   <Pie
                     data={ticketChartData}
                     cx="50%"
-                    cy={isMobile ? '45%' : '50%'}
-                    innerRadius={isMobile ? 40 : 45}
-                    outerRadius={isMobile ? 65 : 75}
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
                     paddingAngle={4}
                     dataKey="value"
                     stroke="hsl(var(--background))"
@@ -196,20 +191,17 @@ export default function Dashboard() {
                     }}
                     formatter={(value: number, name: string) => [`${value} ${t('charts.tickets')}`, name]}
                   />
-                  <Legend
-                    layout={isMobile ? 'horizontal' : 'vertical'}
-                    verticalAlign={isMobile ? 'bottom' : 'middle'}
-                    align={isMobile ? 'center' : 'right'}
-                    iconType="circle"
-                    iconSize={8}
-                    wrapperStyle={isMobile ? { fontSize: '11px', paddingTop: '4px' } : { fontSize: '11px', paddingLeft: '8px' }}
-                    formatter={(value) => {
-                      const item = ticketChartData.find((d: { name: string; value: number }) => d.name === value);
-                      return <span style={{ color: 'hsl(var(--foreground))' }}>{value}: <strong>{item?.value || 0}</strong></span>;
-                    }}
-                  />
                 </PieChart>
               </ResponsiveContainer>
+            </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
+              {ticketChartData.map((item: { name: string; value: number }, index: number) => (
+                <div key={item.name} className="flex items-center gap-1.5 min-w-0">
+                  <span className="shrink-0 h-2 w-2 rounded-full" style={{ backgroundColor: TICKET_COLORS[index] }} />
+                  <span className="text-xs text-muted-foreground truncate">{item.name}:</span>
+                  <span className="text-xs font-semibold shrink-0">{item.value}</span>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -233,11 +225,11 @@ export default function Dashboard() {
       )}
 
       {/* Recent Items Grid */}
-      <div className="grid gap-6 lg:grid-cols-2 max-w-[95vw] mx-auto">
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Works */}
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               <Briefcase className="h-5 w-5 text-primary" />
               <CardTitle className="flex items-baseline gap-2">
                 {t('recentWorks.title')}
@@ -269,7 +261,7 @@ export default function Dashboard() {
                       {formatDate(work.orderDate, t('recentWorks.notSet'))}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0 ml-2">
                     <StatusBadge
                       status={work.status}
                       type="work"
@@ -283,7 +275,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Recent Tickets */}
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
               <Ticket className="h-5 w-5 text-primary" />
@@ -310,11 +302,13 @@ export default function Dashboard() {
                       {ticket.senderEmail}
                     </p>
                   </div>
-                  <StatusBadge
-                    status={ticket.status}
-                    type="ticket"
-                    label={tTickets(`statuses.${ticket.status}`)}
-                  />
+                  <div className="shrink-0 ml-2">
+                    <StatusBadge
+                      status={ticket.status}
+                      type="ticket"
+                      label={tTickets(`statuses.${ticket.status}`)}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
