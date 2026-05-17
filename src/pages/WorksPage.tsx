@@ -40,7 +40,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { formatDate } from '@/lib/date';
 import { StatusBadge, getWorkStatusBadgeKey } from '@/components/ui/status-badge';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 30;
 
 interface WorkFilters {
   atixClientId: string;
@@ -158,13 +158,12 @@ export default function WorksPage() {
     return p;
   }, [filters]);
 
-  // F1: sort works from newest to oldest by creation date
   const listParams = useMemo(() => {
     const p: Record<string, any> = {
       ...baseParams,
       page: currentPage,
       size: PAGE_SIZE,
-      sort: 'createdAt,desc',
+      sort: ['plant.nasDirectory,asc', 'nasSubDirectory,asc'],
     };
     if (debouncedSearch) {
       p.search = debouncedSearch;

@@ -546,11 +546,13 @@ export default function CreateWorkPage() {
                     <SelectValue placeholder={t('form.plantSelectPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {plants.map((plant) => (
-                      <SelectItem key={plant.id} value={plant.id}>
-                        {plant.name}
-                      </SelectItem>
-                    ))}
+                    {[...plants]
+                      .sort((a, b) => a.name.localeCompare(b.name, 'it', { sensitivity: 'base' }))
+                      .map((plant) => (
+                        <SelectItem key={plant.id} value={plant.id}>
+                          {plant.name}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>

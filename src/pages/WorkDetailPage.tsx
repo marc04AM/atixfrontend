@@ -1039,7 +1039,13 @@ export default function WorkDetailPage() {
                       <Factory className="h-4 w-4 text-muted-foreground" />
                       <div>
                         <Label className="text-muted-foreground text-xs">{t('details.plant')}</Label>
-                        <p className="text-sm font-medium">{work.plant.name}</p>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/plants/${work.plant!.id}`)}
+                          className="text-sm font-medium text-primary hover:underline text-left"
+                        >
+                          {work.plant.name}
+                        </button>
                       </div>
                     </div>}
                   {work.seller && <div className="flex items-center gap-3">
