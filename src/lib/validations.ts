@@ -143,7 +143,8 @@ export const ticketSchema = z.object({
   description: z
     .string()
     .trim()
-    .min(1, { message: 'This field is required' }),
+    .min(1, { message: 'This field is required' })
+    .max(1000, { message: 'Must be at most 1000 characters' }),
   senderEmail: z
     .string()
     .email({ message: 'Invalid email address' })
@@ -163,7 +164,8 @@ export const workReportEntrySchema = z.object({
   description: z
     .string()
     .trim()
-    .min(1, { message: 'This field is required' }),
+    .min(1, { message: 'This field is required' })
+    .max(1000, { message: 'Must be at most 1000 characters' }),
   hours: z
     .number()
     .min(0, { message: 'Value must be 0 or greater' }),
