@@ -28,12 +28,18 @@ export default function Dashboard() {
   const isTechnician = currentUser?.type === 'TECHNICIAN';
   const { data: technicianWorksData } = useWorks(
     isTechnician && currentUser?.id
-      ? { technicianId: currentUser.id, status: 'IN_PROGRESS', page: 0, size: 100, sort: 'createdAt,desc' }
+      ? { technicianId: currentUser.id, status: 'IN_PROGRESS', page: 0, size: 100, sort: 'statusChangedAt,desc' }
       : null
   );
-  const recentWorksToShow = isTechnician && technicianWorksData?.content
-    ? technicianWorksData.content
-    : data?.recentWorks ?? [];
+  const recentWorksToShow = [
+    ...(isTechnician && technicianWorksData?.content
+      ? technicianWorksData.content
+      : data?.recentWorks ?? []),
+  ].sort((a, b) => {
+    const aTime = new Date(a.statusChangedAt ?? a.createdAt).getTime();
+    const bTime = new Date(b.statusChangedAt ?? b.createdAt).getTime();
+    return bTime - aTime;
+  });
   const { t: tTickets } = useTranslation('tickets');
   const { t: tWorks } = useTranslation('works');
 

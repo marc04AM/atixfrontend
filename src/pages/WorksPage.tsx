@@ -163,7 +163,7 @@ export default function WorksPage() {
       ...baseParams,
       page: currentPage,
       size: PAGE_SIZE,
-      sort: ['plant.nasDirectory,asc', 'nasSubDirectory,asc'],
+      sort: ['plant.nasDirectory,desc', 'nasSubDirectory,desc'],
     };
     if (debouncedSearch) {
       p.search = debouncedSearch;
@@ -721,6 +721,7 @@ function WorksList({
         const expectedStartDateLabel = formatDate(work.expectedStartDate);
         const clientName = getClientNames(work, clientsById).join(' / ');
         const plantName = getPlantName(work, plantsById);
+        const plantId = work.plant?.id ?? work.plantId;
         const technicianNames = getAssignedTechnicianNames(work).join(', ');
 
         return (
@@ -733,7 +734,13 @@ function WorksList({
               <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <Badge className="bg-primary text-primary-foreground font-mono text-sm font-bold">
+                    <Badge
+                      className={`bg-primary text-primary-foreground font-mono text-sm font-bold${plantId ? ' cursor-pointer hover:underline' : ''}`}
+                      onClick={plantId ? (e) => {
+                        e.stopPropagation();
+                        navigate(`/plants/${plantId}`);
+                      } : undefined}
+                    >
                       {getWorkIndex(work)}
                     </Badge>
                     <h3 className="font-medium">{work.name}</h3>
