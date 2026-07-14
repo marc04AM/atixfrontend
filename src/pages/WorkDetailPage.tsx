@@ -112,7 +112,7 @@ export default function WorkDetailPage() {
   const reportEntries = reportEntriesData || [];
   const technicians = techniciansData || [];
   const sellers = sellersData || [];
-  const plants = plantsData?.content || [];
+  const plants = (plantsData?.content || []).sort((a: any, b: any) => a.name.localeCompare(b.name, 'it', { sensitivity: 'base' }));
   const atixClients = (clientsData?.content || []).filter((c: any) => c.type === 'ATIX');
   const finalClients = (clientsData?.content || []).filter((c: any) => c.type === 'FINAL');
   const allWorksiteReferences = worksiteReferencesData || [];
