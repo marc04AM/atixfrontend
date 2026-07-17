@@ -13,6 +13,9 @@
   "stats": {
     "total": "Total Plants"
   },
+  "pagination": {
+    "showing": "Showing {{start}}-{{end}} of {{total}} plants"
+  },
   "list": {
     "title": "All Plants",
     "description": "A list of all plant facilities"

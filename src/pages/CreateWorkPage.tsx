@@ -24,7 +24,7 @@ import {
 import { ArrowLeft, Plus, Save } from 'lucide-react';
 import { Client, Plant, SellerUser } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { useCreateWork, useClients, usePlants, useUsersByType, useCreateClient, useCreatePlant } from '@/hooks/api';
+import { useCreateWork, useClients, useAllPlants, useUsersByType, useCreateClient, useCreatePlant } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { workSchema, ValidationErrors, WorkFormData } from '@/lib/validations';
 
@@ -39,7 +39,7 @@ export default function CreateWorkPage() {
 
   // Fetch data from API
   const { data: clientsData, isLoading: loadingClients } = useClients(0, 100);
-  const { data: plantsData, isLoading: loadingPlants } = usePlants(0, 100);
+  const { data: plantsData, isLoading: loadingPlants } = useAllPlants();
   const { data: sellersData, isLoading: loadingSellers } = useUsersByType('SELLER');
 
   const createWork = useCreateWork();
@@ -47,7 +47,7 @@ export default function CreateWorkPage() {
   const createPlant = useCreatePlant();
 
   const clients = clientsData?.content || [];
-  const plants = plantsData?.content || [];
+  const plants = plantsData || [];
   const sellers = sellersData || [];
 
   const [formData, setFormData] = useState({

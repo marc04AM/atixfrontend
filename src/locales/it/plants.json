@@ -13,6 +13,9 @@
   "stats": {
     "total": "Totale impianti"
   },
+  "pagination": {
+    "showing": "Mostrando {{start}}-{{end}} di {{total}} impianti"
+  },
   "list": {
     "title": "Tutti gli impianti",
     "description": "Elenco di tutti gli impianti"

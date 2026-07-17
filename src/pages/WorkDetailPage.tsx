@@ -18,7 +18,7 @@ import { ArrowLeft, Save, Edit2, X, CheckCircle2, Clock, TrendingUp, Building2, 
 import { Work, WorkReportEntry, User as UserType, WorkStatus, WorksiteReferenceRole } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import AttachmentManager from '@/components/AttachmentManager';
-import { useWork, useUpdateWork, useStartWork, useCloseWork, useInvoiceWork, useReopenWork, useForceWorkStatus, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useUpdateReportEntry, useDeleteReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference, usePlants, useClients } from '@/hooks/api';
+import { useWork, useUpdateWork, useStartWork, useCloseWork, useInvoiceWork, useReopenWork, useForceWorkStatus, useDeleteWork, useAssignTechnician, useUnassignTechnician, useWorkReportEntries, useCreateReportEntry, useUpdateReportEntry, useDeleteReportEntry, useUsersByType, useWorksiteReferences, useAddReference, useRemoveReference, useCreateWorksiteReference, useAllPlants, useClients } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate, formatDateTime } from '@/lib/date';
@@ -85,7 +85,7 @@ export default function WorkDetailPage() {
   const { data: techniciansData } = useUsersByType('TECHNICIAN');
   const { data: sellersData } = useUsersByType('SELLER');
   const { data: worksiteReferencesData } = useWorksiteReferences();
-  const { data: plantsData } = usePlants(0, 100);
+  const { data: plantsData } = useAllPlants();
   const { data: clientsData } = useClients(0, 100);
 
   // Mutations
@@ -112,7 +112,7 @@ export default function WorkDetailPage() {
   const reportEntries = reportEntriesData || [];
   const technicians = techniciansData || [];
   const sellers = sellersData || [];
-  const plants = (plantsData?.content || []).sort((a: any, b: any) => a.name.localeCompare(b.name, 'it', { sensitivity: 'base' }));
+  const plants = (plantsData || []).sort((a: any, b: any) => a.name.localeCompare(b.name, 'it', { sensitivity: 'base' }));
   const atixClients = (clientsData?.content || []).filter((c: any) => c.type === 'ATIX');
   const finalClients = (clientsData?.content || []).filter((c: any) => c.type === 'FINAL');
   const allWorksiteReferences = worksiteReferencesData || [];

@@ -6,6 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,10 +23,13 @@ import { usePlants, useCreatePlant } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { plantSchema, ValidationErrors, PlantFormData } from '@/lib/validations';
 
+const PAGE_SIZE = 50;
+
 export default function PlantsPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useTranslation('plants');
+  const [currentPage, setCurrentPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newPlant, setNewPlant] = useState({
@@ -32,10 +43,12 @@ export default function PlantsPage() {
   const [formErrors, setFormErrors] = useState<ValidationErrors<PlantFormData>>({});
 
   // Fetch plants
-  const { data: plantsData, isLoading, error } = usePlants(0, 100);
+  const { data: plantsData, isLoading, error } = usePlants(currentPage, PAGE_SIZE);
   const createPlant = useCreatePlant();
 
   const plants = plantsData?.content || [];
+  const totalPages = plantsData?.totalPages ?? 0;
+  const totalElements = plantsData?.totalElements ?? 0;
   const filteredPlants = plants.filter((plant: Plant) =>
     plant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     plant.notes.toLowerCase().includes(searchTerm.toLowerCase())
@@ -207,7 +220,7 @@ export default function PlantsPage() {
             <Factory className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{plants.length}</div>
+            <div className="text-2xl font-bold">{totalElements}</div>
           </CardContent>
         </Card>
       </div>
@@ -258,9 +271,91 @@ export default function PlantsPage() {
               </TableBody>
             </Table>
           </div>
+          {totalPages > 1 && (
+            <div className="mt-4">
+              <PlantsPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalElements={totalElements}
+                pageSize={PAGE_SIZE}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
 
+    </div>
+  );
+}
+
+function PlantsPagination({
+  currentPage,
+  totalPages,
+  totalElements,
+  pageSize,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  totalElements: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+}) {
+  const { t } = useTranslation('plants');
+  const startItem = currentPage * pageSize + 1;
+  const endItem = Math.min((currentPage + 1) * pageSize, totalElements);
+
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 0; i < totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage < 3) {
+        for (let i = 0; i < Math.min(maxVisible, totalPages); i++) pages.push(i);
+      } else if (currentPage > totalPages - 4) {
+        for (let i = totalPages - maxVisible; i < totalPages; i++) pages.push(i);
+      } else {
+        for (let i = currentPage - 2; i <= currentPage + 2; i++) pages.push(i);
+      }
+    }
+    return pages;
+  };
+
+  return (
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p className="text-sm text-muted-foreground">
+        {t('pagination.showing', { start: startItem, end: endItem, total: totalElements })}
+      </p>
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => onPageChange(Math.max(0, currentPage - 1))}
+              className={currentPage === 0 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+          {getPageNumbers().map((page) => (
+            <PaginationItem key={page}>
+              <PaginationLink
+                onClick={() => onPageChange(page)}
+                isActive={currentPage === page}
+                className="cursor-pointer"
+              >
+                {page + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => onPageChange(Math.min(totalPages - 1, currentPage + 1))}
+              className={currentPage >= totalPages - 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }

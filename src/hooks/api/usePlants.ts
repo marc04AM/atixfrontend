@@ -19,6 +19,14 @@ export function usePlants(page = 0, size = 20) {
   });
 }
 
+// Fetch all plants, no pagination (for dropdowns)
+export function useAllPlants() {
+  return useQuery<Plant[]>({
+    queryKey: [...plantsKeys.all, 'allList'] as const,
+    queryFn: () => plantsApi.getAllList(),
+  });
+}
+
 // Fetch single plant
 export function usePlant(id: string) {
   return useQuery<Plant>({
