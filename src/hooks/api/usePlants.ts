@@ -6,16 +6,16 @@ import { Plant, PaginatedResponse } from '@/types';
 export const plantsKeys = {
   all: ['plants'] as const,
   lists: () => [...plantsKeys.all, 'list'] as const,
-  list: (page?: number, size?: number) => [...plantsKeys.lists(), { page, size }] as const,
+  list: (page?: number, size?: number, search?: string) => [...plantsKeys.lists(), { page, size, search }] as const,
   details: () => [...plantsKeys.all, 'detail'] as const,
   detail: (id: string) => [...plantsKeys.details(), id] as const,
 };
 
 // Fetch all plants with pagination
-export function usePlants(page = 0, size = 20) {
+export function usePlants(page = 0, size = 20, search?: string) {
   return useQuery<PaginatedResponse<Plant>>({
-    queryKey: plantsKeys.list(page, size),
-    queryFn: () => plantsApi.getAll(page, size),
+    queryKey: plantsKeys.list(page, size, search),
+    queryFn: () => plantsApi.getAll(page, size, search),
   });
 }
 

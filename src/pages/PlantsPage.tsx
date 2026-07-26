@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Plus, Search, Factory, FolderOpen } from 'lucide-react';
@@ -18,7 +18,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Plant } from '@/types';
 import { usePlants, useCreatePlant } from '@/hooks/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { plantSchema, ValidationErrors, PlantFormData } from '@/lib/validations';
@@ -31,6 +30,7 @@ export default function PlantsPage() {
   const { t } = useTranslation('plants');
   const [currentPage, setCurrentPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newPlant, setNewPlant] = useState({
     name: '',
@@ -42,17 +42,22 @@ export default function PlantsPage() {
   });
   const [formErrors, setFormErrors] = useState<ValidationErrors<PlantFormData>>({});
 
-  // Fetch plants
-  const { data: plantsData, isLoading, error } = usePlants(currentPage, PAGE_SIZE);
+  // Debounce search (300ms) and reset to first page
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm.trim());
+      setCurrentPage(0);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Fetch plants with server-side search
+  const { data: plantsData, isLoading, error } = usePlants(currentPage, PAGE_SIZE, debouncedSearch);
   const createPlant = useCreatePlant();
 
   const plants = plantsData?.content || [];
   const totalPages = plantsData?.totalPages ?? 0;
   const totalElements = plantsData?.totalElements ?? 0;
-  const filteredPlants = plants.filter((plant: Plant) =>
-    plant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    plant.notes.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const handleCreatePlant = () => {
     const result = plantSchema.safeParse(newPlant);
@@ -251,7 +256,7 @@ export default function PlantsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPlants.map((plant) => (
+                {plants.map((plant) => (
                   <TableRow
                     key={plant.id}
                     className="cursor-pointer hover:bg-muted/50"
@@ -261,7 +266,7 @@ export default function PlantsPage() {
                     <TableCell className="font-mono text-sm">{plant.nasDirectory}</TableCell>
                   </TableRow>
                 ))}
-                {filteredPlants.length === 0 && (
+                {plants.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={2} className="text-center text-muted-foreground">
                       {t('messages.noPlants')}
