@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { plantsApi } from '@/lib/api';
 import { Plant, PaginatedResponse } from '@/types';
 
@@ -16,6 +16,7 @@ export function usePlants(page = 0, size = 20, search?: string) {
   return useQuery<PaginatedResponse<Plant>>({
     queryKey: plantsKeys.list(page, size, search),
     queryFn: () => plantsApi.getAll(page, size, search),
+    placeholderData: keepPreviousData,
   });
 }
 
